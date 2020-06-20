@@ -13,9 +13,8 @@ pub fn main() !void {
 
     _ = flecs.ecs_new_system(world, 0, "Move", flecs.EcsOnUpdate, "Position, Velocity", move);
 
-    // createEntities(world.?, e_pos, e_vel);
-    createEntitiesBulk(world.?, e_pos_vel);
-    std.debug.warn("total with pos {}\n", .{flecs.ecs_count_type(world, flecs.ecs_type_from_entity(world, e_pos))});
+    createEntities(world.?, e_pos, e_vel);
+    // createEntitiesBulk(world.?, e_pos_vel);
 
     flecs.ecs_set_target_fps(world, 1);
     iterateEntities(world.?);
@@ -50,16 +49,15 @@ fn createEntitiesBulk(world: *flecs.ecs_world_t, e_pos_vel: flecs.ecs_entity_t) 
 fn createEntities(world: *flecs.ecs_world_t, e_pos: flecs.ecs_entity_t, e_vel: flecs.ecs_entity_t) void {
     var timer = std.time.Timer.start() catch unreachable;
 
+    const t = flecs.ecs_type_from_str(world, "Position, Velocity");
+    flecs.ecs_dim(world, 1000000);
+    flecs.ecs_dim_type(world, t, 1000000);
+
     var i: usize = 0;
     while (i < 1000000) : (i += 1) {
-        const entity = flecs.ecs_new_w_type(world, 0);
-
-        _ = flecs.ecs_add_entity(world, entity, e_pos);
-        _ = flecs.ecs_add_entity(world, entity, e_vel);
-
         var pos = Position{ .x = 100, .y = 100 };
         var vel = Velocity{ .x = 5, .y = 5 };
-        _ = flecs.ecs_set_ptr_w_entity(world, entity, e_pos, @sizeOf(Position), &pos);
+        const entity = flecs.ecs_set_ptr_w_entity(world, 0, e_pos, @sizeOf(Position), &pos);
         _ = flecs.ecs_set_ptr_w_entity(world, entity, e_vel, @sizeOf(Velocity), &vel);
     }
 
@@ -68,9 +66,11 @@ fn createEntities(world: *flecs.ecs_world_t, e_pos: flecs.ecs_entity_t, e_vel: f
 }
 
 fn iterateEntities(world: *flecs.ecs_world_t) void {
+    _ = flecs.ecs_progress(world, 1);
+
     var timer = std.time.Timer.start() catch unreachable;
 
-    _ = flecs.ecs_progress(world, 0);
+    _ = flecs.ecs_progress(world, 1);
 
     var end = timer.lap();
     std.debug.warn("iterate entities: \t{d}\n", .{@intToFloat(f64, end) / 1000000000});
