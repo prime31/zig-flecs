@@ -6,7 +6,8 @@ pub const Velocity = struct { x: f32, y: f32 };
 pub const Position = struct { x: f32, y: f32 };
 
 pub fn main() !void {
-    var world = flecs.ecs_init_w_args(0, null);
+    var world = flecs.World.init();
+    // var world = flecs.ecs_init_w_args(0, null);
 
     const e_pos = flecs.ecs_new_component(world, 0, "Position", @sizeOf(Position), @alignOf(Position));
     const e_vel = flecs.ecs_new_component(world, 0, "Velocity", @sizeOf(Velocity), @alignOf(Velocity));
@@ -33,10 +34,9 @@ pub fn main() !void {
     _ = flecs.ecs_fini(world);
 }
 
-fn move(it: *flecs.struct_ecs_iter_t) callconv(.C) void {
-    var p = flecs.ecs_column_w_size(it, @sizeOf(Position), 1);
+fn move(it: *flecs.ecs_iter_t) callconv(.C) void {
+    const positions = it.column(Position, 1);
     var v = flecs.ecs_column_w_size(it, @sizeOf(Velocity), 2);
-    const positions = @ptrCast([*]Position, @alignCast(@alignOf(Position), p));
     const velocities = @ptrCast([*]Velocity, @alignCast(@alignOf(Velocity), v));
 
     var i: usize = 0;
