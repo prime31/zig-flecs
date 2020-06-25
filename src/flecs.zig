@@ -94,44 +94,24 @@ pub const struct_ecs_vector_t = extern struct {
 };
 pub const ecs_vector_t = struct_ecs_vector_t;
 pub const ecs_comparator_t = ?fn (?*const c_void, ?*const c_void) callconv(.C) c_int;
-pub extern fn _ecs_vector_new(elem_size: usize, offset: i16, elem_count: i32) [*c]ecs_vector_t;
-pub extern fn _ecs_vector_from_array(elem_size: usize, offset: i16, elem_count: i32, array: ?*c_void) [*c]ecs_vector_t;
+
 pub extern fn ecs_vector_free(vector: [*c]ecs_vector_t) void;
 pub extern fn ecs_vector_clear(vector: [*c]ecs_vector_t) void;
-pub extern fn _ecs_vector_add(array_inout: [*c][*c]ecs_vector_t, elem_size: usize, offset: i16) ?*c_void;
-pub extern fn _ecs_vector_addn(array_inout: [*c][*c]ecs_vector_t, elem_size: usize, offset: i16, elem_count: i32) ?*c_void;
-pub extern fn _ecs_vector_get(vector: [*c]const ecs_vector_t, elem_size: usize, offset: i16, index: i32) ?*c_void;
-pub extern fn _ecs_vector_last(vector: [*c]const ecs_vector_t, elem_size: usize, offset: i16) ?*c_void;
-pub extern fn _ecs_vector_remove(vector: [*c]ecs_vector_t, elem_size: usize, offset: i16, elem: ?*c_void) i32;
+
 pub extern fn ecs_vector_remove_last(vector: [*c]ecs_vector_t) void;
-pub extern fn _ecs_vector_pop(vector: [*c]ecs_vector_t, elem_size: usize, offset: i16, value: ?*c_void) u8;
-pub extern fn _ecs_vector_move_index(dst: [*c][*c]ecs_vector_t, src: [*c]ecs_vector_t, elem_size: usize, offset: i16, index: i32) i32;
-pub extern fn _ecs_vector_remove_index(vector: [*c]ecs_vector_t, elem_size: usize, offset: i16, index: i32) i32;
-pub extern fn _ecs_vector_reclaim(vector: [*c][*c]ecs_vector_t, elem_size: usize, offset: i16) void;
-pub extern fn _ecs_vector_grow(vector: [*c][*c]ecs_vector_t, elem_size: usize, offset: i16, elem_count: i32) i32;
-pub extern fn _ecs_vector_set_size(vector: [*c][*c]ecs_vector_t, elem_size: usize, offset: i16, elem_count: i32) i32;
-pub extern fn _ecs_vector_set_count(vector: [*c][*c]ecs_vector_t, elem_size: usize, offset: i16, elem_count: i32) i32;
-pub extern fn _ecs_vector_set_min_size(array_inout: [*c][*c]ecs_vector_t, elem_size: usize, offset: i16, elem_count: i32) i32;
-pub extern fn _ecs_vector_set_min_count(vector_inout: [*c][*c]ecs_vector_t, elem_size: usize, offset: i16, elem_count: i32) i32;
+
 pub extern fn ecs_vector_count(vector: [*c]const ecs_vector_t) i32;
 pub extern fn ecs_vector_size(vector: [*c]const ecs_vector_t) i32;
-pub extern fn _ecs_vector_first(vector: [*c]const ecs_vector_t, elem_size: usize, offset: i16) ?*c_void;
-pub extern fn _ecs_vector_sort(vector: [*c]ecs_vector_t, elem_size: usize, offset: i16, compare_action: ecs_comparator_t) void;
-pub extern fn _ecs_vector_memory(vector: [*c]const ecs_vector_t, elem_size: usize, offset: i16, allocd: [*c]i32, used: [*c]i32) void;
-pub extern fn _ecs_vector_copy(src: [*c]const ecs_vector_t, elem_size: usize, offset: i16) [*c]ecs_vector_t;
+
 pub const struct_ecs_sparse_t = @Type(.Opaque);
 pub const ecs_sparse_t = struct_ecs_sparse_t;
-pub extern fn _ecs_sparse_new(elem_size: usize, element_count: i32) ?*ecs_sparse_t;
+
 pub extern fn ecs_sparse_free(sparse: ?*ecs_sparse_t) void;
 pub extern fn ecs_sparse_clear(sparse: ?*ecs_sparse_t) void;
-pub extern fn _ecs_sparse_add(sparse: ?*ecs_sparse_t, elem_size: usize) ?*c_void;
-pub extern fn _ecs_sparse_recycle(sparse: ?*ecs_sparse_t, elem_size: usize, sparse_index_out: [*c]i32) ?*c_void;
-pub extern fn _ecs_sparse_remove(sparse: ?*ecs_sparse_t, elem_size: usize, index: i32) ?*c_void;
-pub extern fn _ecs_sparse_get(sparse: ?*const ecs_sparse_t, elem_size: usize, index: i32) ?*c_void;
+
 pub extern fn ecs_sparse_count(sparse: ?*const ecs_sparse_t) i32;
 pub extern fn ecs_sparse_size(sparse: ?*const ecs_sparse_t) i32;
-pub extern fn _ecs_sparse_get_sparse(sparse: ?*const ecs_sparse_t, elem_size: usize, index: i32) ?*c_void;
-pub extern fn _ecs_sparse_get_or_set_sparse(sparse: ?*ecs_sparse_t, elem_size: usize, index: i32, is_new: [*c]u8) ?*c_void;
+
 pub extern fn ecs_sparse_indices(sparse: ?*const ecs_sparse_t) [*c]const i32;
 pub extern fn ecs_sparse_unused_indices(sparse: ?*const ecs_sparse_t) [*c]const i32;
 pub extern fn ecs_sparse_unused_count(sparse: ?*const ecs_sparse_t) i32;
@@ -152,19 +132,14 @@ pub const struct_ecs_map_iter_t = extern struct {
     payload: ?*c_void,
 };
 pub const ecs_map_iter_t = struct_ecs_map_iter_t;
-pub extern fn _ecs_map_new(elem_size: usize, alignment: usize, elem_count: i32) ?*ecs_map_t;
-pub extern fn _ecs_map_get(map: ?*const ecs_map_t, elem_size: usize, key: ecs_map_key_t) ?*c_void;
-pub extern fn _ecs_map_has(map: ?*const ecs_map_t, elem_size: usize, key: ecs_map_key_t, payload: ?*c_void) u8;
-pub extern fn _ecs_map_get_ptr(map: ?*const ecs_map_t, key: ecs_map_key_t) ?*c_void;
-pub extern fn _ecs_map_set(map: ?*ecs_map_t, elem_size: usize, key: ecs_map_key_t, payload: ?*const c_void) void;
+
 pub extern fn ecs_map_free(map: ?*ecs_map_t) void;
 pub extern fn ecs_map_remove(map: ?*ecs_map_t, key: ecs_map_key_t) void;
 pub extern fn ecs_map_clear(map: ?*ecs_map_t) void;
 pub extern fn ecs_map_count(map: ?*const ecs_map_t) i32;
 pub extern fn ecs_map_bucket_count(map: ?*const ecs_map_t) i32;
 pub extern fn ecs_map_iter(map: ?*const ecs_map_t) ecs_map_iter_t;
-pub extern fn _ecs_map_next(iter: [*c]ecs_map_iter_t, elem_size: usize, key: [*c]ecs_map_key_t) ?*c_void;
-pub extern fn _ecs_map_next_ptr(iter: [*c]ecs_map_iter_t, key: [*c]ecs_map_key_t) ?*c_void;
+
 pub extern fn ecs_map_grow(map: ?*ecs_map_t, elem_count: i32) void;
 pub extern fn ecs_map_set_size(map: ?*ecs_map_t, elem_count: i32) void;
 pub extern fn ecs_map_memory(map: ?*ecs_map_t, allocd: [*c]i32, used: [*c]i32) void;
@@ -560,10 +535,7 @@ pub const ecs_sig_t = struct_ecs_sig_t;
 pub extern fn ecs_sig_add(sig: [*c]ecs_sig_t, from_kind: ecs_sig_from_kind_t, oper_kind: ecs_sig_oper_kind_t, access_kind: ecs_sig_inout_kind_t, component: ecs_entity_t, source: ecs_entity_t) c_int;
 pub extern fn ecs_query_new_w_sig(world: ?*ecs_world_t, system: ecs_entity_t, sig: [*c]ecs_sig_t) ?*ecs_query_t;
 pub extern fn ecs_strerror(error_code: i32) [*c]const u8;
-pub extern fn _ecs_abort(error_code: i32, param: [*c]const u8, file: [*c]const u8, line: i32) void;
-pub extern fn _ecs_assert(condition: u8, error_code: i32, param: [*c]const u8, condition_str: [*c]const u8, file: [*c]const u8, line: i32) void;
-pub extern fn _ecs_parser_error(name: [*c]const u8, expr: [*c]const u8, column: c_int, fmt: [*c]const u8, ...) void;
-pub extern fn _ecs_trace(level: c_int, file: [*c]const u8, line: i32, fmt: [*c]const u8, ...) void;
+
 pub extern fn ecs_trace_push() void;
 pub extern fn ecs_trace_pop() void;
 pub extern fn ecs_type_from_entity(world: ?*ecs_world_t, entity: ecs_entity_t) ecs_type_t;
@@ -825,10 +797,7 @@ pub extern fn ecs_writer_init(world: ?*ecs_world_t) ecs_writer_t;
 pub extern fn ecs_writer_write(buffer: [*c]const u8, size: usize, writer: [*c]ecs_writer_t) c_int;
 pub const struct_ecs_ringbuf_t = @Type(.Opaque);
 pub const ecs_ringbuf_t = struct_ecs_ringbuf_t;
-pub extern fn _ecs_ringbuf_new(elem_size: usize, offset: i16, elem_count: i32) ?*ecs_ringbuf_t;
-pub extern fn _ecs_ringbuf_push(buffer: ?*ecs_ringbuf_t, elem_size: usize, offset: i16) ?*c_void;
-pub extern fn _ecs_ringbuf_get(buffer: ?*ecs_ringbuf_t, elem_size: usize, offset: i16, index: i32) ?*c_void;
-pub extern fn _ecs_ringbuf_last(buffer: ?*ecs_ringbuf_t, elem_size: usize, offset: i16) ?*c_void;
+
 pub extern fn ecs_ringbuf_index(buffer: ?*ecs_ringbuf_t) i32;
 pub extern fn ecs_ringbuf_count(buffer: ?*ecs_ringbuf_t) i32;
 pub extern fn ecs_ringbuf_free(buffer: ?*ecs_ringbuf_t) void;
@@ -868,9 +837,8 @@ pub inline fn ECS_TYPE_VAR(type_1: var) @TypeOf(ecs_type_t ++ ecs_type(type_1)) 
 }
 pub const __INVPCID__ = 1;
 pub const __UINT8_FMTX__ = "hhX";
-pub inline fn __DARWIN_OSSwapConstInt16(x: var) @TypeOf((@import("std").meta.cast(__uint16_t, (((@import("std").meta.cast(__uint16_t, x)) & 0xff00) >> 8) | (((@import("std").meta.cast(__uint16_t, x)) & 0x00ff) << 8)))) {
-    return (@import("std").meta.cast(__uint16_t, (((@import("std").meta.cast(__uint16_t, x)) & 0xff00) >> 8) | (((@import("std").meta.cast(__uint16_t, x)) & 0x00ff) << 8)));
-}
+
+
 pub const _POSIX_THREAD_DESTRUCTOR_ITERATIONS = 4;
 pub const ECS_INVALID_HANDLE = 1;
 pub const INT_FAST32_MAX = INT32_MAX;
@@ -881,13 +849,9 @@ pub inline fn __API_DEPRECATED_BEGIN_REP2(rep: var, a: var) @TypeOf(__API_R_BEGI
     return __API_R_BEGIN(rep, a);
 }
 pub const _POSIX2_EXPR_NEST_MAX = 32;
-pub inline fn ecs_vector_sort(vector: var, T: var, compare_action: var) @TypeOf(_ecs_vector_sort(vector, ECS_VECTOR_T(T), compare_action)) {
-    return _ecs_vector_sort(vector, ECS_VECTOR_T(T), compare_action);
-}
+pub inline fn ecs_vector_sort(vector: var, T: var, compare_action: var) @TypeOf(_ecs_vector_sort(vector, ECS_VECTOR_T(T), compare_action)) {}
 pub const SS_ONSTACK = 0x0001;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_14_4(x: var) @TypeOf(x) {
-    return x;
-}
+
 pub const __DBL_HAS_DENORM__ = 1;
 pub const __INT_LEAST64_FMTd__ = "lld";
 pub const __SSSE3__ = 1;
@@ -899,7 +863,7 @@ pub const __UINT_FAST16_FMTu__ = "hu";
 pub inline fn __API_DEPRECATED_BEGIN_MSG8(msg: var, a: var, b: var, c: var, d: var, e: var, f: var, g: var) @TypeOf(__API_D_BEGIN(msg, a) ++ (__API_D_BEGIN(msg, b) ++ (__API_D_BEGIN(msg, c) ++ (__API_D_BEGIN(msg, d) ++ (__API_D_BEGIN(msg, e) ++ (__API_D_BEGIN(msg, f) ++ __API_D_BEGIN(msg, g))))))) {
     return __API_D_BEGIN(msg, a) ++ (__API_D_BEGIN(msg, b) ++ (__API_D_BEGIN(msg, c) ++ (__API_D_BEGIN(msg, d) ++ (__API_D_BEGIN(msg, e) ++ (__API_D_BEGIN(msg, f) ++ __API_D_BEGIN(msg, g))))));
 }
-pub const __TVOS_12_3 = 120300;
+
 pub inline fn fileno_unlocked(p: var) @TypeOf(__sfileno(p)) {
     return __sfileno(p);
 }
@@ -927,7 +891,7 @@ pub const __MMX__ = 1;
 pub const SIGINT = 2;
 pub const __SIZEOF_WINT_T__ = 4;
 pub const FPE_FLTSUB = 6;
-pub const __DARWIN_C_LEVEL = __DARWIN_C_FULL;
+
 pub inline fn __API_UNAVAILABLE5(x: var, y: var, z: var, t: var, b: var) @TypeOf(__API_UNAVAILABLE4(x, y, z, t) ++ __API_U(b)) {
     return __API_UNAVAILABLE4(x, y, z, t) ++ __API_U(b);
 }
@@ -935,7 +899,6 @@ pub const EcsOnUpdate = ECS_HI_COMPONENT_ID + 17;
 pub const ECS_INVALID_FROM_WORKER = 26;
 pub const LONG_MAX = @as(c_long, 0x7fffffffffffffff);
 pub const __UINTMAX_C_SUFFIX__ = UL;
-pub const __TVOS_PROHIBITED = __OS_AVAILABILITY(tvos, unavailable);
 pub const IOPOL_MATERIALIZE_DATALESS_FILES_ON = 2;
 pub const __VERSION__ = "Clang 10.0.0 ";
 pub const __DBL_HAS_INFINITY__ = 1;
@@ -957,7 +920,7 @@ pub const __SERR = 0x0040;
 pub inline fn fwopen(cookie: var, @"fn": var) @TypeOf(funopen(cookie, 0, @"fn", 0, 0)) {
     return funopen(cookie, 0, @"fn", 0, 0);
 }
-pub const CLK_TCK = __DARWIN_CLK_TCK;
+
 pub inline fn __API_AVAILABLE_BEGIN1(a: var) @TypeOf(__API_A_BEGIN(a)) {
     return __API_A_BEGIN(a);
 }
@@ -969,28 +932,25 @@ pub const ECS_INVALID_COMPONENT_ALIGNMENT = 16;
 pub inline fn ecs_os_dlclose(lib: var) @TypeOf(ecs_os_api.dlclose(lib)) {
     return ecs_os_api.dlclose(lib);
 }
-pub const __TVOS_13_0 = 130000;
+
 pub const _POSIX_SEM_NSEMS_MAX = 256;
 pub inline fn ecs_add_remove(world: var, entity: var, to_add: var, to_remove: var) @TypeOf(ecs_add_remove_type(world, entity, ecs_type(to_add), ecs_type(to_remove))) {
     return ecs_add_remove_type(world, entity, ecs_type(to_add), ecs_type(to_remove));
 }
-pub inline fn ecs_map_get_ptr(map: var, T: var, key: var) @TypeOf((@import("std").meta.cast(T, _ecs_map_get_ptr(map, key)))) {
-    return (@import("std").meta.cast(T, _ecs_map_get_ptr(map, key)));
-}
+
 pub const _POSIX_MAX_INPUT = 255;
 pub const __clang_version__ = "10.0.0 ";
 pub inline fn __API_DEPRECATED_REP2(rep: var, x: var) @TypeOf(__API_R(rep, x)) {
     return __API_R(rep, x);
 }
 pub const SA_NOCLDSTOP = 0x0008;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_14_5(x: var) @TypeOf(x) {
-    return x;
-}
+
+
 pub inline fn ECS_ENTITY_VAR(type_1: var) @TypeOf(ecs_entity_t ++ ecs_entity(type_1)) {
     return ecs_entity_t ++ ecs_entity(type_1);
 }
 pub const __LDBL_MAX__ = @as(c_longdouble, 1.18973149535723176502e+4932);
-pub const __AVAILABILITY_INTERNAL__MAC_NA = __attribute__(availability(macosx, unavailable));
+
 pub const __INT_LEAST32_FMTi__ = "i";
 pub const FLECS__EEcsComponentLifecycle = 2;
 pub const __WCHAR_WIDTH__ = 32;
@@ -1004,9 +964,9 @@ pub const LLONG_MAX = @as(c_longlong, 0x7fffffffffffffff);
 pub const ULLONG_MAX = @as(c_ulonglong, 0xffffffffffffffff);
 pub const CHAR_MAX = 127;
 pub const FOPEN_MAX = 20;
-pub inline fn __AVAILABILITY_INTERNAL__MAC_NA_DEP__MAC_NA_MSG(_msg: var) @TypeOf(__attribute__(availability(macosx, unavailable))) {
-    return __attribute__(availability(macosx, unavailable));
-}
+
+
+
 pub const INT32_MAX = 2147483647;
 pub const INT16_MIN = -32768;
 pub const __WATCHOS_3_1 = 30100;
@@ -1017,10 +977,8 @@ pub const __API_UNAVAILABLE_PLATFORM_macos = blk: {
     _ = macos;
     break :blk unavailable;
 };
-pub inline fn ecs_vector_memory(vector: var, T: var, allocd: var, used: var) @TypeOf(_ecs_vector_memory(vector, ECS_VECTOR_T(T), allocd, used)) {
-    return _ecs_vector_memory(vector, ECS_VECTOR_T(T), allocd, used);
-}
-pub const __DARWIN_CLK_TCK = 100;
+pub inline fn ecs_vector_memory(vector: var, T: var, allocd: var, used: var) @TypeOf(_ecs_vector_memory(vector, ECS_VECTOR_T(T), allocd, used)) {}
+
 pub const EcsWorld = ECS_HI_COMPONENT_ID + 25;
 pub const __FSGSBASE__ = 1;
 pub const __DYNAMIC__ = 1;
@@ -1039,7 +997,7 @@ pub const RLIM_SAVED_CUR = RLIM_INFINITY;
 pub const __cold = __attribute__(__cold__);
 pub const POLL_ERR = 4;
 pub const __INT8_FMTd__ = "hhd";
-pub const _DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE = 1;
+
 pub const __UINT8_MAX__ = 255;
 pub const __DBL_HAS_QUIET_NAN__ = 1;
 pub const __clang_minor__ = 0;
@@ -1050,9 +1008,9 @@ pub inline fn ECS_EXPORT_ENTITY(type_1: var) @TypeOf(ECS_SET_ENTITY(type_1)) {
 pub const _POSIX2_RE_DUP_MAX = 255;
 pub const RLIMIT_FOOTPRINT_INTERVAL = 0x4;
 pub const __LDBL_DECIMAL_DIG__ = 21;
-pub inline fn htonll(x: var) @TypeOf(__DARWIN_OSSwapInt64(x)) {
-    return __DARWIN_OSSwapInt64(x);
-}
+
+
+
 pub const EcsPipeline = ECS_HI_COMPONENT_ID + 8;
 pub const __WCHAR_TYPE__ = c_int;
 pub const ECS_MORE_THAN_ONE_PREFAB = 13;
@@ -1063,16 +1021,15 @@ pub const EcsPostUpdate = ECS_HI_COMPONENT_ID + 19;
 pub const RLIMIT_MEMLOCK = 6;
 pub const __UINTMAX_FMTu__ = "lu";
 pub const L_tmpnam = 1024;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_1(x: var) @TypeOf(x) {
-    return x;
-}
+
+
 pub const ECS_HI_COMPONENT_ID = 256;
 pub const SIGFPE = 8;
 pub const UINT_MAX = 0xffffffff;
-pub inline fn __DARWIN_1050INODE64(sym: var) @TypeOf(__asm("_" ++ (__STRING(sym) ++ (__DARWIN_SUF_1050 ++ __DARWIN_SUF_64_BIT_INO_T)))) {
-    return __asm("_" ++ (__STRING(sym) ++ (__DARWIN_SUF_1050 ++ __DARWIN_SUF_64_BIT_INO_T)));
-}
-pub const PRIO_DARWIN_THREAD = 3;
+
+
+
+
 pub const CLD_EXITED = 1;
 pub const SIGSTKSZ = 131072;
 pub const __INT64_C_SUFFIX__ = LL;
@@ -1099,10 +1056,10 @@ pub inline fn __API_DEPRECATED_MSG4(msg: var, x: var, y: var, z: var) @TypeOf(__
     return __API_DEPRECATED_MSG3(msg, x, y) ++ __API_D(msg, z);
 }
 pub const ECS_STRBUF_MAX_LIST_DEPTH = 32;
-pub const __TVOS_12_0 = 120000;
-pub inline fn ntohll(x: var) @TypeOf(__DARWIN_OSSwapInt64(x)) {
-    return __DARWIN_OSSwapInt64(x);
-}
+
+
+
+
 pub const __IPHONE_8_1 = 80100;
 pub const ECS_TYPE_TOO_LARGE = 33;
 pub const BC_BASE_MAX = 99;
@@ -1124,16 +1081,14 @@ pub const __WATCHOS_6_2 = 60200;
 pub const UINT32_MAX = @as(c_uint, 4294967295);
 pub const __GNUC_STDC_INLINE__ = 1;
 pub const __DBL_DIG__ = 15;
-pub const __DARWIN_C_ANSI = @as(c_long, 0o010000);
+
 pub inline fn __API_DEPRECATED_MSG6(msg: var, x: var, y: var, z: var, t: var, b: var) @TypeOf(__API_DEPRECATED_MSG5(msg, x, y, z, t) ++ __API_D(msg, b)) {
     return __API_DEPRECATED_MSG5(msg, x, y, z, t) ++ __API_D(msg, b);
 }
 pub inline fn va_copy(dest: var, src: var) @TypeOf(__builtin_va_copy(dest, src)) {
     return __builtin_va_copy(dest, src);
 }
-pub inline fn ecs_vector_set_size_t(vector: var, size: var, alignment: var, elem_count: var) @TypeOf(_ecs_vector_set_size(vector, ECS_VECTOR_U(size, alignment), elem_count)) {
-    return _ecs_vector_set_size(vector, ECS_VECTOR_U(size, alignment), elem_count);
-}
+pub inline fn ecs_vector_set_size_t(vector: var, size: var, alignment: var, elem_count: var) @TypeOf(_ecs_vector_set_size(vector, ECS_VECTOR_U(size, alignment), elem_count)) {}
 pub const __INT32_FMTd__ = "d";
 pub const __WATCHOS_4_2 = 40200;
 pub const GID_MAX = @as(c_uint, 2147483647);
@@ -1142,9 +1097,7 @@ pub const OPEN_MAX = 10240;
 pub const __FLT_DIG__ = 6;
 pub const __USER_LABEL_PREFIX__ = _;
 pub const RENAME_SECLUDE = 0x00000001;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_11_4(x: var) @TypeOf(x) {
-    return x;
-}
+
 pub const __UINT_FAST64_MAX__ = @as(c_ulonglong, 18446744073709551615);
 pub const IOPOL_SCOPE_PROCESS = 0;
 pub const __SIZEOF_LONG_LONG__ = 8;
@@ -1152,9 +1105,7 @@ pub const INT_LEAST64_MAX = INT64_MAX;
 pub inline fn __API_AVAILABLE3(x: var, y: var, z: var) @TypeOf(__API_A(x) ++ (__API_A(y) ++ __API_A(z))) {
     return __API_A(x) ++ (__API_A(y) ++ __API_A(z));
 }
-pub inline fn ecs_vector_remove_index(vector: var, T: var, index_1: var) @TypeOf(_ecs_vector_remove_index(vector, ECS_VECTOR_T(T), index_1)) {
-    return _ecs_vector_remove_index(vector, ECS_VECTOR_T(T), index_1);
-}
+pub inline fn ecs_vector_remove_index(vector: var, T: var, index_1: var) @TypeOf(_ecs_vector_remove_index(vector, ECS_VECTOR_T(T), index_1)) {}
 pub const __INT32_TYPE__ = c_int;
 pub const __DBL_MIN_EXP__ = -1021;
 pub inline fn __API_DEPRECATED_BEGIN_MSG2(msg: var, a: var) @TypeOf(__API_D_BEGIN(msg, a)) {
@@ -1172,9 +1123,7 @@ pub const __IPHONE_7_1 = 70100;
 pub const __PTHREAD_MUTEXATTR_SIZE__ = 8;
 pub const __API_TO_BE_DEPRECATED = 100000;
 pub const RLIMIT_NPROC = 7;
-pub inline fn ecs_vector_set_count_t(vector: var, size: var, alignment: var, elem_count: var) @TypeOf(_ecs_vector_set_count(vector, ECS_VECTOR_U(size, alignment), elem_count)) {
-    return _ecs_vector_set_count(vector, ECS_VECTOR_U(size, alignment), elem_count);
-}
+pub inline fn ecs_vector_set_count_t(vector: var, size: var, alignment: var, elem_count: var) @TypeOf(_ecs_vector_set_count(vector, ECS_VECTOR_U(size, alignment), elem_count)) {}
 pub const __enum_closed = __attribute__(__enum_extensibility__(closed));
 pub inline fn WEXITSTATUS(x: var) @TypeOf((_W_INT(x) >> 8) & 0x000000ff) {
     return (_W_INT(x) >> 8) & 0x000000ff;
@@ -1228,12 +1177,9 @@ pub inline fn va_arg(ap: var, type_1: var) @TypeOf(__builtin_va_arg(ap, type_1))
 }
 pub const SIGUSR2 = 31;
 pub const _POSIX_SYMLINK_MAX = 255;
-pub inline fn ecs_vector_add_t(vector: var, size: var, alignment: var) @TypeOf(_ecs_vector_add(vector, ECS_VECTOR_U(size, alignment))) {
-    return _ecs_vector_add(vector, ECS_VECTOR_U(size, alignment));
-}
-pub inline fn ntohl(x: var) @TypeOf(__DARWIN_OSSwapInt32(x)) {
-    return __DARWIN_OSSwapInt32(x);
-}
+
+
+
 pub const __MOVBE__ = 1;
 pub const EXPR_NEST_MAX = 32;
 pub inline fn __API_DEPRECATED_BEGIN_MSG7(msg: var, a: var, b: var, c: var, d: var, e: var, f: var) @TypeOf(__API_D_BEGIN(msg, a) ++ (__API_D_BEGIN(msg, b) ++ (__API_D_BEGIN(msg, c) ++ (__API_D_BEGIN(msg, d) ++ (__API_D_BEGIN(msg, e) ++ __API_D_BEGIN(msg, f)))))) {
@@ -1260,9 +1206,9 @@ pub const ECS_INTERNAL_ERROR = 12;
 pub const IOPOL_MATERIALIZE_DATALESS_FILES_DEFAULT = 0;
 pub const RLIMIT_CPU_USAGE_MONITOR = 0x2;
 pub const __MAC_10_11_3 = 101103;
-pub inline fn ntohs(x: var) @TypeOf(__DARWIN_OSSwapInt16(x)) {
-    return __DARWIN_OSSwapInt16(x);
-}
+
+
+
 pub const L_ctermid = 1024;
 pub const _QUAD_HIGHWORD = 1;
 pub const __x86_64__ = 1;
@@ -1273,17 +1219,7 @@ pub inline fn ecs_bulk_add_remove(world: var, to_add: var, to_remove: var, filte
 pub inline fn sigmask(m: var) @TypeOf(1 << (m - 1)) {
     return 1 << (m - 1);
 }
-pub const __DARWIN_SUF_1050 = "$1050";
-pub const __SIZEOF_DOUBLE__ = 8;
-pub inline fn __DARWIN_ALIAS_C(sym: var) @TypeOf(__asm("_" ++ (__STRING(sym) ++ (__DARWIN_SUF_NON_CANCELABLE ++ __DARWIN_SUF_UNIX03)))) {
-    return __asm("_" ++ (__STRING(sym) ++ (__DARWIN_SUF_NON_CANCELABLE ++ __DARWIN_SUF_UNIX03)));
-}
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_11_3(x: var) @TypeOf(x) {
-    return x;
-}
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_12_2(x: var) @TypeOf(x) {
-    return x;
-}
+
 pub const __PTHREAD_CONDATTR_SIZE__ = 8;
 pub const __UINT64_MAX__ = @as(c_ulonglong, 18446744073709551615);
 pub inline fn ecs_owns_entity(world: var, entity: var, has: var, owned: var) @TypeOf(ecs_type_owns_entity(world, ecs_get_type(world, entity), has, owned)) {
@@ -1306,17 +1242,15 @@ pub const PASS_MAX = 128;
 pub const ECS_INVALID_TYPE_EXPRESSION = 5;
 pub const __NO_MATH_INLINES = 1;
 pub const _POSIX_HOST_NAME_MAX = 255;
-pub const __DARWIN_WCHAR_MAX = __WCHAR_MAX__;
+
 pub const __UINT_FAST16_MAX__ = 65535;
-pub const __TVOS_11_1 = 110100;
+
 pub const __ATOMIC_ACQUIRE = 2;
 pub const __FLT_EPSILON__ = @as(f32, 1.19209290e-7);
-pub inline fn ecs_vector_remove(vector: var, T: var, index_1: var) @TypeOf(_ecs_vector_remove(vector, ECS_VECTOR_T(T), index_1)) {
-    return _ecs_vector_remove(vector, ECS_VECTOR_T(T), index_1);
-}
-pub const __APPLE__ = 1;
+pub inline fn ecs_vector_remove(vector: var, T: var, index_1: var) @TypeOf(_ecs_vector_remove(vector, ECS_VECTOR_T(T), index_1)) {}
+
 pub const RUSAGE_INFO_V3 = 3;
-pub const __TVOS_12_2 = 120200;
+
 pub const FPE_FLTRES = 4;
 pub const EcsPrefab = ECS_HI_COMPONENT_ID + 1;
 pub const __DBL_MIN_10_EXP__ = -307;
@@ -1336,9 +1270,9 @@ pub const stdout = __stdoutp;
 pub const _POSIX_TRACE_NAME_MAX = 8;
 pub const EcsMonitor = ECS_HI_COMPONENT_ID + 7;
 pub const EcsOnLoad = ECS_HI_COMPONENT_ID + 14;
-pub inline fn __DARWIN_ALIAS(sym: var) @TypeOf(__asm("_" ++ (__STRING(sym) ++ __DARWIN_SUF_UNIX03))) {
-    return __asm("_" ++ (__STRING(sym) ++ __DARWIN_SUF_UNIX03));
-}
+
+
+
 pub const __SIZEOF_LONG__ = 8;
 pub const ILL_PRVREG = 6;
 pub const RLIMIT_FSIZE = 1;
@@ -1352,13 +1286,13 @@ pub const UINT8_MAX = 255;
 pub inline fn ECS_EXPORT_COMPONENT(type_1: var) @TypeOf(ECS_SET_COMPONENT(type_1)) {
     return ECS_SET_COMPONENT(type_1);
 }
-pub inline fn __DARWIN_ALIAS_I(sym: var) @TypeOf(__asm("_" ++ (__STRING(sym) ++ (__DARWIN_SUF_64_BIT_INO_T ++ __DARWIN_SUF_UNIX03)))) {
-    return __asm("_" ++ (__STRING(sym) ++ (__DARWIN_SUF_64_BIT_INO_T ++ __DARWIN_SUF_UNIX03)));
-}
+
+
+
 pub const __WATCHOS_2_1 = 20100;
 pub const PRIO_MAX = 20;
 pub const __UINT_FAST8_FMTX__ = "hhX";
-pub const __DARWIN_SUF_64_BIT_INO_T = "$INODE64";
+
 pub inline fn ecs_os_module_to_dl(lib: var) @TypeOf(ecs_os_api.module_to_dl(lib)) {
     return ecs_os_api.module_to_dl(lib);
 }
@@ -1370,9 +1304,8 @@ pub const __API_UNAVAILABLE_PLATFORM_driverkit = blk: {
 };
 pub const RUSAGE_INFO_CURRENT = RUSAGE_INFO_V4;
 pub const __SOFF = 0x1000;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_9(x: var) @TypeOf(x) {
-    return x;
-}
+
+
 pub const UINT_FAST64_MAX = UINT64_MAX;
 pub inline fn ecs_os_strdup(str: var) @TypeOf(ecs_os_api.strdup(str)) {
     return ecs_os_api.strdup(str);
@@ -1389,12 +1322,10 @@ pub const SHRT_MAX = 32767;
 pub const RUSAGE_INFO_V4 = 4;
 pub const __INTMAX_C_SUFFIX__ = L;
 pub const POLL_IN = 1;
-pub const __TVOS_9_2 = 90200;
-pub const __TVOS_12_1 = 120100;
-pub const NSIG = __DARWIN_NSIG;
-pub inline fn ecs_vector_addn(vector: var, T: var, elem_count: var) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_addn(vector, ECS_VECTOR_T(T), elem_count)))) {
-    return (@import("std").meta.cast([*c]T, _ecs_vector_addn(vector, ECS_VECTOR_T(T), elem_count)));
-}
+
+
+
+
 pub const __UINT32_FMTx__ = "x";
 pub const WINT_MIN = INT32_MIN;
 pub const __disable_tail_calls = __attribute__(__disable_tail_calls__);
@@ -1404,7 +1335,7 @@ pub const __IPHONE_5_1 = 50100;
 pub const __UINT_LEAST64_MAX__ = @as(c_ulonglong, 18446744073709551615);
 pub const __AVAILABILITY_INTERNAL__IPHONE_NA__IPHONE_NA = __attribute__(availability(ios, unavailable));
 pub const __GCC_ATOMIC_CHAR16_T_LOCK_FREE = 2;
-pub const __DARWIN_NULL = (@import("std").meta.cast(?*c_void, 0));
+
 pub const __UINTPTR_FMTu__ = "lu";
 pub const SA_SIGINFO = 0x0040;
 pub const __INT_FAST32_TYPE__ = c_int;
@@ -1426,9 +1357,9 @@ pub const __SIZE_FMTX__ = "lX";
 pub const WAKEMON_SET_DEFAULTS = 0x08;
 pub const __INT16_FMTd__ = "hd";
 pub const EcsOnDemand = ECS_HI_COMPONENT_ID + 6;
-pub inline fn __DARWIN_EXTSN(sym: var) @TypeOf(__asm("_" ++ (__STRING(sym) ++ __DARWIN_SUF_EXTSN))) {
-    return __asm("_" ++ (__STRING(sym) ++ __DARWIN_SUF_EXTSN));
-}
+
+
+
 pub const _POSIX_SS_REPL_MAX = 4;
 pub const INT_FAST16_MIN = INT16_MIN;
 pub const NGROUPS_MAX = 16;
@@ -1436,7 +1367,7 @@ pub const PATH_MAX = 1024;
 pub const SSIZE_MAX = LONG_MAX;
 pub const TRAP_BRKPT = 1;
 pub const INT32_MIN = -INT32_MAX - 1;
-pub const PRIO_DARWIN_PROCESS = 4;
+
 pub const __SRD = 0x0004;
 pub inline fn __API_DEPRECATED_BEGIN_REP7(rep: var, a: var, b: var, c: var, d: var, e: var, f: var) @TypeOf(__API_R_BEGIN(rep, a) ++ (__API_R_BEGIN(rep, b) ++ (__API_R_BEGIN(rep, c) ++ (__API_R_BEGIN(rep, d) ++ (__API_R_BEGIN(rep, e) ++ __API_R_BEGIN(rep, f)))))) {
     return __API_R_BEGIN(rep, a) ++ (__API_R_BEGIN(rep, b) ++ (__API_R_BEGIN(rep, c) ++ (__API_R_BEGIN(rep, d) ++ (__API_R_BEGIN(rep, e) ++ __API_R_BEGIN(rep, f)))));
@@ -1456,9 +1387,8 @@ pub inline fn ecs_os_mutex_unlock(mutex: var) @TypeOf(ecs_os_api.mutex_unlock(mu
 }
 pub const __unavailable = __attribute__(__unavailable__);
 pub const __ATOMIC_RELAXED = 0;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_10(x: var) @TypeOf(x) {
-    return x;
-}
+
+
 pub const _RLIMIT_POSIX_FLAG = 0x1000;
 pub const stderr = __stderrp;
 pub const FOOTPRINT_INTERVAL_RESET = 0x1;
@@ -1477,7 +1407,7 @@ pub const __UINT_LEAST8_FMTx__ = "hhx";
 pub const __MAC_10_5 = 1050;
 pub const FP_RND_DOWN = 1;
 pub const SV_RESETHAND = SA_RESETHAND;
-pub const __TVOS_10_0 = 100000;
+
 pub const CHILD_MAX = 266;
 pub const FP_PREC_24B = 0;
 pub const LONG_BIT = 64;
@@ -1487,13 +1417,9 @@ pub inline fn __API_AVAILABLE6(x: var, y: var, z: var, t: var, b: var, m: var) @
 pub const w_retcode = w_T.w_Retcode;
 pub const __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ = 101500;
 pub const __INTMAX_MAX__ = @as(c_long, 9223372036854775807);
-pub inline fn ecs_vector_add(vector: var, T: var) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_add(vector, ECS_VECTOR_T(T))))) {
-    return (@import("std").meta.cast([*c]T, _ecs_vector_add(vector, ECS_VECTOR_T(T))));
-}
+
 pub const WAKEMON_MAKE_FATAL = 0x10;
-pub inline fn ecs_vector_first(vector: var, T: var) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_first(vector, ECS_VECTOR_T(T))))) {
-    return (@import("std").meta.cast([*c]T, _ecs_vector_first(vector, ECS_VECTOR_T(T))));
-}
+
 pub const __DBL_MIN__ = 2.2250738585072014e-308;
 pub const ECS_COLUMN_ACCESS_VIOLATION = 37;
 pub inline fn __API_AVAILABLE_BEGIN5(a: var, b: var, c: var, d: var, e: var) @TypeOf(__API_A_BEGIN(a) ++ (__API_A_BEGIN(b) ++ (__API_A_BEGIN(c) ++ (__API_A_BEGIN(d) ++ __API_A_BEGIN(e))))) {
@@ -1508,9 +1434,8 @@ pub inline fn WCOREDUMP(x: var) @TypeOf(_W_INT(x) & WCOREFLAG) {
     return _W_INT(x) & WCOREFLAG;
 }
 pub const __API_AVAILABLE_END = _Pragma("clang attribute pop");
-pub inline fn __DARWIN_OSSwapConstInt32(x: var) @TypeOf((@import("std").meta.cast(__uint32_t, (((@import("std").meta.cast(__uint32_t, x)) & 0xff000000) >> 24) | ((((@import("std").meta.cast(__uint32_t, x)) & 0x00ff0000) >> 8) | ((((@import("std").meta.cast(__uint32_t, x)) & 0x0000ff00) << 8) | (((@import("std").meta.cast(__uint32_t, x)) & 0x000000ff) << 24)))))) {
-    return (@import("std").meta.cast(__uint32_t, (((@import("std").meta.cast(__uint32_t, x)) & 0xff000000) >> 24) | ((((@import("std").meta.cast(__uint32_t, x)) & 0x00ff0000) >> 8) | ((((@import("std").meta.cast(__uint32_t, x)) & 0x0000ff00) << 8) | (((@import("std").meta.cast(__uint32_t, x)) & 0x000000ff) << 24)))));
-}
+
+
 pub const ECS_REFLECTION = 1;
 pub const __UINTMAX_FMTX__ = "lX";
 pub inline fn ecs_os_cond_wait(cond: var, mutex: var) @TypeOf(ecs_os_api.cond_wait(cond, mutex)) {
@@ -1518,7 +1443,7 @@ pub inline fn ecs_os_cond_wait(cond: var, mutex: var) @TypeOf(ecs_os_api.cond_wa
 }
 pub const __AVX2__ = 1;
 pub const __UINT_LEAST16_FMTo__ = "ho";
-pub const __TVOS_13_2 = 130200;
+
 pub const __XNU_PRIVATE_EXTERN = __attribute__(visibility("hidden"));
 pub const SHRT_MIN = -32768;
 pub inline fn __API_DEPRECATED_BEGIN_REP3(rep: var, a: var, b: var) @TypeOf(__API_R_BEGIN(rep, a) ++ __API_R_BEGIN(rep, b)) {
@@ -1526,12 +1451,12 @@ pub inline fn __API_DEPRECATED_BEGIN_REP3(rep: var, a: var, b: var) @TypeOf(__AP
 }
 pub const INTPTR_MIN = -INTPTR_MAX - 1;
 pub const __GCC_HAVE_SYNC_COMPARE_AND_SWAP_2 = 1;
-pub const __DARWIN_VERS_1050 = 1;
+
 pub const __PTHREAD_RWLOCK_SIZE__ = 192;
 pub const BUS_ADRERR = 2;
-pub inline fn htons(x: var) @TypeOf(__DARWIN_OSSwapInt16(x)) {
-    return __DARWIN_OSSwapInt16(x);
-}
+
+
+
 pub const __LDBL_EPSILON__ = @as(c_longdouble, 1.08420217248550443401e-19);
 pub const __SAPP = 0x0100;
 pub const EcsPreFrame = ECS_HI_COMPONENT_ID + 13;
@@ -1545,39 +1470,28 @@ pub inline fn __strftimelike(fmtarg: var) @TypeOf(__attribute__(__format__(__str
 }
 pub const CLOCK_PROCESS_CPUTIME_ID = _CLOCK_PROCESS_CPUTIME_ID;
 pub const ECS_STRBUF_ELEMENT_SIZE = 511;
-pub inline fn ecs_vector_grow(vector: var, T: var, size: var) @TypeOf(_ecs_vector_grow(vector, ECS_VECTOR_T(T), size)) {
-    return _ecs_vector_grow(vector, ECS_VECTOR_T(T), size);
-}
+pub inline fn ecs_vector_grow(vector: var, T: var, size: var) @TypeOf(_ecs_vector_grow(vector, ECS_VECTOR_T(T), size)) {}
 pub const __SIGN = 0x8000;
-pub inline fn ecs_vector_reclaim(vector: var, T: var) @TypeOf(_ecs_vector_reclaim(vector, ECS_VECTOR_T(T))) {
-    return _ecs_vector_reclaim(vector, ECS_VECTOR_T(T));
-}
+pub inline fn ecs_vector_reclaim(vector: var, T: var) @TypeOf(_ecs_vector_reclaim(vector, ECS_VECTOR_T(T))) {}
 pub const __POPCNT__ = 1;
 pub const __ATOMIC_ACQ_REL = 4;
-pub const __DARWIN_ONLY_UNIX_CONFORMANCE = 1;
+
 pub const __UINT_LEAST32_FMTx__ = "x";
 pub const FP_PREC_53B = 2;
 pub const ECS_INVALID_PARAMETER = 2;
 pub const SA_ONSTACK = 0x0001;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_0(x: var) @TypeOf(x) {
-    return x;
-}
+
 pub inline fn __API_AVAILABLE7(x: var, y: var, z: var, t: var, b: var, m: var, d: var) @TypeOf(__API_A(x) ++ (__API_A(y) ++ (__API_A(z) ++ (__API_A(t) ++ (__API_A(b) ++ (__API_A(m) ++ __API_A(d))))))) {
     return __API_A(x) ++ (__API_A(y) ++ (__API_A(z) ++ (__API_A(t) ++ (__API_A(b) ++ (__API_A(m) ++ __API_A(d))))));
 }
-pub inline fn __DARWIN_INODE64(sym: var) @TypeOf(__asm("_" ++ (__STRING(sym) ++ __DARWIN_SUF_64_BIT_INO_T))) {
-    return __asm("_" ++ (__STRING(sym) ++ __DARWIN_SUF_64_BIT_INO_T));
-}
+
+
 pub inline fn __API_AVAILABLE_BEGIN2(a: var, b: var) @TypeOf(__API_A_BEGIN(a) ++ __API_A_BEGIN(b)) {
     return __API_A_BEGIN(a) ++ __API_A_BEGIN(b);
 }
 pub const ILL_ILLADR = 5;
 pub const EcsOnRemove = ECS_HI_COMPONENT_ID + 10;
 pub const FP_RND_NEAR = 0;
-pub const __API_UNAVAILABLE_PLATFORM_macosx = blk: {
-    _ = macosx;
-    break :blk unavailable;
-};
 pub const CLOCK_THREAD_CPUTIME_ID = _CLOCK_THREAD_CPUTIME_ID;
 pub const ECS_INVALID_COMPONENT_ID = 3;
 pub const UINT_FAST16_MAX = UINT16_MAX;
@@ -1596,20 +1510,14 @@ pub const RLIM_SAVED_MAX = RLIM_INFINITY;
 pub const __LDBL_MIN__ = @as(c_longdouble, 3.36210314311209350626e-4932);
 pub const sv_onstack = sv_flags;
 pub const NL_TEXTMAX = 2048;
-pub inline fn ecs_ringbuf_get(buffer: var, T: var, index_1: var) @TypeOf((@import("std").meta.cast([*c]T, _ecs_ringbuf_get(buffer, ECS_VECTOR_T(T), index_1)))) {
-    return (@import("std").meta.cast([*c]T, _ecs_ringbuf_get(buffer, ECS_VECTOR_T(T), index_1)));
-}
+
 pub const __UINTMAX_MAX__ = @as(c_ulong, 18446744073709551615);
-pub inline fn ecs_vector_copy_t(src: var, size: var, alignment: var) @TypeOf(_ecs_vector_copy(src, ECS_VECTOR_U(size, alignment))) {
-    return _ecs_vector_copy(src, ECS_VECTOR_U(size, alignment));
-}
+pub inline fn ecs_vector_copy_t(src: var, size: var, alignment: var) @TypeOf(_ecs_vector_copy(src, ECS_VECTOR_U(size, alignment))) {}
 pub const CLOCKS_PER_SEC = 1000000;
 pub const CLD_NOOP = 0;
 pub const __WATCHOS_3_0 = 30000;
 pub const __DBL_MANT_DIG__ = 53;
-pub inline fn ecs_vector_addn_t(vector: var, size: var, alignment: var, elem_count: var) @TypeOf(_ecs_vector_addn(vector, ECS_VECTOR_U(size, alignment), elem_count)) {
-    return _ecs_vector_addn(vector, ECS_VECTOR_U(size, alignment), elem_count);
-}
+pub inline fn ecs_vector_addn_t(vector: var, size: var, alignment: var, elem_count: var) @TypeOf(_ecs_vector_addn(vector, ECS_VECTOR_U(size, alignment), elem_count)) {}
 pub const __CLANG_ATOMIC_WCHAR_T_LOCK_FREE = 2;
 pub const __UINT32_FMTX__ = "X";
 pub const RUSAGE_INFO_V0 = 0;
@@ -1621,17 +1529,13 @@ pub const __API_UNAVAILABLE_PLATFORM_watchos = blk: {
 pub const ECS_UNRESOLVED_REFERENCE = 30;
 pub const __UINT_FAST16_FMTX__ = "hX";
 pub const ECS_INVALID_WHILE_ITERATING = 25;
-pub inline fn ecs_vector_memory_t(vector: var, size: var, alignment: var, allocd: var, used: var) @TypeOf(_ecs_vector_memory(vector, ECS_VECTOR_U(size, alignment), allocd, used)) {
-    return _ecs_vector_memory(vector, ECS_VECTOR_U(size, alignment), allocd, used);
-}
+pub inline fn ecs_vector_memory_t(vector: var, size: var, alignment: var, allocd: var, used: var) @TypeOf(_ecs_vector_memory(vector, ECS_VECTOR_U(size, alignment), allocd, used)) {}
 pub const __FLT_DECIMAL_DIG__ = 9;
 pub const IOPOL_DEFAULT = 0;
 pub const __UINT8_FMTo__ = "hho";
 pub const __FLT_HAS_DENORM__ = 1;
 pub const IOPOL_UTILITY = 4;
-pub inline fn ecs_vector_new_t(size: var, alignment: var, elem_count: var) @TypeOf(_ecs_vector_new(ECS_VECTOR_U(size, alignment), elem_count)) {
-    return _ecs_vector_new(ECS_VECTOR_U(size, alignment), elem_count);
-}
+pub inline fn ecs_vector_new_t(size: var, alignment: var, elem_count: var) @TypeOf(_ecs_vector_new(ECS_VECTOR_U(size, alignment), elem_count)) {}
 pub const USER_ADDR_NULL = (@import("std").meta.cast(user_addr_t, 0));
 pub const INTMAX_MAX = INTMAX_C(9223372036854775807);
 pub const INT_LEAST16_MIN = INT16_MIN;
@@ -1641,36 +1545,15 @@ pub inline fn ecs_get_path(world: var, parent: var, child: var) @TypeOf(ecs_get_
 pub const SIGWINCH = 28;
 pub const SIGPIPE = 13;
 pub const RAND_MAX = 0x7fffffff;
-pub inline fn __OS_EXTENSION_UNAVAILABLE(_msg: var) @TypeOf(__OSX_EXTENSION_UNAVAILABLE(_msg) ++ __IOS_EXTENSION_UNAVAILABLE(_msg)) {
-    return __OSX_EXTENSION_UNAVAILABLE(_msg) ++ __IOS_EXTENSION_UNAVAILABLE(_msg);
-}
-pub inline fn htonl(x: var) @TypeOf(__DARWIN_OSSwapInt32(x)) {
-    return __DARWIN_OSSwapInt32(x);
-}
+
+
 pub const ECS_INVALID_EXPRESSION = 4;
 pub const IOPOL_SCOPE_THREAD = 1;
 pub const __MAC_10_13_2 = 101302;
 pub const RLIMIT_THREAD_CPULIMITS = 0x3;
 pub const ECS_ALREADY_DEFINED = 14;
-pub inline fn __COPYRIGHT(s: var) @TypeOf(__IDSTRING(copyright, s)) {
-    return __IDSTRING(copyright, s);
-}
-pub const MAX_CANON = 1024;
-pub const BYTE_ORDER = __DARWIN_BYTE_ORDER;
-pub inline fn __API_UNAVAILABLE_PLATFORM_uikitformac(x: var) @TypeOf(unavailable) {
-    return blk: {
-        _ = uikitformac;
-        break :blk unavailable;
-    };
-}
-pub const __MAC_10_3 = 1030;
-pub const EXIT_FAILURE = 1;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_12_1(x: var) @TypeOf(x) {
-    return x;
-}
-pub inline fn ecs_vector_set_min_count(vector: var, T: var, size: var) @TypeOf(_ecs_vector_set_min_count(vector, ECS_VECTOR_T(T), size)) {
-    return _ecs_vector_set_min_count(vector, ECS_VECTOR_T(T), size);
-}
+
+pub inline fn ecs_vector_set_min_count(vector: var, T: var, size: var) @TypeOf(_ecs_vector_set_min_count(vector, ECS_VECTOR_T(T), size)) {}
 pub const __IPHONE_3_2 = 30200;
 pub const __UINT_FAST64_FMTx__ = "llx";
 pub const __pure2 = __attribute__(__const__);
@@ -1701,9 +1584,7 @@ pub inline fn __AVAILABILITY_INTERNAL__IPHONE_COMPAT_VERSION_DEP__IPHONE_COMPAT_
 }
 pub const WEXITED = 0x00000004;
 pub const ECS_INVALID_COMPONENT_SIZE = 15;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_5(x: var) @TypeOf(x) {
-    return x;
-}
+
 pub const __DBL_MAX_EXP__ = 1024;
 pub inline fn __scanflike(fmtarg: var, firstvararg: var) @TypeOf(__attribute__(__format__(__scanf__, fmtarg, firstvararg))) {
     return __attribute__(__format__(__scanf__, fmtarg, firstvararg));
@@ -1713,21 +1594,13 @@ pub inline fn __API_UNAVAILABLE_BEGIN6(a: var, b: var, c: var, d: var, e: var, f
 }
 pub const SCHAR_MIN = -128;
 pub const SV_NODEFER = SA_NODEFER;
-pub const __DARWIN_UNIX03 = 1;
+
 pub const ECS_INVALID_WHILE_MERGING = 24;
 pub const __PTRDIFF_MAX__ = @as(c_long, 9223372036854775807);
 pub const __ORDER_LITTLE_ENDIAN__ = 1234;
 pub const CLOCK_MONOTONIC_RAW = _CLOCK_MONOTONIC_RAW;
-pub inline fn ecs_vector_last(vector: var, T: var) @TypeOf(_ecs_vector_last(vector, ECS_VECTOR_T(T))) {
-    return _ecs_vector_last(vector, ECS_VECTOR_T(T));
-}
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_11(x: var) @TypeOf(x) {
-    return x;
-}
-pub const _POSIX_NAME_MAX = 14;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_13_1(x: var) @TypeOf(x) {
-    return x;
-}
+
+
 pub const w_coredump = w_T.w_Coredump;
 pub const __UINT_FAST32_MAX__ = @as(c_uint, 4294967295);
 pub const w_stopsig = w_S.w_Stopsig;
@@ -1739,9 +1612,7 @@ pub const __WINT_MAX__ = 2147483647;
 pub const __unused = __attribute__(__unused__);
 pub const NAME_MAX = 255;
 pub const EQUIV_CLASS_MAX = 2;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_14_1(x: var) @TypeOf(x) {
-    return x;
-}
+
 pub const __PTHREAD_ATTR_SIZE__ = 56;
 pub const __IPHONE_10_0 = 100000;
 pub const _POSIX_TRACE_EVENT_NAME_MAX = 30;
@@ -1770,10 +1641,10 @@ pub const __STDC_VERSION__ = @as(c_long, 201112);
 pub inline fn __offsetof(type_1: var, field: var) @TypeOf(__builtin_offsetof(type_1, field)) {
     return __builtin_offsetof(type_1, field);
 }
-pub const __TVOS_11_4 = 110400;
+
 pub const __OPENCL_MEMORY_SCOPE_WORK_GROUP = 1;
 pub const OBJC_NEW_PROPERTIES = 1;
-pub const NULL = __DARWIN_NULL;
+
 pub const ECS_INVALID_SIGNATURE = 6;
 pub inline fn va_end(ap: var) @TypeOf(__builtin_va_end(ap)) {
     return __builtin_va_end(ap);
@@ -1784,63 +1655,22 @@ pub const _POSIX_CLOCKRES_MIN = 20000000;
 pub inline fn __API_DEPRECATED_REP4(rep: var, x: var, y: var, z: var) @TypeOf(__API_DEPRECATED_REP3(rep, x, y) ++ __API_R(rep, z)) {
     return __API_DEPRECATED_REP3(rep, x, y) ++ __API_R(rep, z);
 }
-pub const CLD_KILLED = 2;
-pub inline fn INT8_C(v: var) @TypeOf(v) {
-    return v;
-}
-pub const _XOPEN_NAME_MAX = 255;
-pub const __IPHONE_12_3 = 120300;
-pub inline fn __API_AVAILABLE2(x: var, y: var) @TypeOf(__API_A(x) ++ __API_A(y)) {
-    return __API_A(x) ++ __API_A(y);
-}
-pub const CLD_TRAPPED = 4;
-pub const SI_USER = 0x10001;
-pub const SIGTTIN = 21;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_6(x: var) @TypeOf(x) {
-    return x;
-}
-pub const __FINITE_MATH_ONLY__ = 0;
-pub const __AVAILABILITY_INTERNAL__IPHONE_COMPAT_VERSION_DEP__IPHONE_COMPAT_VERSION = __attribute__(availability(ios, unavailable));
+
 pub const FLECS__TNULL = 0;
-pub const __UINT_LEAST64_FMTX__ = "llX";
-pub const __tune_corei7__ = 1;
-pub const RLIMIT_STACK = 3;
-pub const __INT_LEAST8_FMTi__ = "hhi";
-pub inline fn va_start(ap: var, param: var) @TypeOf(__builtin_va_start(ap, param)) {
-    return __builtin_va_start(ap, param);
-}
-pub const __SIG_ATOMIC_MAX__ = 2147483647;
 pub const FLECS__EEcsComponent = 1;
 pub const FLECS__EEcsPipelineQuery = 13;
-pub const __INT_FAST32_FMTd__ = "d";
-pub const __INTMAX_FMTi__ = "li";
-pub const __IPHONE_7_0 = 70000;
 pub const ECS_COLUMN_INDEX_OUT_OF_RANGE = 19;
-pub const __IPHONE_8_3 = 80300;
-pub const __API_DEPRECATED_WITH_REPLACEMENT_END = _Pragma("clang attribute pop");
-pub const PDP_ENDIAN = __DARWIN_PDP_ENDIAN;
-pub inline fn __API_DEPRECATED_REP8(rep: var, x: var, y: var, z: var, t: var, b: var, m: var, d: var) @TypeOf(__API_DEPRECATED_REP7(rep, x, y, z, t, b, m) ++ __API_R(rep, d)) {
-    return __API_DEPRECATED_REP7(rep, x, y, z, t, b, m) ++ __API_R(rep, d);
-}
-pub const __INT_MAX__ = 2147483647;
-pub const __INT_LEAST64_MAX__ = @as(c_longlong, 9223372036854775807);
 pub const EcsHidden = ECS_HI_COMPONENT_ID + 2;
-pub const __IPHONE_8_2 = 80200;
-pub const INT_MIN = -2147483647 - 1;
-pub const __SIZEOF_INT128__ = 16;
-pub const __INT64_MAX__ = @as(c_longlong, 9223372036854775807);
 pub inline fn ECS_OFFSET(o: var, offset: var) @TypeOf((@import("std").meta.cast(?*c_void, (@import("std").meta.cast(uintptr_t, o)) + (@import("std").meta.cast(uintptr_t, offset))))) {
     return (@import("std").meta.cast(?*c_void, (@import("std").meta.cast(uintptr_t, o)) + (@import("std").meta.cast(uintptr_t, offset))));
 }
 pub const TIME_UTC = 1;
-pub const PRIO_DARWIN_NONUI = 0x1001;
+
 pub const __INT_FAST16_MAX__ = 32767;
 pub const ECS_XOR = (@import("std").meta.cast(ecs_entity_t, 1 << 59));
 pub const WNOWAIT = 0x00000020;
 pub const RUSAGE_INFO_V2 = 2;
-pub inline fn ecs_vector_first_t(vector: var, size: var, alignment: var) @TypeOf(_ecs_vector_first(vector, ECS_VECTOR_U(size, alignment))) {
-    return _ecs_vector_first(vector, ECS_VECTOR_U(size, alignment));
-}
+pub inline fn ecs_vector_first_t(vector: var, size: var, alignment: var) @TypeOf(_ecs_vector_first(vector, ECS_VECTOR_U(size, alignment))) {}
 pub const __SIZE_FMTx__ = "lx";
 pub const _XOPEN_PATH_MAX = 1024;
 pub inline fn WIFSIGNALED(x: var) @TypeOf(_WSTATUS(x) != @boolToInt((_WSTOPPED != 0) and (_WSTATUS(x) != 0))) {
@@ -1856,17 +1686,13 @@ pub const P_tmpdir = "/var/tmp/";
 pub const __UINT_LEAST8_FMTo__ = "hho";
 pub const __UINT_FAST8_FMTu__ = "hhu";
 pub const __UINT_LEAST8_FMTu__ = "hhu";
-pub inline fn ecs_vector_remove_index_t(vector: var, size: var, alignment: var, index_1: var) @TypeOf(_ecs_vector_remove_index(vector, ECS_VECTOR_U(size, alignment), index_1)) {
-    return _ecs_vector_remove_index(vector, ECS_VECTOR_U(size, alignment), index_1);
-}
+pub inline fn ecs_vector_remove_index_t(vector: var, size: var, alignment: var, index_1: var) @TypeOf(_ecs_vector_remove_index(vector, ECS_VECTOR_U(size, alignment), index_1)) {}
 pub const __header_always_inline = __header_inline ++ __attribute__(__always_inline__);
 pub const SEEK_END = 2;
 pub const SEGV_MAPERR = 1;
 pub const SIGTTOU = 22;
 pub const RLIMIT_AS = 5;
-pub inline fn ecs_map_next_ptr(iter: var, T: var, key: var) @TypeOf((@import("std").meta.cast(T, _ecs_map_next_ptr(iter, key)))) {
-    return (@import("std").meta.cast(T, _ecs_map_next_ptr(iter, key)));
-}
+
 pub const __UINT64_FMTu__ = "llu";
 pub inline fn __API_UNAVAILABLE6(x: var, y: var, z: var, t: var, b: var, m: var) @TypeOf(__API_UNAVAILABLE5(x, y, z, t, b) ++ __API_U(m)) {
     return __API_UNAVAILABLE5(x, y, z, t, b) ++ __API_U(m);
@@ -1877,11 +1703,11 @@ pub const _IONBF = 2;
 pub const IOPOL_TYPE_VFS_MATERIALIZE_DATALESS_FILES = 3;
 pub const __SALC = 0x4000;
 pub const __INT_FAST8_FMTd__ = "hhd";
-pub const __DARWIN_ONLY_64_BIT_INO_T = 0;
+
 pub inline fn __API_UNAVAILABLE3(x: var, y: var, z: var) @TypeOf(__API_UNAVAILABLE2(x, y) ++ __API_U(z)) {
     return __API_UNAVAILABLE2(x, y) ++ __API_U(z);
 }
-pub const BIG_ENDIAN = __DARWIN_BIG_ENDIAN;
+
 pub const __CLANG_ATOMIC_POINTER_LOCK_FREE = 2;
 pub const __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4 = 1;
 pub const __LITTLE_ENDIAN__ = 1;
@@ -1895,13 +1721,9 @@ pub const __GNUC_MINOR__ = 2;
 pub const INT_LEAST16_MAX = INT16_MAX;
 pub const __UINT_LEAST8_FMTX__ = "hhX";
 pub const ECS_COLUMN_TYPE_MISMATCH = 23;
-pub inline fn __DARWIN_1050ALIAS_C(sym: var) @TypeOf(__asm("_" ++ (__STRING(sym) ++ (__DARWIN_SUF_1050 ++ (__DARWIN_SUF_NON_CANCELABLE ++ __DARWIN_SUF_UNIX03))))) {
-    return __asm("_" ++ (__STRING(sym) ++ (__DARWIN_SUF_1050 ++ (__DARWIN_SUF_NON_CANCELABLE ++ __DARWIN_SUF_UNIX03))));
-}
+
 pub const PTHREAD_KEYS_MAX = 512;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_8(x: var) @TypeOf(x) {
-    return x;
-}
+
 pub const __FLT_HAS_INFINITY__ = 1;
 pub inline fn __CAST_AWAY_QUALIFIER(variable: var, qualifier: var, type_1: var) @TypeOf((@import("std").meta.cast(type_1, c_long))(variable)) {
     return (@import("std").meta.cast(type_1, c_long))(variable);
@@ -1920,24 +1742,9 @@ pub inline fn __va_copy(d: var, s: var) @TypeOf(__builtin_va_copy(d, s)) {
     return __builtin_va_copy(d, s);
 }
 pub const EcsFirstUserEntityId = ECS_HI_COMPONENT_ID + 32;
-pub const IOPOL_STANDARD = 5;
-pub const __API_UNAVAILABLE_PLATFORM_ios = blk: {
-    _ = ios;
-    break :blk unavailable;
-};
-pub const _DARWIN_FEATURE_64_BIT_INODE = 1;
-pub const __UINT_LEAST32_FMTo__ = "o";
-pub const __MAC_10_12 = 101200;
-pub const __IPHONE_13_4 = 130400;
-pub const sa_handler = __sigaction_u.__sa_handler;
-pub const UINT_FAST8_MAX = UINT8_MAX;
+
 pub const ECS_DESERIALIZE_COMPONENT_ID_CONFLICT = 38;
-pub const _WSTOPPED = 0o0177;
-pub const CHAR_BIT = 8;
-pub const LINK_MAX = 32767;
-pub inline fn __DARWIN_OSSwapConstInt64(x: var) @TypeOf((@import("std").meta.cast(__uint64_t, (((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0xff00000000000000)) >> 56) | ((((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0x00ff000000000000)) >> 40) | ((((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0x0000ff0000000000)) >> 24) | ((((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0x000000ff00000000)) >> 8) | ((((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0x00000000ff000000)) << 8) | ((((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0x0000000000ff0000)) << 24) | ((((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0x000000000000ff00)) << 40) | (((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0x00000000000000ff)) << 56)))))))))) {
-    return (@import("std").meta.cast(__uint64_t, (((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0xff00000000000000)) >> 56) | ((((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0x00ff000000000000)) >> 40) | ((((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0x0000ff0000000000)) >> 24) | ((((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0x000000ff00000000)) >> 8) | ((((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0x00000000ff000000)) << 8) | ((((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0x0000000000ff0000)) << 24) | ((((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0x000000000000ff00)) << 40) | (((@import("std").meta.cast(__uint64_t, x)) & @as(c_ulonglong, 0x00000000000000ff)) << 56)))))))));
-}
+
 pub const __nullable = _Nullable;
 pub const __IPHONE_9_0 = 90000;
 pub inline fn fropen(cookie: var, @"fn": var) @TypeOf(funopen(cookie, @"fn", 0, 0, 0)) {
@@ -1952,26 +1759,19 @@ pub const SIGURG = 16;
 pub inline fn ecs_add(world: var, entity: var, component: var) @TypeOf(ecs_add_type(world, entity, ecs_type(component))) {
     return ecs_add_type(world, entity, ecs_type(component));
 }
-pub const __OSX_UNAVAILABLE = __OS_AVAILABILITY(macosx, unavailable);
-pub const __DARWIN_NON_CANCELABLE = 0;
+
 pub const SIG_BLOCK = 1;
 pub const SV_INTERRUPT = SA_RESTART;
 pub const ECS_OUT_OF_RANGE = 28;
 pub const ECS_MISSING_OS_API = 32;
 pub const UINT_LEAST8_MAX = UINT8_MAX;
-pub const __API_UNAVAILABLE_PLATFORM_tvos = blk: {
-    _ = tvos;
-    break :blk unavailable;
-};
 pub const __INT_LEAST16_TYPE__ = c_short;
-pub const __APPLE_CC__ = 6000;
+
 pub const ECS_COLUMN_HAS_NO_DATA = 22;
 pub const __deprecated = __attribute__(__deprecated__);
 pub const __IPHONE_10_1 = 100100;
 pub const __SSE3__ = 1;
-pub inline fn ecs_vector_move_index(dst: var, src: var, T: var, index_1: var) @TypeOf(_ecs_vector_move_index(dst, src, ECS_VECTOR_T(T), index_1)) {
-    return _ecs_vector_move_index(dst, src, ECS_VECTOR_T(T), index_1);
-}
+pub inline fn ecs_vector_move_index(dst: var, src: var, T: var, index_1: var) @TypeOf(_ecs_vector_move_index(dst, src, ECS_VECTOR_T(T), index_1)) {}
 pub const __WATCHOS_2_0 = 20000;
 pub const ILL_BADSTK = 8;
 pub const FLECS__EEcsQuery = 10;
@@ -1980,56 +1780,34 @@ pub const __UINT_LEAST16_FMTx__ = "hx";
 pub const __UINT_FAST64_FMTu__ = "llu";
 pub const __CLANG_ATOMIC_CHAR16_T_LOCK_FREE = 2;
 pub const EcsFirstUserComponentId = 32;
-pub inline fn ecs_vector_get(vector: var, T: var, index_1: var) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_get(vector, ECS_VECTOR_T(T), index_1)))) {
-    return (@import("std").meta.cast([*c]T, _ecs_vector_get(vector, ECS_VECTOR_T(T), index_1)));
-}
+
 pub const __block = __attribute__(__blocks__(byref));
 pub const __AVAILABILITY_INTERNAL_DEPRECATED = __attribute__(deprecated);
-pub inline fn __DARWIN_1050(sym: var) @TypeOf(__asm("_" ++ (__STRING(sym) ++ __DARWIN_SUF_1050))) {
-    return __asm("_" ++ (__STRING(sym) ++ __DARWIN_SUF_1050));
-}
+
+
+
 pub const __LONG_MAX__ = @as(c_long, 9223372036854775807);
 pub const _POSIX_TZNAME_MAX = 6;
 pub const SIGEV_NONE = 0;
-pub const __DARWIN_SUF_EXTSN = "$DARWIN_EXTSN";
+
 pub const _POSIX_SIGQUEUE_MAX = 32;
 pub const __MAC_10_11_2 = 101102;
 pub inline fn __deprecated_msg(_msg: var) @TypeOf(__attribute__(__deprecated__(_msg))) {
     return __attribute__(__deprecated__(_msg));
 }
 pub const __HAS_FIXED_CHK_PROTOTYPES = 1;
-pub inline fn __DARWIN_1050ALIAS_I(sym: var) @TypeOf(__asm("_" ++ (__STRING(sym) ++ (__DARWIN_SUF_1050 ++ (__DARWIN_SUF_64_BIT_INO_T ++ __DARWIN_SUF_UNIX03))))) {
-    return __asm("_" ++ (__STRING(sym) ++ (__DARWIN_SUF_1050 ++ (__DARWIN_SUF_64_BIT_INO_T ++ __DARWIN_SUF_UNIX03))));
-}
+
+
+
 pub const EcsPostFrame = ECS_HI_COMPONENT_ID + 22;
 pub inline fn ecs_owns(world: var, entity: var, type_1: var, owned: var) @TypeOf(ecs_type_owns_type(world, ecs_get_type(world, entity), ecs_type(type_1), owned)) {
     return ecs_type_owns_type(world, ecs_get_type(world, entity), ecs_type(type_1), owned);
 }
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_14_6(x: var) @TypeOf(x) {
-    return x;
-}
-pub const __IPHONE_4_1 = 40100;
-pub const _POSIX2_BC_BASE_MAX = 99;
-pub const SA_USERTRAMP = 0x0100;
-pub const RENAME_SWAP = 0x00000002;
-pub const __IPHONE_4_3 = 40300;
+
 pub inline fn ecs_bulk_new(world: var, component: var, count: var) @TypeOf(ecs_bulk_new_w_type(world, ecs_type(component), count)) {
     return ecs_bulk_new_w_type(world, ecs_type(component), count);
 }
-pub const _POSIX_THREAD_KEYS_MAX = 128;
-pub const __LDBL_DENORM_MIN__ = @as(c_longdouble, 3.64519953188247460253e-4951);
-pub const __x86_64 = 1;
-pub const NL_SETMAX = 255;
-pub const __DARWIN_BIG_ENDIAN = 4321;
-pub const __TVOS_13_4 = 130400;
-pub const __UINTMAX_WIDTH__ = 64;
-pub inline fn __OS_AVAILABILITY(_target: var, _availability: var) @TypeOf(__attribute__(availability(_target, _availability))) {
-    return __attribute__(availability(_target, _availability));
-}
-pub const __WATCHOS_4_0 = 40000;
-pub inline fn __API_DEPRECATED_REP7(rep: var, x: var, y: var, z: var, t: var, b: var, m: var) @TypeOf(__API_DEPRECATED_REP6(rep, x, y, z, t, b) ++ __API_R(rep, m)) {
-    return __API_DEPRECATED_REP6(rep, x, y, z, t, b) ++ __API_R(rep, m);
-}
+
 pub inline fn ecs_get_parent(world: var, entity: var, component: var) @TypeOf(ecs_get_parent_w_entity(world, entity, ecs_entity(component))) {
     return ecs_get_parent_w_entity(world, entity, ecs_entity(component));
 }
@@ -2039,9 +1817,7 @@ pub inline fn WTERMSIG(x: var) @TypeOf(_WSTATUS(x)) {
     return _WSTATUS(x);
 }
 pub const __GCC_ATOMIC_WCHAR_T_LOCK_FREE = 2;
-pub inline fn ecs_vector_from_array(T: var, elem_count: var, array: var) @TypeOf(_ecs_vector_from_array(ECS_VECTOR_T(T), elem_count, array)) {
-    return _ecs_vector_from_array(ECS_VECTOR_T(T), elem_count, array);
-}
+pub inline fn ecs_vector_from_array(T: var, elem_count: var, array: var) @TypeOf(_ecs_vector_from_array(ECS_VECTOR_T(T), elem_count, array)) {}
 pub const IOPOL_APPLICATION = IOPOL_STANDARD;
 pub const __INT16_FMTi__ = "hi";
 pub const WSTOPPED = 0x00000008;
@@ -2053,67 +1829,13 @@ pub const _POSIX_DELAYTIMER_MAX = 32;
 pub inline fn __API_DEPRECATED_BEGIN_MSG4(msg: var, a: var, b: var, c: var) @TypeOf(__API_D_BEGIN(msg, a) ++ (__API_D_BEGIN(msg, b) ++ __API_D_BEGIN(msg, c))) {
     return __API_D_BEGIN(msg, a) ++ (__API_D_BEGIN(msg, b) ++ __API_D_BEGIN(msg, c));
 }
-pub const __UINT32_FMTu__ = "u";
 pub const ECS_TYPE_NOT_AN_ENTITY = 9;
-pub const LITTLE_ENDIAN = __DARWIN_LITTLE_ENDIAN;
-pub const __amd64__ = 1;
-pub const SIGVTALRM = 26;
-pub const __null_unspecified = _Null_unspecified;
-pub const SIGXFSZ = 25;
-pub inline fn INT16_C(v: var) @TypeOf(v) {
-    return v;
-}
-pub inline fn __sfileno(p: var) @TypeOf(p.*._file) {
-    return p.*._file;
-}
-pub const __MAC_10_12_4 = 101204;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_3(x: var) @TypeOf(x) {
-    return x;
-}
-pub const FPE_FLTINV = 5;
-pub const PTHREAD_DESTRUCTOR_ITERATIONS = 4;
-pub const SI_QUEUE = 0x10002;
-pub const __GCC_ATOMIC_SHORT_LOCK_FREE = 2;
-pub const __STDC_WANT_LIB_EXT1__ = 1;
-pub const __UINT64_FMTx__ = "llx";
-pub const __IPHONE_8_4 = 80400;
-pub const __GNUC__ = 4;
-pub const __INT_FAST32_FMTi__ = "i";
-pub const __GCC_ATOMIC_BOOL_LOCK_FREE = 2;
-pub inline fn __AVAILABILITY_INTERNAL__IPHONE_NA_DEP__IPHONE_NA_MSG(_msg: var) @TypeOf(__attribute__(availability(ios, unavailable))) {
-    return __attribute__(availability(ios, unavailable));
-}
-pub inline fn __API_UNAVAILABLE_BEGIN2(a: var, b: var) @TypeOf(__API_U_BEGIN(a) ++ __API_U_BEGIN(b)) {
-    return __API_U_BEGIN(a) ++ __API_U_BEGIN(b);
-}
-pub inline fn ecs_vector_set_count(vector: var, T: var, elem_count: var) @TypeOf(_ecs_vector_set_count(vector, ECS_VECTOR_T(T), elem_count)) {
-    return _ecs_vector_set_count(vector, ECS_VECTOR_T(T), elem_count);
-}
-pub const __seg_gs = __attribute__(address_space(256));
 pub const FLECS__EEcsTrigger = 4;
 pub const ECS_INVALID_PREFAB_CHILD_TYPE = 34;
-pub const __UINT64_FMTo__ = "llo";
-pub inline fn ecs_ringbuf_push(buffer: var, T: var) @TypeOf((@import("std").meta.cast([*c]T, _ecs_ringbuf_push(buffer, ECS_VECTOR_T(T))))) {
-    return (@import("std").meta.cast([*c]T, _ecs_ringbuf_push(buffer, ECS_VECTOR_T(T))));
-}
-pub const __UINT_FAST16_FMTx__ = "hx";
-pub const WNOHANG = 0x00000001;
-pub const _POSIX2_BC_STRING_MAX = 1000;
-pub const RUSAGE_CHILDREN = -1;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_7(x: var) @TypeOf(x) {
-    return x;
-}
-pub const __IPHONE_2_1 = 20100;
-pub const __IPHONE_11_2 = 110200;
-pub inline fn ecs_ringbuf_last(buffer: var, T: var) @TypeOf((@import("std").meta.cast([*c]T, _ecs_ringbuf_last(buffer, ECS_VECTOR_T(T))))) {
-    return (@import("std").meta.cast([*c]T, _ecs_ringbuf_last(buffer, ECS_VECTOR_T(T))));
-}
-pub const __MAC_10_15_4 = 101504;
-pub const __IPHONE_11_0 = 110000;
 pub inline fn ecs_os_thread_join(thread: var) @TypeOf(ecs_os_api.thread_join(thread)) {
     return ecs_os_api.thread_join(thread);
 }
-pub const __TVOS_13_3 = 130300;
+
 pub inline fn __API_AVAILABLE4(x: var, y: var, z: var, t: var) @TypeOf(__API_A(x) ++ (__API_A(y) ++ (__API_A(z) ++ __API_A(t)))) {
     return __API_A(x) ++ (__API_A(y) ++ (__API_A(z) ++ __API_A(t)));
 }
@@ -2123,17 +1845,11 @@ pub inline fn ecs_get_mut(world: var, entity: var, component: var, is_added: var
 }
 pub const __UINT16_FMTu__ = "hu";
 pub const COLL_WEIGHTS_MAX = 2;
-pub inline fn ecs_vector_pop(vector: var, T: var, value: var) @TypeOf(_ecs_vector_pop(vector, ECS_VECTOR_T(T), value)) {
-    return _ecs_vector_pop(vector, ECS_VECTOR_T(T), value);
-}
+pub inline fn ecs_vector_pop(vector: var, T: var, value: var) @TypeOf(_ecs_vector_pop(vector, ECS_VECTOR_T(T), value)) {}
 pub const INT_LEAST8_MIN = INT8_MIN;
-pub inline fn ecs_vector_set_size(vector: var, T: var, elem_count: var) @TypeOf(_ecs_vector_set_size(vector, ECS_VECTOR_T(T), elem_count)) {
-    return _ecs_vector_set_size(vector, ECS_VECTOR_T(T), elem_count);
-}
-pub const __TVOS_10_0_1 = 100001;
-pub inline fn ecs_vector_copy(src: var, T: var) @TypeOf(_ecs_vector_copy(src, ECS_VECTOR_T(T))) {
-    return _ecs_vector_copy(src, ECS_VECTOR_T(T));
-}
+pub inline fn ecs_vector_set_size(vector: var, T: var, elem_count: var) @TypeOf(_ecs_vector_set_size(vector, ECS_VECTOR_T(T), elem_count)) {}
+
+pub inline fn ecs_vector_copy(src: var, T: var) @TypeOf(_ecs_vector_copy(src, ECS_VECTOR_T(T))) {}
 pub const __IPHONE_6_1 = 60100;
 pub const RLIM_INFINITY = (@import("std").meta.cast(__uint64_t, 1 << 63)) - 1;
 pub const __INT_LEAST32_FMTd__ = "d";
@@ -2141,48 +1857,20 @@ pub const ECS_UNRESOLVED_IDENTIFIER = 27;
 pub const WCOREFLAG = 0o0200;
 pub const __INTPTR_FMTi__ = "li";
 pub const __IPHONE_5_0 = 50000;
-pub const __DARWIN_PDP_ENDIAN = 3412;
+
 pub const USHRT_MAX = 65535;
-pub const __TVOS_10_2 = 100200;
-pub inline fn ecs_vector_get_t(vector: var, size: var, alignment: var, index_1: var) @TypeOf(_ecs_vector_get(vector, ECS_VECTOR_U(size, alignment), index_1)) {
-    return _ecs_vector_get(vector, ECS_VECTOR_U(size, alignment), index_1);
-}
+
+pub inline fn ecs_vector_get_t(vector: var, size: var, alignment: var, index_1: var) @TypeOf(_ecs_vector_get(vector, ECS_VECTOR_U(size, alignment), index_1)) {}
 pub const __result_use_check = __attribute__(__warn_unused_result__);
 pub const __WINT_TYPE__ = c_int;
 pub inline fn ecs_os_adec(value: var) @TypeOf(ecs_os_api.adec(value)) {
     return ecs_os_api.adec(value);
 }
-pub const __UINTPTR_FMTX__ = "lX";
-pub const __SIZEOF_LONG_DOUBLE__ = 16;
-pub const __INT_FAST64_FMTi__ = "lli";
-pub const __INT64_FMTi__ = "lli";
+
 pub inline fn ecs_os_cond_free(cond: var) @TypeOf(ecs_os_api.cond_free(cond)) {
     return ecs_os_api.cond_free(cond);
 }
-pub const __DARWIN_C_FULL = @as(c_long, 900000);
-pub const __IOS_UNAVAILABLE = __OS_AVAILABILITY(ios, unavailable);
-pub inline fn __API_DEPRECATED_REP5(rep: var, x: var, y: var, z: var, t: var) @TypeOf(__API_DEPRECATED_REP4(rep, x, y, z) ++ __API_R(rep, t)) {
-    return __API_DEPRECATED_REP4(rep, x, y, z) ++ __API_R(rep, t);
-}
-pub const SIG_UNBLOCK = 2;
-pub inline fn clearerr_unlocked(p: var) @TypeOf(__sclearerr(p)) {
-    return __sclearerr(p);
-}
-pub const __API_UNAVAILABLE_PLATFORM_macCatalyst = blk: {
-    _ = macCatalyst;
-    break :blk unavailable;
-};
-pub const FILENAME_MAX = 1024;
-pub const ILL_ILLTRP = 2;
-pub const BUFSIZ = 1024;
-pub const NL_NMAX = 1;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_10_3(x: var) @TypeOf(x) {
-    return x;
-}
-pub const __TVOS_11_0 = 110000;
-pub const __DRIVERKIT_19_0 = 190000;
-pub const __LDBL_HAS_INFINITY__ = 1;
-pub const __IPHONE_4_0 = 40000;
+
 pub inline fn ecs_os_calloc(size: var) @TypeOf(ecs_os_api.calloc(size)) {
     return ecs_os_api.calloc(size);
 }
@@ -2197,7 +1885,7 @@ pub const __DBL_EPSILON__ = 2.2204460492503131e-16;
 pub const NL_ARGMAX = 9;
 pub const __CLANG_ATOMIC_CHAR_LOCK_FREE = 2;
 pub const @"false" = 0;
-pub const _DARWIN_FEATURE_UNIX_CONFORMANCE = 3;
+
 pub const MB_CUR_MAX = __mb_cur_max;
 pub inline fn __API_UNAVAILABLE_BEGIN7(a: var, b: var, c: var, d: var, e: var, f: var) @TypeOf(__API_U_BEGIN(a) ++ (__API_U_BEGIN(b) ++ (__API_U_BEGIN(c) ++ (__API_U_BEGIN(d) ++ (__API_U_BEGIN(e) ++ (__API_U_BEGIN(f) ++ __API_U_BEGIN(g))))))) {
     return __API_U_BEGIN(a) ++ (__API_U_BEGIN(b) ++ (__API_U_BEGIN(c) ++ (__API_U_BEGIN(d) ++ (__API_U_BEGIN(e) ++ (__API_U_BEGIN(f) ++ __API_U_BEGIN(g))))));
@@ -2213,60 +1901,21 @@ pub const FPE_FLTUND = 3;
 pub const __AES__ = 1;
 pub const __FLT_RADIX__ = 2;
 pub const __amd64 = 1;
-pub const IOPOL_SCOPE_DARWIN_BG = 2;
+
 pub inline fn ecs_lookup_path(world: var, parent: var, path: var) @TypeOf(ecs_lookup_path_w_sep(world, parent, path, ".", NULL)) {
     return ecs_lookup_path_w_sep(world, parent, path, ".", NULL);
 }
-pub inline fn ferror_unlocked(p: var) @TypeOf(__sferror(p)) {
-    return __sferror(p);
-}
-pub const POLL_HUP = 6;
-pub const CLOCK_MONOTONIC = _CLOCK_MONOTONIC;
-pub const __INT_FAST32_MAX__ = 2147483647;
-pub inline fn __DARWIN_EXTSN_C(sym: var) @TypeOf(__asm("_" ++ (__STRING(sym) ++ (__DARWIN_SUF_EXTSN ++ __DARWIN_SUF_NON_CANCELABLE)))) {
-    return __asm("_" ++ (__STRING(sym) ++ (__DARWIN_SUF_EXTSN ++ __DARWIN_SUF_NON_CANCELABLE)));
-}
-pub const __MAC_10_11_4 = 101104;
-pub const __not_tail_called = __attribute__(__not_tail_called__);
-pub const __IPHONE_13_1 = 130100;
+
+
 pub inline fn ecs_os_thread_new(callback: var, param: var) @TypeOf(ecs_os_api.thread_new(callback, param)) {
     return ecs_os_api.thread_new(callback, param);
 }
-pub inline fn __API_DEPRECATED_BEGIN_MSG5(msg: var, a: var, b: var, c: var, d: var) @TypeOf(__API_D_BEGIN(msg, a) ++ (__API_D_BEGIN(msg, b) ++ (__API_D_BEGIN(msg, c) ++ __API_D_BEGIN(msg, d)))) {
-    return __API_D_BEGIN(msg, a) ++ (__API_D_BEGIN(msg, b) ++ (__API_D_BEGIN(msg, c) ++ __API_D_BEGIN(msg, d)));
-}
-pub const __INT32_FMTi__ = "i";
-pub const __GCC_ATOMIC_INT_LOCK_FREE = 2;
-pub const __INT_LEAST32_TYPE__ = c_int;
-pub const UINT_LEAST16_MAX = UINT16_MAX;
-pub const __GCC_ATOMIC_POINTER_LOCK_FREE = 2;
-pub const __SIZE_MAX__ = @as(c_ulong, 18446744073709551615);
-pub const WAKEMON_ENABLE = 0x01;
+
 pub inline fn ecs_os_alloca(size: var) @TypeOf(alloca(size)) {
     return alloca(size);
 }
-pub const SIGIO = 23;
-pub const __CLANG_ATOMIC_LLONG_LOCK_FREE = 2;
-pub const NDEBUG = 1;
-pub const __CLANG_ATOMIC_BOOL_LOCK_FREE = 2;
-pub const __WCHAR_MAX__ = 2147483647;
-pub const __ATOMIC_SEQ_CST = 5;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_13_2(x: var) @TypeOf(x) {
-    return x;
-}
-pub const SA_RESTART = 0x0002;
-pub const __used = __attribute__(__used__);
-pub const CLOCK_MONOTONIC_RAW_APPROX = _CLOCK_MONOTONIC_RAW_APPROX;
-pub const IOPOL_IMPORTANT = 1;
-pub const UINTMAX_MAX = UINTMAX_C(18446744073709551615);
+
 pub const ECS_NOT = (@import("std").meta.cast(ecs_entity_t, 1 << 58));
-pub const BUS_NOOP = 0;
-pub const __BMI__ = 1;
-pub const __FLT_MANT_DIG__ = 24;
-pub const IOPOL_PASSIVE = 2;
-pub const __SIZE_FMTo__ = "lo";
-pub const WAKEMON_DISABLE = 0x02;
-pub const __IPHONE_3_1 = 30100;
 pub const ECS_TYPE_FLAG_MASK = (@import("std").meta.cast(ecs_entity_t, ECS_INSTANCEOF | (ECS_CHILDOF | (ECS_AND | (ECS_OR | (ECS_XOR | ECS_NOT))))));
 pub const __SSTR = 0x0200;
 pub const SIGPROF = 27;
@@ -2285,184 +1934,31 @@ pub const WAIT_ANY = -1;
 pub const _POSIX_AIO_MAX = 1;
 pub const __SSE__ = 1;
 pub const EcsPostLoad = ECS_HI_COMPONENT_ID + 15;
-pub const CPUMON_MAKE_FATAL = 0x1000;
-pub inline fn __API_AVAILABLE_BEGIN3(a: var, b: var, c: var) @TypeOf(__API_A_BEGIN(a) ++ (__API_A_BEGIN(b) ++ __API_A_BEGIN(c))) {
-    return __API_A_BEGIN(a) ++ (__API_A_BEGIN(b) ++ __API_A_BEGIN(c));
-}
-pub const ILL_ILLOPC = 1;
-pub const SA_64REGSET = 0x0200;
-pub const SV_ONSTACK = SA_ONSTACK;
-pub const FP_PREC_64B = 3;
-pub const INT_FAST8_MIN = INT8_MIN;
-pub inline fn __API_UNAVAILABLE_BEGIN4(a: var, b: var, c: var, d: var) @TypeOf(__API_U_BEGIN(a) ++ (__API_U_BEGIN(b) ++ (__API_U_BEGIN(c) ++ __API_U_BEGIN(d)))) {
-    return __API_U_BEGIN(a) ++ (__API_U_BEGIN(b) ++ (__API_U_BEGIN(c) ++ __API_U_BEGIN(d)));
-}
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_2(x: var) @TypeOf(x) {
-    return x;
-}
-pub const __IPHONE_13_3 = 130300;
-pub const SIZE_T_MAX = ULONG_MAX;
-pub const __GCC_HAVE_SYNC_COMPARE_AND_SWAP_8 = 1;
-pub const SI_ASYNCIO = 0x10004;
-pub const SIGABRT = 6;
-pub const __PTHREAD_SIZE__ = 8176;
-pub const POLL_PRI = 5;
-pub const sa_sigaction = __sigaction_u.__sa_sigaction;
-pub const __LP64__ = 1;
-pub const __LDBL_MIN_10_EXP__ = -4931;
-pub const __LDBL_MAX_10_EXP__ = 4932;
-pub const WAIT_MYPGRP = 0;
-pub const __MAC_10_7 = 1070;
-pub const __FLT_MIN_EXP__ = -125;
 pub const EcsDisabledIntern = ECS_HI_COMPONENT_ID + 4;
-pub const __AVAILABILITY_INTERNAL__MAC_NA_DEP__MAC_NA = __attribute__(availability(macosx, unavailable));
-pub const INT_FAST16_MAX = INT16_MAX;
-pub const _POSIX_ARG_MAX = 4096;
-pub const __DARWIN_ONLY_VERS_1050 = 0;
-pub const __UINTMAX_FMTx__ = "lx";
-pub const NZERO = 20;
-pub const __code_model_small_ = 1;
-pub const _LP64 = 1;
-pub const FP_RND_UP = 2;
-pub const SIZE_MAX = UINTPTR_MAX;
-pub const __STDC_NO_THREADS__ = 1;
-pub const __FLT_MAX__ = @as(f32, 3.40282347e+38);
-pub const __UINT_FAST32_FMTX__ = "X";
-pub const __LZCNT__ = 1;
-pub const __MAC_10_13_4 = 101304;
+
 pub inline fn ecs_new_from_path(world: var, parent: var, path: var) @TypeOf(ecs_new_from_path_w_sep(world, parent, path, ".", NULL)) {
     return ecs_new_from_path_w_sep(world, parent, path, ".", NULL);
 }
-pub const __WATCHOS_2_2 = 20200;
-pub const __MAC_10_1 = 1010;
-pub const w_stopval = w_S.w_Stopval;
+
 pub inline fn ecs_bulk_add(world: var, type_1: var, filter: var) @TypeOf(ecs_bulk_add_type(world, ecs_type(type_1), filter)) {
     return ecs_bulk_add_type(world, ecs_type(type_1), filter);
 }
-pub const __FLT_DENORM_MIN__ = @as(f32, 1.40129846e-45);
-pub const __sort_noescape = __attribute__(__noescape__);
-pub inline fn __darwin_obsz0(object: var) @TypeOf(__builtin_object_size(object, 0)) {
-    return __builtin_object_size(object, 0);
-}
+
 pub const EcsFlecsCore = ECS_HI_COMPONENT_ID + 24;
-pub inline fn __OSX_EXTENSION_UNAVAILABLE(_msg: var) @TypeOf(__OS_AVAILABILITY_MSG(macosx_app_extension, unavailable, _msg)) {
-    return __OS_AVAILABILITY_MSG(macosx_app_extension, unavailable, _msg);
-}
-pub const __UINT_LEAST32_FMTu__ = "u";
-pub const __INT_LEAST16_FMTi__ = "hi";
-pub const SIGSEGV = 11;
 pub const FLECS__EEcsRateFilter = 15;
-pub const __WATCHOS_5_2 = 50200;
-pub const _POSIX_RTSIG_MAX = 8;
-pub const RENAME_EXCL = 0x00000004;
-pub const INT16_MAX = 32767;
-pub const __SCHAR_MAX__ = 127;
-pub const __IOS_PROHIBITED = __OS_AVAILABILITY(ios, unavailable);
-pub const ARG_MAX = 256 * 1024;
-pub const SIGTRAP = 5;
-pub const _POSIX2_COLL_WEIGHTS_MAX = 2;
-pub const __UINT8_FMTx__ = "hhx";
+
 pub inline fn ecs_remove(world: var, entity: var, type_1: var) @TypeOf(ecs_remove_type(world, entity, ecs_type(type_1))) {
     return ecs_remove_type(world, entity, ecs_type(type_1));
 }
-pub const ILL_COPROC = 7;
-pub const MB_LEN_MAX = 6;
-pub const INT64_MIN = -INT64_MAX - 1;
-pub const FPE_FLTDIV = 1;
-pub const __clang__ = 1;
-pub const FP_STATE_BYTES = 512;
-pub const ECS_DESERIALIZE_COMPONENT_SIZE_CONFLICT = 39;
-pub const BADSIG = SIG_ERR;
 pub inline fn ecs_os_realloc(ptr: var, size: var) @TypeOf(ecs_os_api.realloc(ptr, size)) {
     return ecs_os_api.realloc(ptr, size);
 }
-pub const __IPHONE_2_0 = 20000;
-pub const __IPHONE_12_0 = 120000;
-pub inline fn __DARWIN_NOCANCEL(sym: var) @TypeOf(__asm("_" ++ (__STRING(sym) ++ __DARWIN_SUF_NON_CANCELABLE))) {
-    return __asm("_" ++ (__STRING(sym) ++ __DARWIN_SUF_NON_CANCELABLE));
-}
-pub const __FLT_MIN_10_EXP__ = -37;
-pub const _POSIX_AIO_LISTIO_MAX = 2;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_4(x: var) @TypeOf(x) {
-    return x;
-}
-pub const __WATCHOS_5_0 = 50000;
-pub const __GNUC_VA_LIST = 1;
-pub const __SIZEOF_POINTER__ = 8;
-pub const SIGSYS = 12;
-pub const OFF_MIN = LLONG_MIN;
-pub const ILL_ILLOPN = 4;
-pub const BC_STRING_MAX = 1000;
-pub const __MAC_10_14_1 = 101401;
-pub const _POSIX_PIPE_BUF = 512;
-pub const __ATOMIC_RELEASE = 3;
-pub inline fn assert(e: var) @TypeOf((@import("std").meta.cast(c_void, 0))) {
-    return (@import("std").meta.cast(c_void, 0));
-}
-pub const __UINT_FAST64_FMTX__ = "llX";
-pub const WINT_MAX = INT32_MAX;
-pub const __IPHONE_13_2 = 130200;
-pub inline fn __printf0like(fmtarg: var, firstvararg: var) @TypeOf(__attribute__(__format__(__printf0__, fmtarg, firstvararg))) {
-    return __attribute__(__format__(__printf0__, fmtarg, firstvararg));
-}
 pub const ECS_OR = (@import("std").meta.cast(ecs_entity_t, 1 << 60));
-pub const __TVOS_9_0 = 90000;
-pub const __WINT_WIDTH__ = 32;
-pub inline fn __API_DEPRECATED_MSG8(msg: var, x: var, y: var, z: var, t: var, b: var, m: var, d: var) @TypeOf(__API_DEPRECATED_MSG7(msg, x, y, z, t, b, m) ++ __API_D(msg, d)) {
-    return __API_DEPRECATED_MSG7(msg, x, y, z, t, b, m) ++ __API_D(msg, d);
-}
-pub const __DARWIN_NSIG = 32;
 pub const ECS_UNSUPPORTED = 35;
-pub const SEEK_CUR = 1;
-pub const __FLT_MAX_10_EXP__ = 38;
-pub inline fn __swift_unavailable_on(osx_msg: var, ios_msg: var) @TypeOf(__swift_unavailable(osx_msg)) {
-    return __swift_unavailable(osx_msg);
-}
-pub inline fn __sferror(p: var) @TypeOf(((p.*._flags) & __SERR) != 0) {
-    return ((p.*._flags) & __SERR) != 0;
-}
 pub const ECS_UNKNOWN_COMPONENT_ID = 7;
-pub const __DARWIN_LITTLE_ENDIAN = 1234;
-pub const PTRDIFF_MIN = INTMAX_MIN;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_13_4(x: var) @TypeOf(x) {
-    return x;
-}
-pub const IOPOL_THROTTLE = 3;
-pub const __MACH__ = 1;
-pub const INT64_MAX = @as(c_longlong, 9223372036854775807);
-pub const __MAC_10_11 = 101100;
-pub const SV_SIGINFO = SA_SIGINFO;
-pub const __GNUC_PATCHLEVEL__ = 1;
-pub inline fn __IOS_EXTENSION_UNAVAILABLE(_msg: var) @TypeOf(__OS_AVAILABILITY_MSG(ios_app_extension, unavailable, _msg)) {
-    return __OS_AVAILABILITY_MSG(ios_app_extension, unavailable, _msg);
-}
-pub const PRIO_DARWIN_BG = 0x1000;
 pub const ECS_DESERIALIZE_FORMAT_ERROR = 40;
-pub inline fn ecs_vector_set_min_size(vector: var, T: var, size: var) @TypeOf(_ecs_vector_set_min_size(vector, ECS_VECTOR_T(T), size)) {
-    return _ecs_vector_set_min_size(vector, ECS_VECTOR_T(T), size);
-}
-pub const __SOPT = 0x0400;
-pub const __DARWIN_NO_LONG_LONG = 0;
-pub const __INT64_FMTd__ = "lld";
-pub const POLL_OUT = 2;
-pub const __UINT16_MAX__ = 65535;
-pub const __GCC_ATOMIC_CHAR_LOCK_FREE = 2;
-pub const UCHAR_MAX = 255;
-pub const LONG_MIN = -@as(c_long, 0x7fffffffffffffff) - 1;
-pub const __MAC_10_0 = 1000;
-pub const __IPHONE_10_3 = 100300;
-pub inline fn __API_DEPRECATED_MSG7(msg: var, x: var, y: var, z: var, t: var, b: var, m: var) @TypeOf(__API_DEPRECATED_MSG6(msg, x, y, z, t, b) ++ __API_D(msg, m)) {
-    return __API_DEPRECATED_MSG6(msg, x, y, z, t, b) ++ __API_D(msg, m);
-}
-pub const NL_MSGMAX = 32767;
-pub const __INT_FAST16_TYPE__ = c_short;
-pub const __MAC_10_13 = 101300;
-pub const stdin = __stdinp;
-pub const _POSIX_MQ_OPEN_MAX = 8;
-pub const _USE_FORTIFY_LEVEL = 2;
-pub const LONG_LONG_MIN = -__LONG_LONG_MAX__ - @as(c_longlong, 1);
 pub const EcsPreUpdate = ECS_HI_COMPONENT_ID + 16;
-pub const __TVOS_11_2 = 110200;
+
 pub const __ORDER_BIG_ENDIAN__ = 4321;
 pub const __INT_LEAST8_FMTd__ = "hhd";
 pub const EcsLastInternalComponentId = ecs_entity(EcsSystem);
@@ -2485,276 +1981,34 @@ pub inline fn ECS_MAX(a: var, b: var) @TypeOf(if (a > b) a else b) {
 pub const ECS_TYPE_CONSTRAINT_VIOLATION = 43;
 pub const __RDRND__ = 1;
 pub const ECS_3D = 3;
-pub const __seg_fs = __attribute__(address_space(257));
-pub const __TVOS_10_1 = 100100;
-pub const INT_MAX = 2147483647;
-pub const _POSIX_THREAD_THREADS_MAX = 64;
-pub const _POSIX_CHILD_MAX = 25;
-pub const SIGUSR1 = 30;
-pub const __WATCHOS_3_1_1 = 30101;
-pub const SIGALRM = 14;
-pub inline fn __API_DEPRECATED_MSG2(msg: var, x: var) @TypeOf(__API_D(msg, x)) {
-    return __API_D(msg, x);
-}
-pub const UINT64_MAX = @as(c_ulonglong, 18446744073709551615);
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_13(x: var) @TypeOf(x) {
-    return x;
-}
-pub const __SIG_ATOMIC_WIDTH__ = 32;
-pub const __OPTIMIZE__ = 1;
-pub inline fn __API_UNAVAILABLE_BEGIN3(a: var, b: var, c: var) @TypeOf(__API_U_BEGIN(a) ++ (__API_U_BEGIN(b) ++ __API_U_BEGIN(c))) {
-    return __API_U_BEGIN(a) ++ (__API_U_BEGIN(b) ++ __API_U_BEGIN(c));
-}
-pub const __DARWIN_BYTE_ORDER = __DARWIN_LITTLE_ENDIAN;
-pub const __MAC_10_8 = 1080;
 pub inline fn ecs_os_cond_broadcast(cond: var) @TypeOf(ecs_os_api.cond_broadcast(cond)) {
     return ecs_os_api.cond_broadcast(cond);
 }
 pub inline fn ecs_os_sleep(sec: var, nanosec: var) @TypeOf(ecs_os_api.sleep(sec, nanosec)) {
     return ecs_os_api.sleep(sec, nanosec);
 }
-pub const __IPHONE_12_1 = 120100;
+
 pub inline fn ecs_os_cond_signal(cond: var) @TypeOf(ecs_os_api.cond_signal(cond)) {
     return ecs_os_api.cond_signal(cond);
 }
-pub const _QUAD_LOWWORD = 0;
-pub inline fn WIFCONTINUED(x: var) @TypeOf(_WSTATUS(x) == @boolToInt((_WSTOPPED != 0) and (WSTOPSIG(x) == 0x13))) {
-    return _WSTATUS(x) == @boolToInt((_WSTOPPED != 0) and (WSTOPSIG(x) == 0x13));
-}
-pub const __SSE2_MATH__ = 1;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_12_4(x: var) @TypeOf(x) {
-    return x;
-}
-pub const __POINTER_WIDTH__ = 64;
-pub const _POSIX2_BC_SCALE_MAX = 99;
-pub const __STDC_HOSTED__ = 1;
-pub const __PIC__ = 2;
-pub const __FXSR__ = 1;
-pub const __SNBF = 0x0002;
-pub inline fn __alloca(size: var) @TypeOf(__builtin_alloca(size)) {
-    return __builtin_alloca(size);
-}
-pub const ru_first = ru_ixrss;
-pub const SIGINFO = 29;
-pub const __PTRDIFF_WIDTH__ = 64;
-pub inline fn WIFSTOPPED(x: var) @TypeOf(_WSTATUS(x) == @boolToInt((_WSTOPPED != 0) and (WSTOPSIG(x) != 0x13))) {
-    return _WSTATUS(x) == @boolToInt((_WSTOPPED != 0) and (WSTOPSIG(x) != 0x13));
-}
-pub const __SIZE_WIDTH__ = 64;
-pub const __DARWIN_WEOF = __darwin_wint_t - 1;
-pub const __INT_LEAST16_FMTd__ = "hd";
-pub const __SIZEOF_PTRDIFF_T__ = 8;
-pub const __UINT_LEAST16_FMTu__ = "hu";
-pub const __INT_LEAST64_FMTi__ = "lli";
-pub const __weak = __attribute__(objc_gc(weak));
-pub const __ATOMIC_CONSUME = 1;
-pub const __MAC_10_15_1 = 101501;
-pub const __INT_FAST16_FMTi__ = "hi";
-pub const __INT8_MAX__ = 127;
+
 pub inline fn ecs_count(world: var, type_1: var) @TypeOf(ecs_count_type(world, ecs_type(type_1))) {
     return ecs_count_type(world, ecs_type(type_1));
 }
-pub inline fn __API_RANGE_STRINGIFY(x: var) @TypeOf(__API_RANGE_STRINGIFY2(x)) {
-    return __API_RANGE_STRINGIFY2(x);
-}
-pub const __TVOS_UNAVAILABLE = __OS_AVAILABILITY(tvos, unavailable);
 pub const FLECS__T0 = 0;
-pub const __UINT32_FMTo__ = "o";
-pub const PIPE_BUF = 512;
-pub const __UINT_FAST64_FMTo__ = "llo";
-pub const __GXX_ABI_VERSION = 1002;
-pub const IOPOL_ATIME_UPDATES_OFF = 1;
 pub const EcsFlecs = ECS_HI_COMPONENT_ID + 23;
-pub const __IPHONE_12_2 = 120200;
-pub const __OPENCL_MEMORY_SCOPE_ALL_SVM_DEVICES = 3;
-pub const __INT8_FMTi__ = "hhi";
-pub const FPE_INTDIV = 7;
-pub const __unreachable_ok_pop = _Pragma("clang diagnostic pop");
-pub const __IPHONE_9_1 = 90100;
-pub const RE_DUP_MAX = 255;
-pub const CLOCK_REALTIME = _CLOCK_REALTIME;
-pub const __GCC_ATOMIC_TEST_AND_SET_TRUEVAL = 1;
-pub const __clang_major__ = 10;
-pub const __OPENCL_MEMORY_SCOPE_SUB_GROUP = 4;
-pub const __INT16_MAX__ = 32767;
-pub const __SWIFT_UNAVAILABLE = __OS_AVAILABILITY(swift, unavailable);
-pub const ECS_MISSING_SYSTEM_CONTEXT = 10;
-pub const __GCC_ATOMIC_LLONG_LOCK_FREE = 2;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_11_2(x: var) @TypeOf(x) {
-    return x;
-}
-pub const __AVAILABILITY_INTERNAL__IPHONE_NA_DEP__IPHONE_NA = __attribute__(availability(ios, unavailable));
-pub const __UINT16_FMTo__ = "ho";
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_10_2(x: var) @TypeOf(x) {
-    return x;
-}
-pub const __PTHREAD_COND_SIZE__ = 40;
-pub const __CLOCK_AVAILABILITY = __OSX_AVAILABLE(10.12) ++ (__IOS_AVAILABLE(10.0) ++ (__TVOS_AVAILABLE(10.0) ++ __WATCHOS_AVAILABLE(3.0)));
-pub const __INT_FAST8_FMTi__ = "hhi";
-pub const _POSIX_TTY_NAME_MAX = 9;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_15(x: var) @TypeOf(x) {
-    return x;
-}
-pub const __SLBF = 0x0001;
-pub inline fn __API_UNAVAILABLE_BEGIN1(a: var) @TypeOf(__API_U_BEGIN(a)) {
-    return __API_U_BEGIN(a);
-}
-pub const __MAC_10_10 = 101000;
 pub const FLECS__EEcsName = 6;
-pub const __IPHONE_10_2 = 100200;
-pub const RLIMIT_DATA = 2;
-pub inline fn ecs_ringbuf_new(T: var, elem_count: var) @TypeOf(_ecs_ringbuf_new(ECS_VECTOR_T(T), elem_count)) {
-    return _ecs_ringbuf_new(ECS_VECTOR_T(T), elem_count);
-}
-pub const __unreachable_ok_push = _Pragma("clang diagnostic push") ++ _Pragma("clang diagnostic ignored \"-Wunreachable-code\"");
-pub const SS_DISABLE = 0x0004;
-pub const FPE_FLTOVF = 2;
-pub const __CONSTANT_CFSTRINGS__ = 1;
-pub const ULONG_LONG_MAX = __LONG_LONG_MAX__ * (@as(c_ulonglong, 2) + @as(c_ulonglong, 1));
-pub const IOPOL_NORMAL = IOPOL_IMPORTANT;
-pub const __llvm__ = 1;
-pub inline fn __API_DEPRECATED_BEGIN_REP4(rep: var, a: var, b: var, c: var) @TypeOf(__API_R_BEGIN(rep, a) ++ (__API_R_BEGIN(rep, b) ++ __API_R_BEGIN(rep, c))) {
-    return __API_R_BEGIN(rep, a) ++ (__API_R_BEGIN(rep, b) ++ __API_R_BEGIN(rep, c));
-}
 pub const ECS_CHILDOF = (@import("std").meta.cast(ecs_entity_t, 1 << 62));
 pub const ECS_NOT_A_COMPONENT = 11;
-pub const __GCC_ASM_FLAG_OUTPUTS__ = 1;
 pub const EcsModule = ECS_HI_COMPONENT_ID + 0;
 pub const EcsOnValidate = ECS_HI_COMPONENT_ID + 18;
-pub const __LDBL_MAX_EXP__ = 16384;
-pub const PTHREAD_STACK_MIN = 8192;
-pub const __DARWIN_WCHAR_MIN = -0x7fffffff - 1;
-pub const __IPHONE_11_1 = 110100;
-pub const _POSIX2_BC_DIM_MAX = 2048;
-pub const __IPHONE_2_2 = 20200;
-pub inline fn ecs_vector_new(T: var, elem_count: var) @TypeOf(_ecs_vector_new(ECS_VECTOR_T(T), elem_count)) {
-    return _ecs_vector_new(ECS_VECTOR_T(T), elem_count);
-}
-pub const _POSIX_PATH_MAX = 256;
-pub const IOPOL_VFS_STATFS_NO_DATA_VOLUME_DEFAULT = 0;
-pub const __INTPTR_WIDTH__ = 64;
-pub const __XSAVE__ = 1;
-pub const __WATCHOS_PROHIBITED = __OS_AVAILABILITY(watchos, unavailable);
-pub const __AVAILABILITY_INTERNAL__IPHONE_NA = __attribute__(availability(ios, unavailable));
-pub const PRIO_MIN = -20;
-pub const __GCC_ATOMIC_CHAR32_T_LOCK_FREE = 2;
-pub const SA_NOCLDWAIT = 0x0020;
-pub const PTRDIFF_MAX = INTMAX_MAX;
-pub const ECS_AND = (@import("std").meta.cast(ecs_entity_t, 1 << 61));
-pub const __FLT_HAS_QUIET_NAN__ = 1;
-pub const __WATCHOS_6_0 = 60000;
-pub const __corei7__ = 1;
 pub const RLIMIT_CPU = 0;
 pub inline fn ecs_has(world: var, entity: var, type_1: var) @TypeOf(ecs_has_type(world, entity, ecs_type(type_1))) {
     return ecs_has_type(world, entity, ecs_type(type_1));
 }
-pub const __BIGGEST_ALIGNMENT__ = 16;
-pub const IOPOL_TYPE_VFS_STATFS_NO_DATA_VOLUME = 4;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_14(x: var) @TypeOf(x) {
-    return x;
-}
-pub const __DARWIN_64_BIT_INO_T = 1;
-pub const LLONG_MIN = -@as(c_longlong, 0x7fffffffffffffff) - 1;
-pub inline fn __API_AVAILABLE_BEGIN7(a: var, b: var, c: var, d: var, e: var, f: var, g: var) @TypeOf(__API_A_BEGIN(a) ++ (__API_A_BEGIN(b) ++ (__API_A_BEGIN(c) ++ (__API_A_BEGIN(d) ++ (__API_A_BEGIN(e) ++ (__API_A_BEGIN(f) ++ __API_A_BEGIN(g))))))) {
-    return __API_A_BEGIN(a) ++ (__API_A_BEGIN(b) ++ (__API_A_BEGIN(c) ++ (__API_A_BEGIN(d) ++ (__API_A_BEGIN(e) ++ (__API_A_BEGIN(f) ++ __API_A_BEGIN(g))))));
-}
-pub const __LONG_LONG_MAX__ = @as(c_longlong, 9223372036854775807);
-pub const __LDBL_MANT_DIG__ = 64;
-pub inline fn __DARWIN_1050ALIAS(sym: var) @TypeOf(__asm("_" ++ (__STRING(sym) ++ (__DARWIN_SUF_1050 ++ __DARWIN_SUF_UNIX03)))) {
-    return __asm("_" ++ (__STRING(sym) ++ (__DARWIN_SUF_1050 ++ __DARWIN_SUF_UNIX03)));
-}
+
 pub const ECS_COLUMN_IS_SHARED = 21;
 pub const ECS_MODULE_UNDEFINED = 18;
-pub const UINT_LEAST32_MAX = UINT32_MAX;
-pub const __IPHONE_8_0 = 80000;
-pub const __TVOS_9_1 = 90100;
-pub const _POSIX2_LINE_MAX = 2048;
-pub const __F16C__ = 1;
-pub const __GCC_HAVE_SYNC_COMPARE_AND_SWAP_16 = 1;
-pub const __AVAILABILITY_INTERNAL_UNAVAILABLE = __attribute__(unavailable);
-pub const _POSIX_TIMER_MAX = 32;
-pub inline fn feof_unlocked(p: var) @TypeOf(__sfeof(p)) {
-    return __sfeof(p);
-}
-pub const SV_NOCLDSTOP = SA_NOCLDSTOP;
-pub const __SIZEOF_INT__ = 4;
-pub inline fn __API_UNAVAILABLE2(x: var, y: var) @TypeOf(__API_U(x) ++ __API_U(y)) {
-    return __API_U(x) ++ __API_U(y);
-}
-pub const __INT_LEAST8_MAX__ = 127;
-pub const __UINTMAX_FMTo__ = "lo";
-pub const _POSIX_STREAM_MAX = 8;
-pub inline fn __DARWIN_ALIAS_STARTING_MAC___MAC_10_12(x: var) @TypeOf(x) {
-    return x;
-}
-pub const __TVOS_11_3 = 110300;
 pub inline fn ecs_get_fullpath(world: var, child: var) @TypeOf(ecs_get_path_w_sep(world, 0, child, 0, ".", NULL)) {
     return ecs_get_path_w_sep(world, 0, child, 0, ".", NULL);
 }
-pub const __AVX__ = 1;
-pub const __darwin_pthread_handler_rec = struct___darwin_pthread_handler_rec;
-pub const _opaque_pthread_attr_t = struct__opaque_pthread_attr_t;
-pub const _opaque_pthread_cond_t = struct__opaque_pthread_cond_t;
-pub const _opaque_pthread_condattr_t = struct__opaque_pthread_condattr_t;
-pub const _opaque_pthread_mutex_t = struct__opaque_pthread_mutex_t;
-pub const _opaque_pthread_mutexattr_t = struct__opaque_pthread_mutexattr_t;
-pub const _opaque_pthread_once_t = struct__opaque_pthread_once_t;
-pub const _opaque_pthread_rwlock_t = struct__opaque_pthread_rwlock_t;
-pub const _opaque_pthread_rwlockattr_t = struct__opaque_pthread_rwlockattr_t;
-pub const _opaque_pthread_t = struct__opaque_pthread_t;
-pub const timespec = struct_timespec;
-pub const tm = struct_tm;
-pub const __darwin_i386_thread_state = struct___darwin_i386_thread_state;
-pub const __darwin_fp_control = struct___darwin_fp_control;
-pub const __darwin_fp_status = struct___darwin_fp_status;
-pub const __darwin_mmst_reg = struct___darwin_mmst_reg;
-pub const __darwin_xmm_reg = struct___darwin_xmm_reg;
-pub const __darwin_ymm_reg = struct___darwin_ymm_reg;
-pub const __darwin_zmm_reg = struct___darwin_zmm_reg;
-pub const __darwin_opmask_reg = struct___darwin_opmask_reg;
-pub const __darwin_i386_float_state = struct___darwin_i386_float_state;
-pub const __darwin_i386_avx_state = struct___darwin_i386_avx_state;
-pub const __darwin_i386_avx512_state = struct___darwin_i386_avx512_state;
-pub const __darwin_i386_exception_state = struct___darwin_i386_exception_state;
-pub const __darwin_x86_debug_state32 = struct___darwin_x86_debug_state32;
-pub const __x86_pagein_state = struct___x86_pagein_state;
-pub const __darwin_x86_thread_state64 = struct___darwin_x86_thread_state64;
-pub const __darwin_x86_thread_full_state64 = struct___darwin_x86_thread_full_state64;
-pub const __darwin_x86_float_state64 = struct___darwin_x86_float_state64;
-pub const __darwin_x86_avx_state64 = struct___darwin_x86_avx_state64;
-pub const __darwin_x86_avx512_state64 = struct___darwin_x86_avx512_state64;
-pub const __darwin_x86_exception_state64 = struct___darwin_x86_exception_state64;
-pub const __darwin_x86_debug_state64 = struct___darwin_x86_debug_state64;
-pub const __darwin_x86_cpmu_state64 = struct___darwin_x86_cpmu_state64;
-pub const __darwin_mcontext32 = struct___darwin_mcontext32;
-pub const __darwin_mcontext_avx32 = struct___darwin_mcontext_avx32;
-pub const __darwin_mcontext_avx512_32 = struct___darwin_mcontext_avx512_32;
-pub const __darwin_mcontext64 = struct___darwin_mcontext64;
-pub const __darwin_mcontext64_full = struct___darwin_mcontext64_full;
-pub const __darwin_mcontext_avx64 = struct___darwin_mcontext_avx64;
-pub const __darwin_mcontext_avx64_full = struct___darwin_mcontext_avx64_full;
-pub const __darwin_mcontext_avx512_64 = struct___darwin_mcontext_avx512_64;
-pub const __darwin_mcontext_avx512_64_full = struct___darwin_mcontext_avx512_64_full;
-pub const __darwin_sigaltstack = struct___darwin_sigaltstack;
-pub const __darwin_ucontext = struct___darwin_ucontext;
-pub const sigval = union_sigval;
-pub const sigevent = struct_sigevent;
-pub const __siginfo = struct___siginfo;
-pub const __sigaction_u = union___sigaction_u;
-pub const __sigaction = struct___sigaction;
-pub const sigaction = struct_sigaction;
-pub const sigvec = struct_sigvec;
-pub const sigstack = struct_sigstack;
-pub const timeval = struct_timeval;
-pub const rusage = struct_rusage;
-pub const rusage_info_v0 = struct_rusage_info_v0;
-pub const rusage_info_v1 = struct_rusage_info_v1;
-pub const rusage_info_v2 = struct_rusage_info_v2;
-pub const rusage_info_v3 = struct_rusage_info_v3;
-pub const rusage_info_v4 = struct_rusage_info_v4;
-pub const rlimit = struct_rlimit;
-pub const proc_rlimit_control_wakeupmon = struct_proc_rlimit_control_wakeupmon;
-pub const __sbuf = struct___sbuf;
-pub const __sFILEX = struct___sFILEX;
-pub const __sFILE = struct___sFILE;
-pub const __va_list_tag = struct___va_list_tag;
