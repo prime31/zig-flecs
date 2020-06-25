@@ -27,8 +27,9 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         exe.setBuildMode(b.standardReleaseOptions());
 
         // only required if doing @cImport to generate a cimport.zig file
-        // exe.addIncludeDir("flecs/include");
-        linkArtifact(b, exe, target, .exe_compiled, "src");
+        exe.addIncludeDir("flecs/include");
+        // for some reason exe_compiled + debug build results in "illegal instruction 4". Investigate at some point.
+        linkArtifact(b, exe, target, .static, "src");
 
         const run_cmd = exe.run();
         const exe_step = b.step(name, b.fmt("run {}.zig", .{name}));
