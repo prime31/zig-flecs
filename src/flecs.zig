@@ -1,36 +1,90 @@
 const std = @import("std");
 
+// TODO: move typeId to common code
+
+/// comptime string hashing for the type names
+pub fn typeId(comptime T: type) u32 {
+    comptime return hashStringFnv(u32, @typeName(T));
+}
+
+/// Fowler–Noll–Vo string hash. ReturnType should be u32/u64
+pub fn hashStringFnv(comptime ReturnType: type, comptime str: []const u8) ReturnType {
+    std.debug.assert(ReturnType == u32 or ReturnType == u64);
+
+    const prime = if (ReturnType == u32) @as(u32, 16777619) else @as(u64, 1099511628211);
+    var value = if (ReturnType == u32) @as(u32, 2166136261) else @as(u64, 14695981039346656037);
+    for (str) |c| {
+        value = (value ^ @intCast(u32, c)) *% prime;
+    }
+    return value;
+}
+
 pub const ecs_world_t = @Type(.Opaque);
 
 pub const World = struct {
     world: *ecs_world_t,
+    types: std.AutoHashMap(u32, ecs_entity_t),
 
-    pub fn init() World {
-        return .{ .world = ecs_init() };
+    pub fn init(allocator: *std.mem.Allocator) World {
+        return .{ .world = ecs_init(), .types = std.AutoHashMap(u32, ecs_entity_t).init(allocator) };
+    }
+
+    pub fn deinit(self: World) void {
+        _ = ecs_fini(self.world);
+        self.types.deinit();
     }
 
     pub fn setTargetFps(self: World, fps: f32) void {
         ecs_set_target_fps(self.world, fps);
     }
 
-    pub fn fini(self: World) void {
-        _ = ecs_fini(self.world);
-    }
-
     pub fn progress(self: World, delta_time: f32) void {
         _ = ecs_progress(self.world, delta_time);
     }
 
-    pub fn newComponent(self: World, comptime T: type) ecs_entity_t {
-        return ecs_new_component(self.world, 0, @typeName(T), @sizeOf(T), @alignOf(T));
+    pub fn newComponent(self: *World, comptime T: type) ecs_entity_t {
+        var type_id = typeId(T);
+        var res = self.types.getOrPut(type_id) catch unreachable;
+        if (res.found_existing) {
+            return res.kv.value;
+        }
+
+        const type_entity = ecs_new_component(self.world, 0, @typeName(T), @sizeOf(T), @alignOf(T));
+        res.kv.value = type_entity;
+        return type_entity;
     }
 
     pub fn newType(self: World, id: [*c]const u8, components: [*c]const u8) ecs_entity_t {
         return ecs_new_type(self.world, 0, id, components);
     }
 
+    pub fn typeFromStr(self: World, expr: [*c]const u8) ecs_type_t {
+        return ecs_type_from_str(self.world, expr);
+    }
+
+    /// This operation will preallocate memory in the world for the specified number of entities
+    pub fn dim(self: World, entity_count: i32) void {
+        ecs_dim(self.world, entity_count);
+    }
+
+    /// his operation will preallocate memory for a type (table) for the specified number of entities
+    pub fn dimType(self: World, ecs_type: ecs_type_t, entity_count: i32) void {
+        ecs_dim_type(self.world, ecs_type, entity_count);
+    }
+
     pub fn newSystem(self: World, name: [*c]const u8, phase: Phase, signature: [*c]const u8, action: ecs_iter_action_t) void {
         _ = ecs_new_system(self.world, 0, name, @enumToInt(phase), signature, action);
+    }
+
+    pub fn setPtr(self: World, entity: ecs_entity_t, component: ecs_entity_t, size: usize, ptr: ?*const c_void) ecs_entity_t {
+        return ecs_set_ptr_w_entity(self.world, entity, component, size, ptr);
+    }
+
+    pub fn set(self: *World, entity: ecs_entity_t, ptr: var) void {
+        std.debug.assert(@typeInfo(@TypeOf(ptr)) == .Pointer);
+
+        const child = std.meta.Child(@TypeOf(ptr));
+        _ = ecs_set_ptr_w_entity(self.world, entity, self.newComponent(child), @sizeOf(child), ptr);
     }
 };
 
@@ -50,7 +104,10 @@ pub const EcsPipeline = ECS_HI_COMPONENT_ID + 8;
 // Trigger tags
 pub const EcsOnAdd = ECS_HI_COMPONENT_ID + 9;
 pub const EcsOnRemove = ECS_HI_COMPONENT_ID + 10;
+
+// Set system tags
 pub const EcsOnSet = ECS_HI_COMPONENT_ID + 11;
+pub const EcsUnSet = ECS_HI_COMPONENT_ID + 12;
 
 // Builtin pipeline tags
 pub const Phase = enum(ecs_entity_t) {
@@ -401,6 +458,15 @@ pub const ecs_entity_t = u64;
 pub const ecs_type_t = [*c]const ecs_vector_t;
 pub const struct_ecs_snapshot_t = @Type(.Opaque);
 pub const ecs_snapshot_t = struct_ecs_snapshot_t;
+
+pub const EcsQueryNeedsTables = 1;      /// Query needs matching with tables
+pub const EcsQueryMonitor = 2;          /// Query needs to be registered as a monitor
+pub const EcsQueryOnSet = 4;            /// Query needs to be registered as on_set system
+pub const EcsQueryUnSet = 8;            /// Query needs to be registered as un_set system
+pub const EcsQueryMatchDisabled = 16;   /// Does query match disabled
+pub const EcsQueryMatchPrefab = 32;     /// Does query match prefabs
+pub const EcsQueryHasRefs = 64;         /// Does query have references
+
 pub const struct_ecs_query_t = @Type(.Opaque);
 pub const ecs_query_t = struct_ecs_query_t;
 
