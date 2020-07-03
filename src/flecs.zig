@@ -1,37 +1,23 @@
 const std = @import("std");
 
-// TODO: move typeId to common code
+pub const Entity = ecs_entity_t;
 
-/// comptime string hashing for the type names
-pub fn typeId(comptime T: type) u32 {
-    comptime return hashStringFnv(u32, @typeName(T));
-}
-
-/// Fowler–Noll–Vo string hash. ReturnType should be u32/u64
-pub fn hashStringFnv(comptime ReturnType: type, comptime str: []const u8) ReturnType {
-    std.debug.assert(ReturnType == u32 or ReturnType == u64);
-
-    const prime = if (ReturnType == u32) @as(u32, 16777619) else @as(u64, 1099511628211);
-    var value = if (ReturnType == u32) @as(u32, 2166136261) else @as(u64, 14695981039346656037);
-    for (str) |c| {
-        value = (value ^ @intCast(u32, c)) *% prime;
-    }
-    return value;
+/// registered component handle cache
+fn componentHandle(comptime T : type) *Entity {
+    return &(struct { pub var handle : Entity = std.math.maxInt(u64); }.handle);
 }
 
 pub const ecs_world_t = @Type(.Opaque);
 
 pub const World = struct {
     world: *ecs_world_t,
-    types: std.AutoHashMap(u32, ecs_entity_t),
 
-    pub fn init(allocator: *std.mem.Allocator) World {
-        return .{ .world = ecs_init(), .types = std.AutoHashMap(u32, ecs_entity_t).init(allocator) };
+    pub fn init() World {
+        return .{ .world = ecs_init() };
     }
 
     pub fn deinit(self: World) void {
         _ = ecs_fini(self.world);
-        self.types.deinit();
     }
 
     pub fn setTargetFps(self: World, fps: f32) void {
@@ -42,19 +28,17 @@ pub const World = struct {
         _ = ecs_progress(self.world, delta_time);
     }
 
-    pub fn newComponent(self: *World, comptime T: type) ecs_entity_t {
-        var type_id = typeId(T);
-        var res = self.types.getOrPut(type_id) catch unreachable;
-        if (res.found_existing) {
-            return res.kv.value;
+    pub fn newComponent(self: *World, comptime T: type) Entity {
+        var handle = componentHandle(T);
+        if (handle.* < std.math.maxInt(Entity)) {
+            return handle.*;
         }
 
-        const type_entity = ecs_new_component(self.world, 0, @typeName(T), @sizeOf(T), @alignOf(T));
-        res.kv.value = type_entity;
-        return type_entity;
+        handle.* = ecs_new_component(self.world, 0, @typeName(T), @sizeOf(T), @alignOf(T));
+        return handle.*;
     }
 
-    pub fn newType(self: World, id: [*c]const u8, components: [*c]const u8) ecs_entity_t {
+    pub fn newType(self: World, id: [*c]const u8, components: [*c]const u8) Entity {
         return ecs_new_type(self.world, 0, id, components);
     }
 
@@ -76,11 +60,20 @@ pub const World = struct {
         _ = ecs_new_system(self.world, 0, name, @enumToInt(phase), signature, action);
     }
 
-    pub fn setPtr(self: World, entity: ecs_entity_t, component: ecs_entity_t, size: usize, ptr: ?*const c_void) ecs_entity_t {
-        return ecs_set_ptr_w_entity(self.world, entity, component, size, ptr);
+    pub fn setName(self: World, entity: Entity, name: [*c]const u8) void {
+        var ecs_name = EcsName{ .value = name, .symbol = null, .alloc_value = null };
+        self.setPtr(entity, FLECS__EEcsName, @sizeOf(EcsName), &ecs_name);
     }
 
-    pub fn set(self: *World, entity: ecs_entity_t, ptr: var) void {
+    pub fn getName(self: World, entity: Entity) [*c] const u8 {
+        return ecs_get_name(self.world, entity);
+    }
+
+    pub fn setPtr(self: World, entity: Entity, component: Entity, size: usize, ptr: ?*const c_void) void {
+        _ = ecs_set_ptr_w_entity(self.world, entity, component, size, ptr);
+    }
+
+    pub fn set(self: *World, entity: Entity, ptr: var) void {
         std.debug.assert(@typeInfo(@TypeOf(ptr)) == .Pointer);
 
         const child = std.meta.Child(@TypeOf(ptr));
@@ -703,12 +696,13 @@ pub extern fn ecs_type_owns_entity(world: ?*ecs_world_t, type: ecs_type_t, entit
 pub extern fn ecs_type_owns_type(world: ?*ecs_world_t, type: ecs_type_t, has: ecs_type_t, owned: u8) u8;
 pub extern fn ecs_type_get_entity_for_xor(world: ?*ecs_world_t, type: ecs_type_t, xor_tag: ecs_entity_t) ecs_entity_t;
 pub extern fn ecs_type_index_of(type: ecs_type_t, component: ecs_entity_t) i16;
-pub const struct_EcsName = extern struct {
+
+pub const EcsName = extern struct {
     value: [*c]const u8,
     symbol: [*c]const u8,
     alloc_value: [*c]u8,
 };
-pub const EcsName = struct_EcsName;
+
 pub const struct_EcsComponent = extern struct {
     size: usize,
     alignment: usize,
@@ -955,16 +949,8 @@ pub extern fn ecs_ringbuf_index(buffer: ?*ecs_ringbuf_t) i32;
 pub extern fn ecs_ringbuf_count(buffer: ?*ecs_ringbuf_t) i32;
 pub extern fn ecs_ringbuf_free(buffer: ?*ecs_ringbuf_t) void;
 
-pub inline fn ecs_bulk_remove(world: var, type_1: var, filter: var) @TypeOf(ecs_bulk_remove_type(world, ecs_type(type_1), filter)) {
-    return ecs_bulk_remove_type(world, ecs_type(type_1), filter);
-}
-
 pub inline fn ecs_os_get_time(time_out: var) @TypeOf(ecs_os_api.get_time(time_out)) {
     return ecs_os_api.get_time(time_out);
-}
-
-pub inline fn ECS_TYPE_VAR(type_1: var) @TypeOf(ecs_type_t ++ ecs_type(type_1)) {
-    return ecs_type_t ++ ecs_type(type_1);
 }
 
 pub const ECS_INVALID_HANDLE = 1;
@@ -986,10 +972,6 @@ pub const ECS_COLUMN_IS_NOT_SHARED = 20;
 pub const ECS_INVALID_COMPONENT_ALIGNMENT = 16;
 pub inline fn ecs_os_dlclose(lib: var) @TypeOf(ecs_os_api.dlclose(lib)) {
     return ecs_os_api.dlclose(lib);
-}
-
-pub inline fn ecs_add_remove(world: var, entity: var, to_add: var, to_remove: var) @TypeOf(ecs_add_remove_type(world, entity, ecs_type(to_add), ecs_type(to_remove))) {
-    return ecs_add_remove_type(world, entity, ecs_type(to_add), ecs_type(to_remove));
 }
 
 pub inline fn ECS_ENTITY_VAR(type_1: var) @TypeOf(ecs_entity_t ++ ecs_entity(type_1)) {
@@ -1074,9 +1056,7 @@ pub const __SMOD = 0x2000;
 pub const RLIM_NLIMITS = 9;
 pub const _POSIX_NGROUPS_MAX = 8;
 pub const _IOLBF = 1;
-pub inline fn ecs_new(world: var, type_1: var) @TypeOf(ecs_new_w_type(world, ecs_type(type_1))) {
-    return ecs_new_w_type(world, ecs_type(type_1));
-}
+
 pub inline fn ecs_os_dlproc(lib: var, procname: var) @TypeOf(ecs_os_api.dlproc(lib, procname)) {
     return ecs_os_api.dlproc(lib, procname);
 }
@@ -1239,9 +1219,7 @@ pub const L_ctermid = 1024;
 pub const _QUAD_HIGHWORD = 1;
 pub const __x86_64__ = 1;
 pub const _POSIX_LINK_MAX = 8;
-pub inline fn ecs_bulk_add_remove(world: var, to_add: var, to_remove: var, filter: var) @TypeOf(ecs_bulk_add_remove_type(world, ecs_type(to_add), ecs_type(to_remove), filter)) {
-    return ecs_bulk_add_remove_type(world, ecs_type(to_add), ecs_type(to_remove), filter);
-}
+
 pub inline fn sigmask(m: var) @TypeOf(1 << (m - 1)) {
     return 1 << (m - 1);
 }
@@ -1316,24 +1294,12 @@ pub inline fn ecs_new_from_fullpath(world: var, path: var) @TypeOf(ecs_new_from_
 
 pub const ECS_DESERIALIZE_COMPONENT_ID_CONFLICT = 38;
 
-pub inline fn ecs_add(world: var, entity: var, component: var) @TypeOf(ecs_add_type(world, entity, ecs_type(component))) {
-    return ecs_add_type(world, entity, ecs_type(component));
-}
-
 pub const ECS_OUT_OF_RANGE = 28;
 pub const ECS_MISSING_OS_API = 32;
 pub const ECS_COLUMN_HAS_NO_DATA = 22;
 pub const FLECS__EEcsQuery = 10;
 
 pub const EcsFirstUserComponentId = 32;
-
-pub inline fn ecs_owns(world: var, entity: var, type_1: var, owned: var) @TypeOf(ecs_type_owns_type(world, ecs_get_type(world, entity), ecs_type(type_1), owned)) {
-    return ecs_type_owns_type(world, ecs_get_type(world, entity), ecs_type(type_1), owned);
-}
-
-pub inline fn ecs_bulk_new(world: var, component: var, count: var) @TypeOf(ecs_bulk_new_w_type(world, ecs_type(component), count)) {
-    return ecs_bulk_new_w_type(world, ecs_type(component), count);
-}
 
 pub inline fn ecs_get_parent(world: var, entity: var, component: var) @TypeOf(ecs_get_parent_w_entity(world, entity, ecs_entity(component))) {
     return ecs_get_parent_w_entity(world, entity, ecs_entity(component));
@@ -1388,15 +1354,8 @@ pub inline fn ecs_new_from_path(world: var, parent: var, path: var) @TypeOf(ecs_
     return ecs_new_from_path_w_sep(world, parent, path, ".", NULL);
 }
 
-pub inline fn ecs_bulk_add(world: var, type_1: var, filter: var) @TypeOf(ecs_bulk_add_type(world, ecs_type(type_1), filter)) {
-    return ecs_bulk_add_type(world, ecs_type(type_1), filter);
-}
-
 pub const FLECS__EEcsRateFilter = 15;
 
-pub inline fn ecs_remove(world: var, entity: var, type_1: var) @TypeOf(ecs_remove_type(world, entity, ecs_type(type_1))) {
-    return ecs_remove_type(world, entity, ecs_type(type_1));
-}
 pub inline fn ecs_os_realloc(ptr: var, size: var) @TypeOf(ecs_os_api.realloc(ptr, size)) {
     return ecs_os_api.realloc(ptr, size);
 }
@@ -1424,9 +1383,6 @@ pub inline fn ecs_os_cond_signal(cond: var) @TypeOf(ecs_os_api.cond_signal(cond)
     return ecs_os_api.cond_signal(cond);
 }
 
-pub inline fn ecs_count(world: var, type_1: var) @TypeOf(ecs_count_type(world, ecs_type(type_1))) {
-    return ecs_count_type(world, ecs_type(type_1));
-}
 pub const FLECS__T0 = 0;
 
 
@@ -1434,12 +1390,9 @@ pub const FLECS__T0 = 0;
 pub const FLECS__EEcsName = 6;
 pub const ECS_CHILDOF = (@import("std").meta.cast(ecs_entity_t, 1 << 62));
 pub const ECS_NOT_A_COMPONENT = 11;
-pub inline fn ecs_has(world: var, entity: var, type_1: var) @TypeOf(ecs_has_type(world, entity, ecs_type(type_1))) {
-    return ecs_has_type(world, entity, ecs_type(type_1));
-}
-
 pub const ECS_COLUMN_IS_SHARED = 21;
 pub const ECS_MODULE_UNDEFINED = 18;
+
 pub inline fn ecs_get_fullpath(world: var, child: var) @TypeOf(ecs_get_path_w_sep(world, 0, child, 0, ".", NULL)) {
     return ecs_get_path_w_sep(world, 0, child, 0, ".", NULL);
 }

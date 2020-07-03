@@ -5,7 +5,7 @@ pub const Velocity = struct { x: f32, y: f32, z: f64 = 0 };
 pub const Position = struct { x: f32, y: f32 };
 
 pub fn main() !void {
-    var world = flecs.World.init(std.testing.allocator);
+    var world = flecs.World.init();
     defer world.deinit();
 
     const e_pos = world.newComponent(Position);

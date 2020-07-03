@@ -7,41 +7,34 @@ pub const Position = struct { x: f32, y: f32 };
 
 pub fn main() !void {
     var world = flecs.World.init();
-    // var world = flecs.ecs_init_w_args(0, null);
+    defer world.deinit();
 
-    const e_pos = flecs.ecs_new_component(world, 0, "Position", @sizeOf(Position), @alignOf(Position));
-    const e_vel = flecs.ecs_new_component(world, 0, "Velocity", @sizeOf(Velocity), @alignOf(Velocity));
+    const e_pos = world.newComponent(Position);
+    const e_vel = world.newComponent(Velocity);
 
-    _ = flecs.ecs_new_system(world, 0, "Move", flecs.EcsOnUpdate, "Position, Velocity", move);
+    world.newSystem("Move", .on_update, "Position, Velocity", move);
 
-    const MyEntity = flecs.ecs_new_w_type(world, 0);
+    const MyEntity = flecs.ecs_new_w_type(world.world, 0);
 
-    var ecs_name = flecs.EcsName{.value = "MyEntityYo", .symbol = null, .alloc_value = null,};
-    _ = flecs.ecs_set_ptr_w_entity(world, MyEntity, flecs.FLECS__EEcsName, @sizeOf(flecs.EcsName), &ecs_name);
+    world.setName(MyEntity, "MyEntityYo");
+    std.debug.print("{s}\n", .{world.getName(MyEntity)});
 
-    _ = flecs.ecs_add_entity(world, MyEntity, e_pos);
-    _ = flecs.ecs_add_entity(world, MyEntity, e_vel);
+    world.set(MyEntity, &Position{ .x = 100, .y = 100 });
+    world.set(MyEntity, &Velocity{ .x = 5, .y = 5 });
 
-    var pos = Position{ .x = 100, .y = 100 };
-    var vel = Velocity{ .x = 5, .y = 5 };
-    _ = flecs.ecs_set_ptr_w_entity(world, MyEntity, e_pos, @sizeOf(Position), &pos);
-    _ = flecs.ecs_set_ptr_w_entity(world, MyEntity, e_vel, @sizeOf(Velocity), &vel);
-
-    flecs.ecs_set_target_fps(world, 1);
-    _ = flecs.ecs_progress(world, 0);
-    _ = flecs.ecs_progress(world, 0);
-
-    _ = flecs.ecs_fini(world);
+    world.setTargetFps(1);
+    world.progress(0);
+    world.progress(0);
 }
 
 fn move(it: *flecs.ecs_iter_t) callconv(.C) void {
     const positions = it.column(Position, 1);
-    var v = flecs.ecs_column_w_size(it, @sizeOf(Velocity), 2);
-    const velocities = @ptrCast([*]Velocity, @alignCast(@alignOf(Velocity), v));
+    const velocities = it.column(Velocity, 2);
+    const world = flecs.World {.world = it.world.?};
 
     var i: usize = 0;
     while (i < it.count) : (i += 1) {
-        std.debug.warn("p: {d}, v: {d} - {s}\n", .{ positions[i], velocities[i], flecs.ecs_get_name(it.world, it.entities[i]) });
+        std.debug.warn("p: {d}, v: {d} - {s}\n", .{ positions[i], velocities[i], world.getName(it.entities[i]) });
         positions[i].x += velocities[i].x;
         positions[i].y += velocities[i].y;
     }
