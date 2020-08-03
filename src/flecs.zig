@@ -3,8 +3,10 @@ const std = @import("std");
 pub const Entity = ecs_entity_t;
 
 /// registered component handle cache
-fn componentHandle(comptime T : type) *Entity {
-    return &(struct { pub var handle : Entity = std.math.maxInt(u64); }.handle);
+fn componentHandle(comptime T: type) *Entity {
+    return &(struct {
+        pub var handle: Entity = std.math.maxInt(u64);
+    }.handle);
 }
 
 pub const ecs_world_t = @Type(.Opaque);
@@ -65,7 +67,7 @@ pub const World = struct {
         self.setPtr(entity, FLECS__EEcsName, @sizeOf(EcsName), &ecs_name);
     }
 
-    pub fn getName(self: World, entity: Entity) [*c] const u8 {
+    pub fn getName(self: World, entity: Entity) [*c]const u8 {
         return ecs_get_name(self.world, entity);
     }
 
@@ -73,7 +75,7 @@ pub const World = struct {
         _ = ecs_set_ptr_w_entity(self.world, entity, component, size, ptr);
     }
 
-    pub fn set(self: *World, entity: Entity, ptr: var) void {
+    pub fn set(self: *World, entity: Entity, ptr: anytype) void {
         std.debug.assert(@typeInfo(@TypeOf(ptr)) == .Pointer);
 
         const child = std.meta.Child(@TypeOf(ptr));
@@ -956,7 +958,7 @@ pub extern fn ecs_ringbuf_index(buffer: ?*ecs_ringbuf_t) i32;
 pub extern fn ecs_ringbuf_count(buffer: ?*ecs_ringbuf_t) i32;
 pub extern fn ecs_ringbuf_free(buffer: ?*ecs_ringbuf_t) void;
 
-pub inline fn ecs_os_get_time(time_out: var) @TypeOf(ecs_os_api.get_time(time_out)) {
+pub inline fn ecs_os_get_time(time_out: anytype) @TypeOf(ecs_os_api.get_time(time_out)) {
     return ecs_os_api.get_time(time_out);
 }
 
@@ -981,7 +983,7 @@ pub inline fn ecs_os_dlclose(lib: anytype) @TypeOf(ecs_os_api.dlclose(lib)) {
     return ecs_os_api.dlclose(lib);
 }
 
-pub inline fn ECS_ENTITY_VAR(type_1: var) @TypeOf(ecs_entity_t ++ ecs_entity(type_1)) {
+pub inline fn ECS_ENTITY_VAR(type_1: anytype) @TypeOf(ecs_entity_t ++ ecs_entity(type_1)) {
     return ecs_entity_t ++ ecs_entity(type_1);
 }
 pub const __LDBL_MAX__ = @as(c_longdouble, 1.18973149535723176502e+4932);
@@ -1063,7 +1065,7 @@ pub const RLIM_NLIMITS = 9;
 pub const _POSIX_NGROUPS_MAX = 8;
 pub const _IOLBF = 1;
 
-pub inline fn ecs_os_dlproc(lib: var, procname: var) @TypeOf(ecs_os_api.dlproc(lib, procname)) {
+pub inline fn ecs_os_dlproc(lib: anytype, procname: anytype) @TypeOf(ecs_os_api.dlproc(lib, procname)) {
     return ecs_os_api.dlproc(lib, procname);
 }
 pub const PRIO_USER = 2;
@@ -1226,7 +1228,7 @@ pub const _QUAD_HIGHWORD = 1;
 pub const __x86_64__ = 1;
 pub const _POSIX_LINK_MAX = 8;
 
-pub inline fn sigmask(m: var) @TypeOf(1 << (m - 1)) {
+pub inline fn sigmask(m: anytype) @TypeOf(1 << (m - 1)) {
     return 1 << (m - 1);
 }
 
@@ -1307,7 +1309,7 @@ pub const FLECS__EEcsQuery = 10;
 
 pub const EcsFirstUserComponentId = 32;
 
-pub inline fn ecs_get_parent(world: var, entity: var, component: var) @TypeOf(ecs_get_parent_w_entity(world, entity, ecs_entity(component))) {
+pub inline fn ecs_get_parent(world: anytype, entity: anytype, component: anytype) @TypeOf(ecs_get_parent_w_entity(world, entity, ecs_entity(component))) {
     return ecs_get_parent_w_entity(world, entity, ecs_entity(component));
 }
 
@@ -1361,7 +1363,7 @@ pub inline fn ecs_new_from_path(world: anytype, parent: anytype, path: anytype) 
 
 pub const FLECS__EEcsRateFilter = 15;
 
-pub inline fn ecs_os_realloc(ptr: var, size: var) @TypeOf(ecs_os_api.realloc(ptr, size)) {
+pub inline fn ecs_os_realloc(ptr: anytype, size: anytype) @TypeOf(ecs_os_api.realloc(ptr, size)) {
     return ecs_os_api.realloc(ptr, size);
 }
 pub const ECS_OR = (@import("std").meta.cast(ecs_entity_t, 1 << 60));
@@ -1396,6 +1398,6 @@ pub const ECS_NOT_A_COMPONENT = 11;
 pub const ECS_COLUMN_IS_SHARED = 21;
 pub const ECS_MODULE_UNDEFINED = 18;
 
-pub inline fn ecs_get_fullpath(world: var, child: var) @TypeOf(ecs_get_path_w_sep(world, 0, child, 0, ".", NULL)) {
+pub inline fn ecs_get_fullpath(world: anytype, child: anytype) @TypeOf(ecs_get_path_w_sep(world, 0, child, 0, ".", NULL)) {
     return ecs_get_path_w_sep(world, 0, child, 0, ".", NULL);
 }

@@ -30,7 +30,7 @@ pub fn main() !void {
 fn move(it: *flecs.ecs_iter_t) callconv(.C) void {
     const positions = it.column(Position, 1);
     const velocities = it.column(Velocity, 2);
-    const world = flecs.World {.world = it.world.?};
+    const world = flecs.World{ .world = it.world.? };
 
     var i: usize = 0;
     while (i < it.count) : (i += 1) {
