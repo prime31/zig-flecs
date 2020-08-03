@@ -29,7 +29,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         // only required if doing @cImport to generate a cimport.zig file
         exe.addIncludeDir("flecs/include");
         // for some reason exe_compiled + debug build results in "illegal instruction 4". Investigate at some point.
-        linkArtifact(b, exe, target, .static, "src");
+        linkArtifact(b, exe, target, .exe_compiled, "src");
 
         const run_cmd = exe.run();
         const exe_step = b.step(name, b.fmt("run {}.zig", .{name}));
@@ -71,8 +71,11 @@ pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std
 
 fn compileFlecs(b: *Builder, exe: *std.build.LibExeObjStep, target: std.build.Target) void {
     exe.linkLibC();
-    exe.addIncludeDir("flecs/include");
-    addSourceFiles(b, exe, "flecs/src");
+    exe.addIncludeDir("flecs");
+
+    const cflags = &[_][]const u8{ "-DFLECS_IMPL", "-DFALSE=0", "-DTRUE=1" };
+    exe.addCSourceFile("flecs/flecs.c", cflags);
+    // addSourceFiles(b, exe, "flecs/src");
 }
 
 /// recursively adds all .c files to the exe

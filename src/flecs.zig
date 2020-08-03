@@ -16,7 +16,7 @@ pub const World = struct {
         return .{ .world = ecs_init() };
     }
 
-    pub fn deinit(self: World) void {
+    pub fn deinit(self: *World) void {
         _ = ecs_fini(self.world);
     }
 
@@ -452,13 +452,20 @@ pub const ecs_type_t = [*c]const ecs_vector_t;
 pub const struct_ecs_snapshot_t = @Type(.Opaque);
 pub const ecs_snapshot_t = struct_ecs_snapshot_t;
 
-pub const EcsQueryNeedsTables = 1;      /// Query needs matching with tables
-pub const EcsQueryMonitor = 2;          /// Query needs to be registered as a monitor
-pub const EcsQueryOnSet = 4;            /// Query needs to be registered as on_set system
-pub const EcsQueryUnSet = 8;            /// Query needs to be registered as un_set system
-pub const EcsQueryMatchDisabled = 16;   /// Does query match disabled
-pub const EcsQueryMatchPrefab = 32;     /// Does query match prefabs
-pub const EcsQueryHasRefs = 64;         /// Does query have references
+/// Query needs matching with tables
+pub const EcsQueryNeedsTables = 1;
+/// Query needs to be registered as a monitor
+pub const EcsQueryMonitor = 2;
+/// Query needs to be registered as on_set system
+pub const EcsQueryOnSet = 4;
+/// Query needs to be registered as un_set system
+pub const EcsQueryUnSet = 8;
+/// Does query match disabled
+pub const EcsQueryMatchDisabled = 16;
+/// Does query match prefabs
+pub const EcsQueryMatchPrefab = 32;
+/// Does query have references
+pub const EcsQueryHasRefs = 64;
 
 pub const struct_ecs_query_t = @Type(.Opaque);
 pub const ecs_query_t = struct_ecs_query_t;
@@ -954,23 +961,23 @@ pub inline fn ecs_os_get_time(time_out: var) @TypeOf(ecs_os_api.get_time(time_ou
 }
 
 pub const ECS_INVALID_HANDLE = 1;
-pub inline fn ecs_lookup_fullpath(world: var, path: var) @TypeOf(ecs_lookup_path_w_sep(world, 0, path, ".", NULL)) {
+pub inline fn ecs_lookup_fullpath(world: anytype, path: anytype) @TypeOf(ecs_lookup_path_w_sep(world, 0, path, ".", NULL)) {
     return ecs_lookup_path_w_sep(world, 0, path, ".", NULL);
 }
 
 pub const FLECS__EEcsSignature = 9;
-pub inline fn ecs_modified(world: var, entity: var, component: var) @TypeOf(ecs_modified_w_entity(world, entity, ecs_entity(component))) {
+pub inline fn ecs_modified(world: anytype, entity: anytype, component: anytype) @TypeOf(ecs_modified_w_entity(world, entity, ecs_entity(component))) {
     return ecs_modified_w_entity(world, entity, ecs_entity(component));
 }
 
-pub inline fn __API_UNAVAILABLE5(x: var, y: var, z: var, t: var, b: var) @TypeOf(__API_UNAVAILABLE4(x, y, z, t) ++ __API_U(b)) {
+pub inline fn __API_UNAVAILABLE5(x: anytype, y: anytype, z: anytype, t: anytype, b: anytype) @TypeOf(__API_UNAVAILABLE4(x, y, z, t) ++ __API_U(b)) {
     return __API_UNAVAILABLE4(x, y, z, t) ++ __API_U(b);
 }
 
 pub const ECS_INVALID_FROM_WORKER = 26;
 pub const ECS_COLUMN_IS_NOT_SHARED = 20;
 pub const ECS_INVALID_COMPONENT_ALIGNMENT = 16;
-pub inline fn ecs_os_dlclose(lib: var) @TypeOf(ecs_os_api.dlclose(lib)) {
+pub inline fn ecs_os_dlclose(lib: anytype) @TypeOf(ecs_os_api.dlclose(lib)) {
     return ecs_os_api.dlclose(lib);
 }
 
@@ -983,7 +990,7 @@ pub const __INT_LEAST32_FMTi__ = "i";
 pub const FLECS__EEcsComponentLifecycle = 2;
 pub const __WCHAR_WIDTH__ = 32;
 pub const __UINT16_FMTX__ = "hX";
-pub inline fn __sfeof(p: var) @TypeOf(((p.*._flags) & __SEOF) != 0) {
+pub inline fn __sfeof(p: anytype) @TypeOf(((p.*._flags) & __SEOF) != 0) {
     return ((p.*._flags) & __SEOF) != 0;
 }
 pub const FLECS__EEcsContext = 12;
@@ -1003,15 +1010,15 @@ pub const __API_UNAVAILABLE_PLATFORM_macos = blk: {
     _ = macos;
     break :blk unavailable;
 };
-pub inline fn ecs_vector_memory(vector: var, T: var, allocd: var, used: var) @TypeOf(_ecs_vector_memory(vector, ECS_VECTOR_T(T), allocd, used)) {}
+pub inline fn ecs_vector_memory(vector: anytype, T: anytype, allocd: anytype, used: anytype) @TypeOf(_ecs_vector_memory(vector, ECS_VECTOR_T(T), allocd, used)) {}
 
 pub const __FSGSBASE__ = 1;
 pub const __DYNAMIC__ = 1;
-pub inline fn __API_DEPRECATED_BEGIN_REP6(rep: var, a: var, b: var, c: var, d: var, e: var) @TypeOf(__API_R_BEGIN(rep, a) ++ (__API_R_BEGIN(rep, b) ++ (__API_R_BEGIN(rep, c) ++ (__API_R_BEGIN(rep, d) ++ __API_R_BEGIN(rep, e))))) {
+pub inline fn __API_DEPRECATED_BEGIN_REP6(rep: anytype, a: anytype, b: anytype, c: anytype, d: anytype, e: anytype) @TypeOf(__API_R_BEGIN(rep, a) ++ (__API_R_BEGIN(rep, b) ++ (__API_R_BEGIN(rep, c) ++ (__API_R_BEGIN(rep, d) ++ __API_R_BEGIN(rep, e))))) {
     return __API_R_BEGIN(rep, a) ++ (__API_R_BEGIN(rep, b) ++ (__API_R_BEGIN(rep, c) ++ (__API_R_BEGIN(rep, d) ++ __API_R_BEGIN(rep, e))));
 }
 pub const __INTPTR_MAX__ = @as(c_long, 9223372036854775807);
-pub inline fn __API_AVAILABLE5(x: var, y: var, z: var, t: var, b: var) @TypeOf(__API_A(x) ++ (__API_A(y) ++ (__API_A(z) ++ (__API_A(t) ++ __API_A(b))))) {
+pub inline fn __API_AVAILABLE5(x: anytype, y: anytype, z: anytype, t: anytype, b: anytype) @TypeOf(__API_A(x) ++ (__API_A(y) ++ (__API_A(z) ++ (__API_A(t) ++ __API_A(b))))) {
     return __API_A(x) ++ (__API_A(y) ++ (__API_A(z) ++ (__API_A(t) ++ __API_A(b))));
 }
 pub const __INTMAX_WIDTH__ = 64;
@@ -1027,7 +1034,7 @@ pub const __UINT8_MAX__ = 255;
 pub const __DBL_HAS_QUIET_NAN__ = 1;
 pub const __clang_minor__ = 0;
 pub const __WATCHOS_4_1 = 40100;
-pub inline fn ECS_EXPORT_ENTITY(type_1: var) @TypeOf(ECS_SET_ENTITY(type_1)) {
+pub inline fn ECS_EXPORT_ENTITY(type_1: anytype) @TypeOf(ECS_SET_ENTITY(type_1)) {
     return ECS_SET_ENTITY(type_1);
 }
 pub const _POSIX2_RE_DUP_MAX = 255;
@@ -1042,7 +1049,6 @@ pub const INT_LEAST64_MIN = INT64_MIN;
 pub const RLIMIT_MEMLOCK = 6;
 pub const __UINTMAX_FMTu__ = "lu";
 pub const L_tmpnam = 1024;
-
 
 pub const SIGFPE = 8;
 pub const UINT_MAX = 0xffffffff;
@@ -1061,13 +1067,13 @@ pub inline fn ecs_os_dlproc(lib: var, procname: var) @TypeOf(ecs_os_api.dlproc(l
     return ecs_os_api.dlproc(lib, procname);
 }
 pub const PRIO_USER = 2;
-pub inline fn __P(protos: var) @TypeOf(protos) {
+pub inline fn __P(protos: anytype) @TypeOf(protos) {
     return protos;
 }
-pub inline fn __RCSID(s: var) @TypeOf(__IDSTRING(rcsid, s)) {
+pub inline fn __RCSID(s: anytype) @TypeOf(__IDSTRING(rcsid, s)) {
     return __IDSTRING(rcsid, s);
 }
-pub inline fn __API_DEPRECATED_MSG4(msg: var, x: var, y: var, z: var) @TypeOf(__API_DEPRECATED_MSG3(msg, x, y) ++ __API_D(msg, z)) {
+pub inline fn __API_DEPRECATED_MSG4(msg: anytype, x: anytype, y: anytype, z: anytype) @TypeOf(__API_DEPRECATED_MSG3(msg, x, y) ++ __API_D(msg, z)) {
     return __API_DEPRECATED_MSG3(msg, x, y) ++ __API_D(msg, z);
 }
 pub const ECS_STRBUF_MAX_LIST_DEPTH = 32;
@@ -1080,7 +1086,7 @@ pub const TRAP_TRACE = 2;
 pub const __abortlike = __dead2 ++ (__cold ++ __not_tail_called);
 pub const FPE_NOOP = 0;
 pub const ECS_INCONSISTENT_COMPONENT_NAME = 42;
-pub inline fn INT32_C(v: var) @TypeOf(v) {
+pub inline fn INT32_C(v: anytype) @TypeOf(v) {
     return v;
 }
 pub const __STDC_UTF_32__ = 1;
@@ -1093,13 +1099,13 @@ pub const UINT32_MAX = @as(c_uint, 4294967295);
 pub const __GNUC_STDC_INLINE__ = 1;
 pub const __DBL_DIG__ = 15;
 
-pub inline fn __API_DEPRECATED_MSG6(msg: var, x: var, y: var, z: var, t: var, b: var) @TypeOf(__API_DEPRECATED_MSG5(msg, x, y, z, t) ++ __API_D(msg, b)) {
+pub inline fn __API_DEPRECATED_MSG6(msg: anytype, x: anytype, y: anytype, z: anytype, t: anytype, b: anytype) @TypeOf(__API_DEPRECATED_MSG5(msg, x, y, z, t) ++ __API_D(msg, b)) {
     return __API_DEPRECATED_MSG5(msg, x, y, z, t) ++ __API_D(msg, b);
 }
-pub inline fn va_copy(dest: var, src: var) @TypeOf(__builtin_va_copy(dest, src)) {
+pub inline fn va_copy(dest: anytype, src: anytype) @TypeOf(__builtin_va_copy(dest, src)) {
     return __builtin_va_copy(dest, src);
 }
-pub inline fn ecs_vector_set_size_t(vector: var, size: var, alignment: var, elem_count: var) @TypeOf(_ecs_vector_set_size(vector, ECS_VECTOR_U(size, alignment), elem_count)) {}
+pub inline fn ecs_vector_set_size_t(vector: anytype, size: anytype, alignment: anytype, elem_count: anytype) @TypeOf(_ecs_vector_set_size(vector, ECS_VECTOR_U(size, alignment), elem_count)) {}
 pub const __INT32_FMTd__ = "d";
 pub const __WATCHOS_4_2 = 40200;
 pub const GID_MAX = @as(c_uint, 2147483647);
@@ -1113,13 +1119,13 @@ pub const __UINT_FAST64_MAX__ = @as(c_ulonglong, 18446744073709551615);
 pub const IOPOL_SCOPE_PROCESS = 0;
 pub const __SIZEOF_LONG_LONG__ = 8;
 pub const INT_LEAST64_MAX = INT64_MAX;
-pub inline fn __API_AVAILABLE3(x: var, y: var, z: var) @TypeOf(__API_A(x) ++ (__API_A(y) ++ __API_A(z))) {
+pub inline fn __API_AVAILABLE3(x: anytype, y: anytype, z: anytype) @TypeOf(__API_A(x) ++ (__API_A(y) ++ __API_A(z))) {
     return __API_A(x) ++ (__API_A(y) ++ __API_A(z));
 }
-pub inline fn ecs_vector_remove_index(vector: var, T: var, index_1: var) @TypeOf(_ecs_vector_remove_index(vector, ECS_VECTOR_T(T), index_1)) {}
+pub inline fn ecs_vector_remove_index(vector: anytype, T: anytype, index_1: anytype) @TypeOf(_ecs_vector_remove_index(vector, ECS_VECTOR_T(T), index_1)) {}
 pub const __INT32_TYPE__ = c_int;
 pub const __DBL_MIN_EXP__ = -1021;
-pub inline fn __API_DEPRECATED_BEGIN_MSG2(msg: var, a: var) @TypeOf(__API_D_BEGIN(msg, a)) {
+pub inline fn __API_DEPRECATED_BEGIN_MSG2(msg: anytype, a: anytype) @TypeOf(__API_D_BEGIN(msg, a)) {
     return __API_D_BEGIN(msg, a);
 }
 pub const ECS_TYPE_FLAG_START = ECS_CHILDOF;
@@ -1134,29 +1140,29 @@ pub const __IPHONE_7_1 = 70100;
 pub const __PTHREAD_MUTEXATTR_SIZE__ = 8;
 pub const __API_TO_BE_DEPRECATED = 100000;
 pub const RLIMIT_NPROC = 7;
-pub inline fn ecs_vector_set_count_t(vector: var, size: var, alignment: var, elem_count: var) @TypeOf(_ecs_vector_set_count(vector, ECS_VECTOR_U(size, alignment), elem_count)) {}
+pub inline fn ecs_vector_set_count_t(vector: anytype, size: anytype, alignment: anytype, elem_count: anytype) @TypeOf(_ecs_vector_set_count(vector, ECS_VECTOR_U(size, alignment), elem_count)) {}
 pub const __enum_closed = __attribute__(__enum_extensibility__(closed));
-pub inline fn WEXITSTATUS(x: var) @TypeOf((_W_INT(x) >> 8) & 0x000000ff) {
+pub inline fn WEXITSTATUS(x: anytype) @TypeOf((_W_INT(x) >> 8) & 0x000000ff) {
     return (_W_INT(x) >> 8) & 0x000000ff;
 }
 pub const __UINT_LEAST32_FMTX__ = "X";
 pub const ECS_OUT_OF_MEMORY = 17;
 pub const __SSE_MATH__ = 1;
 pub const SIGEV_SIGNAL = 1;
-pub inline fn ecs_os_mutex_lock(mutex: var) @TypeOf(ecs_os_api.mutex_lock(mutex)) {
+pub inline fn ecs_os_mutex_lock(mutex: anytype) @TypeOf(ecs_os_api.mutex_lock(mutex)) {
     return ecs_os_api.mutex_lock(mutex);
 }
 pub const _POSIX_SEM_VALUE_MAX = 32767;
 pub const SIG_ATOMIC_MAX = INT32_MAX;
 pub const __CLANG_ATOMIC_CHAR32_T_LOCK_FREE = 2;
-pub inline fn _WSTATUS(x: var) @TypeOf(_W_INT(x) & 0o0177) {
+pub inline fn _WSTATUS(x: anytype) @TypeOf(_W_INT(x) & 0o0177) {
     return _W_INT(x) & 0o0177;
 }
 pub const SIGCHLD = 20;
 pub const UQUAD_MAX = ULLONG_MAX;
 pub const __IPHONE_3_0 = 30000;
 pub const WORD_BIT = 32;
-pub inline fn __API_AVAILABLE_BEGIN6(a: var, b: var, c: var, d: var, e: var, f: var) @TypeOf(__API_A_BEGIN(a) ++ (__API_A_BEGIN(b) ++ (__API_A_BEGIN(c) ++ (__API_A_BEGIN(d) ++ (__API_A_BEGIN(e) ++ __API_A_BEGIN(f)))))) {
+pub inline fn __API_AVAILABLE_BEGIN6(a: anytype, b: anytype, c: anytype, d: anytype, e: anytype, f: anytype) @TypeOf(__API_A_BEGIN(a) ++ (__API_A_BEGIN(b) ++ (__API_A_BEGIN(c) ++ (__API_A_BEGIN(d) ++ (__API_A_BEGIN(e) ++ __API_A_BEGIN(f)))))) {
     return __API_A_BEGIN(a) ++ (__API_A_BEGIN(b) ++ (__API_A_BEGIN(c) ++ (__API_A_BEGIN(d) ++ (__API_A_BEGIN(e) ++ __API_A_BEGIN(f)))));
 }
 pub const RLIMIT_RSS = RLIMIT_AS;
@@ -1172,10 +1178,10 @@ pub const CHARCLASS_NAME_MAX = 14;
 pub const _IOFBF = 0;
 pub const FLECS__EEcsSystem = 5;
 pub const __SEOF = 0x0020;
-pub inline fn W_EXITCODE(ret: var, sig: var) @TypeOf(ret << (8 | sig)) {
+pub inline fn W_EXITCODE(ret: anytype, sig: anytype) @TypeOf(ret << (8 | sig)) {
     return ret << (8 | sig);
 }
-pub inline fn __AVAILABILITY_INTERNAL_DEPRECATED_MSG(_msg: var) @TypeOf(__attribute__(deprecated(_msg))) {
+pub inline fn __AVAILABILITY_INTERNAL_DEPRECATED_MSG(_msg: anytype) @TypeOf(__attribute__(deprecated(_msg))) {
     return __attribute__(deprecated(_msg));
 }
 pub const __UINTPTR_FMTo__ = "lo";
@@ -1183,7 +1189,7 @@ pub const __IPHONE_11_4 = 110400;
 pub const _POSIX_SSIZE_MAX = 32767;
 pub const __INT32_MAX__ = 2147483647;
 pub const __INTPTR_FMTd__ = "ld";
-pub inline fn va_arg(ap: var, type_1: var) @TypeOf(__builtin_va_arg(ap, type_1)) {
+pub inline fn va_arg(ap: anytype, type_1: anytype) @TypeOf(__builtin_va_arg(ap, type_1)) {
     return __builtin_va_arg(ap, type_1);
 }
 pub const SIGUSR2 = 31;
@@ -1191,7 +1197,7 @@ pub const _POSIX_SYMLINK_MAX = 255;
 
 pub const __MOVBE__ = 1;
 pub const EXPR_NEST_MAX = 32;
-pub inline fn __API_DEPRECATED_BEGIN_MSG7(msg: var, a: var, b: var, c: var, d: var, e: var, f: var) @TypeOf(__API_D_BEGIN(msg, a) ++ (__API_D_BEGIN(msg, b) ++ (__API_D_BEGIN(msg, c) ++ (__API_D_BEGIN(msg, d) ++ (__API_D_BEGIN(msg, e) ++ __API_D_BEGIN(msg, f)))))) {
+pub inline fn __API_DEPRECATED_BEGIN_MSG7(msg: anytype, a: anytype, b: anytype, c: anytype, d: anytype, e: anytype, f: anytype) @TypeOf(__API_D_BEGIN(msg, a) ++ (__API_D_BEGIN(msg, b) ++ (__API_D_BEGIN(msg, c) ++ (__API_D_BEGIN(msg, d) ++ (__API_D_BEGIN(msg, e) ++ __API_D_BEGIN(msg, f)))))) {
     return __API_D_BEGIN(msg, a) ++ (__API_D_BEGIN(msg, b) ++ (__API_D_BEGIN(msg, c) ++ (__API_D_BEGIN(msg, d) ++ (__API_D_BEGIN(msg, e) ++ __API_D_BEGIN(msg, f)))));
 }
 pub const __INT_FAST64_MAX__ = @as(c_longlong, 9223372036854775807);
@@ -1206,7 +1212,7 @@ pub const IOV_MAX = 1024;
 pub const SA_RESETHAND = 0x0004;
 pub const SEGV_NOOP = 0;
 pub const ILL_PRVOPC = 3;
-pub inline fn UINT8_C(v: var) @TypeOf(v) {
+pub inline fn UINT8_C(v: anytype) @TypeOf(v) {
     return v;
 }
 pub const RSIZE_MAX = SIZE_MAX >> 1;
@@ -1226,35 +1232,35 @@ pub inline fn sigmask(m: var) @TypeOf(1 << (m - 1)) {
 
 pub const __PTHREAD_CONDATTR_SIZE__ = 8;
 pub const __UINT64_MAX__ = @as(c_ulonglong, 18446744073709551615);
-pub inline fn ecs_owns_entity(world: var, entity: var, has: var, owned: var) @TypeOf(ecs_type_owns_entity(world, ecs_get_type(world, entity), has, owned)) {
+pub inline fn ecs_owns_entity(world: anytype, entity: anytype, has: anytype, owned: anytype) @TypeOf(ecs_type_owns_entity(world, ecs_get_type(world, entity), has, owned)) {
     return ecs_type_owns_entity(world, ecs_get_type(world, entity), has, owned);
 }
 
 pub const ECS_INVALID_TYPE_EXPRESSION = 5;
 
-pub inline fn ECS_EXPORT_COMPONENT(type_1: var) @TypeOf(ECS_SET_COMPONENT(type_1)) {
+pub inline fn ECS_EXPORT_COMPONENT(type_1: anytype) @TypeOf(ECS_SET_COMPONENT(type_1)) {
     return ECS_SET_COMPONENT(type_1);
 }
 
-pub inline fn ecs_os_module_to_dl(lib: var) @TypeOf(ecs_os_api.module_to_dl(lib)) {
+pub inline fn ecs_os_module_to_dl(lib: anytype) @TypeOf(ecs_os_api.module_to_dl(lib)) {
     return ecs_os_api.module_to_dl(lib);
 }
 
-pub inline fn ecs_os_strdup(str: var) @TypeOf(ecs_os_api.strdup(str)) {
+pub inline fn ecs_os_strdup(str: anytype) @TypeOf(ecs_os_api.strdup(str)) {
     return ecs_os_api.strdup(str);
 }
 
 pub const ECS_THREAD_ERROR = 31;
-pub inline fn ecs_os_mutex_unlock(mutex: var) @TypeOf(ecs_os_api.mutex_unlock(mutex)) {
+pub inline fn ecs_os_mutex_unlock(mutex: anytype) @TypeOf(ecs_os_api.mutex_unlock(mutex)) {
     return ecs_os_api.mutex_unlock(mutex);
 }
 pub const FLECS__EEcsTimer = 14;
 pub const ECS_COLUMN_ACCESS_VIOLATION = 37;
-pub inline fn ecs_os_mutex_free(mutex: var) @TypeOf(ecs_os_api.mutex_free(mutex)) {
+pub inline fn ecs_os_mutex_free(mutex: anytype) @TypeOf(ecs_os_api.mutex_free(mutex)) {
     return ecs_os_api.mutex_free(mutex);
 }
 pub const ECS_REFLECTION = 1;
-pub inline fn ecs_os_cond_wait(cond: var, mutex: var) @TypeOf(ecs_os_api.cond_wait(cond, mutex)) {
+pub inline fn ecs_os_cond_wait(cond: anytype, mutex: anytype) @TypeOf(ecs_os_api.cond_wait(cond, mutex)) {
     return ecs_os_api.cond_wait(cond, mutex);
 }
 
@@ -1264,7 +1270,7 @@ pub const ECS_INVALID_COMPONENT_ID = 3;
 
 pub const ECS_UNRESOLVED_REFERENCE = 30;
 pub const ECS_INVALID_WHILE_ITERATING = 25;
-pub inline fn ecs_get_path(world: var, parent: var, child: var) @TypeOf(ecs_get_path_w_sep(world, parent, child, 0, ".", NULL)) {
+pub inline fn ecs_get_path(world: anytype, parent: anytype, child: anytype) @TypeOf(ecs_get_path_w_sep(world, parent, child, 0, ".", NULL)) {
     return ecs_get_path_w_sep(world, parent, child, 0, ".", NULL);
 }
 pub const ECS_INVALID_EXPRESSION = 4;
@@ -1277,7 +1283,7 @@ pub const FLECS__TNULL = 0;
 pub const FLECS__EEcsComponent = 1;
 pub const FLECS__EEcsPipelineQuery = 13;
 pub const ECS_COLUMN_INDEX_OUT_OF_RANGE = 19;
-pub inline fn ECS_OFFSET(o: var, offset: var) @TypeOf((@import("std").meta.cast(?*c_void, (@import("std").meta.cast(uintptr_t, o)) + (@import("std").meta.cast(uintptr_t, offset))))) {
+pub inline fn ECS_OFFSET(o: anytype, offset: anytype) @TypeOf((@import("std").meta.cast(?*c_void, (@import("std").meta.cast(uintptr_t, o)) + (@import("std").meta.cast(uintptr_t, offset))))) {
     return (@import("std").meta.cast(?*c_void, (@import("std").meta.cast(uintptr_t, o)) + (@import("std").meta.cast(uintptr_t, offset))));
 }
 pub const ECS_XOR = (@import("std").meta.cast(ecs_entity_t, 1 << 59));
@@ -1285,10 +1291,10 @@ pub const ECS_UNKNOWN_TYPE_ID = 8;
 
 pub const ECS_COLUMN_TYPE_MISMATCH = 23;
 
-pub inline fn __CAST_AWAY_QUALIFIER(variable: var, qualifier: var, type_1: var) @TypeOf((@import("std").meta.cast(type_1, c_long))(variable)) {
+pub inline fn __CAST_AWAY_QUALIFIER(variable: anytype, qualifier: anytype, type_1: anytype) @TypeOf((@import("std").meta.cast(type_1, c_long))(variable)) {
     return (@import("std").meta.cast(type_1, c_long))(variable);
 }
-pub inline fn ecs_new_from_fullpath(world: var, path: var) @TypeOf(ecs_new_from_path_w_sep(world, 0, path, ".", NULL)) {
+pub inline fn ecs_new_from_fullpath(world: anytype, path: anytype) @TypeOf(ecs_new_from_path_w_sep(world, 0, path, ".", NULL)) {
     return ecs_new_from_path_w_sep(world, 0, path, ".", NULL);
 }
 
@@ -1308,25 +1314,25 @@ pub inline fn ecs_get_parent(world: var, entity: var, component: var) @TypeOf(ec
 pub const ECS_TYPE_NOT_AN_ENTITY = 9;
 pub const FLECS__EEcsTrigger = 4;
 pub const ECS_INVALID_PREFAB_CHILD_TYPE = 34;
-pub inline fn ecs_os_thread_join(thread: var) @TypeOf(ecs_os_api.thread_join(thread)) {
+pub inline fn ecs_os_thread_join(thread: anytype) @TypeOf(ecs_os_api.thread_join(thread)) {
     return ecs_os_api.thread_join(thread);
 }
 
-pub inline fn ecs_get_mut(world: var, entity: var, component: var, is_added: var) @TypeOf((@import("std").meta.cast([*c]component, ecs_get_mut_w_entity(world, entity, ecs_entity(component), is_added)))) {
+pub inline fn ecs_get_mut(world: anytype, entity: anytype, component: anytype, is_added: anytype) @TypeOf((@import("std").meta.cast([*c]component, ecs_get_mut_w_entity(world, entity, ecs_entity(component), is_added)))) {
     return (@import("std").meta.cast([*c]component, ecs_get_mut_w_entity(world, entity, ecs_entity(component), is_added)));
 }
 
 pub const ECS_UNRESOLVED_IDENTIFIER = 27;
 
-pub inline fn ecs_os_adec(value: var) @TypeOf(ecs_os_api.adec(value)) {
+pub inline fn ecs_os_adec(value: anytype) @TypeOf(ecs_os_api.adec(value)) {
     return ecs_os_api.adec(value);
 }
 
-pub inline fn ecs_os_cond_free(cond: var) @TypeOf(ecs_os_api.cond_free(cond)) {
+pub inline fn ecs_os_cond_free(cond: anytype) @TypeOf(ecs_os_api.cond_free(cond)) {
     return ecs_os_api.cond_free(cond);
 }
 
-pub inline fn ecs_os_calloc(size: var) @TypeOf(ecs_os_api.calloc(size)) {
+pub inline fn ecs_os_calloc(size: anytype) @TypeOf(ecs_os_api.calloc(size)) {
     return ecs_os_api.calloc(size);
 }
 
@@ -1334,23 +1340,22 @@ pub const FLECS__EEcsTickSource = 7;
 
 pub const ECS_INSTANCEOF = (@import("std").meta.cast(ecs_entity_t, 1 << 63));
 
-pub inline fn ecs_lookup_path(world: var, parent: var, path: var) @TypeOf(ecs_lookup_path_w_sep(world, parent, path, ".", NULL)) {
+pub inline fn ecs_lookup_path(world: anytype, parent: anytype, path: anytype) @TypeOf(ecs_lookup_path_w_sep(world, parent, path, ".", NULL)) {
     return ecs_lookup_path_w_sep(world, parent, path, ".", NULL);
 }
 
-pub inline fn ecs_os_thread_new(callback: var, param: var) @TypeOf(ecs_os_api.thread_new(callback, param)) {
+pub inline fn ecs_os_thread_new(callback: anytype, param: anytype) @TypeOf(ecs_os_api.thread_new(callback, param)) {
     return ecs_os_api.thread_new(callback, param);
 }
 
-pub inline fn ecs_os_alloca(size: var) @TypeOf(alloca(size)) {
+pub inline fn ecs_os_alloca(size: anytype) @TypeOf(alloca(size)) {
     return alloca(size);
 }
 
 pub const ECS_NOT = (@import("std").meta.cast(ecs_entity_t, 1 << 58));
 pub const ECS_TYPE_FLAG_MASK = (@import("std").meta.cast(ecs_entity_t, ECS_INSTANCEOF | (ECS_CHILDOF | (ECS_AND | (ECS_OR | (ECS_XOR | ECS_NOT))))));
 
-
-pub inline fn ecs_new_from_path(world: var, parent: var, path: var) @TypeOf(ecs_new_from_path_w_sep(world, parent, path, ".", NULL)) {
+pub inline fn ecs_new_from_path(world: anytype, parent: anytype, path: anytype) @TypeOf(ecs_new_from_path_w_sep(world, parent, path, ".", NULL)) {
     return ecs_new_from_path_w_sep(world, parent, path, ".", NULL);
 }
 
@@ -1364,28 +1369,26 @@ pub const ECS_UNSUPPORTED = 35;
 pub const ECS_UNKNOWN_COMPONENT_ID = 7;
 pub const ECS_DESERIALIZE_FORMAT_ERROR = 40;
 pub const EcsLastInternalComponentId = ecs_entity(EcsSystem);
-pub inline fn ecs_os_ainc(value: var) @TypeOf(ecs_os_api.ainc(value)) {
+pub inline fn ecs_os_ainc(value: anytype) @TypeOf(ecs_os_api.ainc(value)) {
     return ecs_os_api.ainc(value);
 }
-pub inline fn ECS_MAX(a: var, b: var) @TypeOf(if (a > b) a else b) {
+pub inline fn ECS_MAX(a: anytype, b: anytype) @TypeOf(if (a > b) a else b) {
     return if (a > b) a else b;
 }
 pub const ECS_TYPE_CONSTRAINT_VIOLATION = 43;
 pub const ECS_3D = 3;
-pub inline fn ecs_os_cond_broadcast(cond: var) @TypeOf(ecs_os_api.cond_broadcast(cond)) {
+pub inline fn ecs_os_cond_broadcast(cond: anytype) @TypeOf(ecs_os_api.cond_broadcast(cond)) {
     return ecs_os_api.cond_broadcast(cond);
 }
-pub inline fn ecs_os_sleep(sec: var, nanosec: var) @TypeOf(ecs_os_api.sleep(sec, nanosec)) {
+pub inline fn ecs_os_sleep(sec: anytype, nanosec: anytype) @TypeOf(ecs_os_api.sleep(sec, nanosec)) {
     return ecs_os_api.sleep(sec, nanosec);
 }
 
-pub inline fn ecs_os_cond_signal(cond: var) @TypeOf(ecs_os_api.cond_signal(cond)) {
+pub inline fn ecs_os_cond_signal(cond: anytype) @TypeOf(ecs_os_api.cond_signal(cond)) {
     return ecs_os_api.cond_signal(cond);
 }
 
 pub const FLECS__T0 = 0;
-
-
 
 pub const FLECS__EEcsName = 6;
 pub const ECS_CHILDOF = (@import("std").meta.cast(ecs_entity_t, 1 << 62));
