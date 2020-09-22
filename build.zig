@@ -4,7 +4,6 @@ const Builder = std.build.Builder;
 
 pub const LibType = enum(i32) {
     static,
-    dynamic, // requires DYLD_LIBRARY_PATH to point to the dylib path
     exe_compiled,
 };
 
@@ -57,9 +56,6 @@ pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std
 
             artifact.linkLibrary(lib);
         },
-        .dynamic => {
-            @panic("not implemented");
-        },
         .exe_compiled => {
             compileFlecs(b, artifact, target);
         },
@@ -74,7 +70,7 @@ fn compileFlecs(b: *Builder, exe: *std.build.LibExeObjStep, target: std.build.Ta
     exe.addIncludeDir("flecs");
 
     const cflags = &[_][]const u8{ "-DFLECS_IMPL", "-DFALSE=0", "-DTRUE=1" };
-    exe.addCSourceFile("flecs/flecs.c", cflags);
+    exe.addCSourceFile("src/flecs/flecs.c", cflags);
     // addSourceFiles(b, exe, "flecs/src");
 }
 

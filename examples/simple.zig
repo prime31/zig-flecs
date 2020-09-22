@@ -9,6 +9,7 @@ pub fn main() !void {
     var world = flecs.World.init();
     defer world.deinit();
 
+    // the system below needs Position and Velocity to be defined before it can be created
     const e_pos = world.newComponent(Position);
     const e_vel = world.newComponent(Velocity);
 
