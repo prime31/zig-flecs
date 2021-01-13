@@ -28,7 +28,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         // only required if doing @cImport to generate a cimport.zig file
         exe.addIncludeDir("src/flecs/include");
         // for some reason exe_compiled + debug build results in "illegal instruction 4". Investigate at some point.
-        linkArtifact(b, exe, target, .exe_compiled, "src");
+        linkArtifact(b, exe, target, .exe_compiled, "");
 
         const run_cmd = exe.run();
         const exe_step = b.step(name, b.fmt("run {}.zig", .{name}));
@@ -43,34 +43,36 @@ pub fn build(b: *std.build.Builder) anyerror!void {
     }
 }
 
-/// rel_path is used to add package paths. It should be the the same path used to include this build file
-pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std.build.Target, lib_type: LibType, rel_path: []const u8) void {
+/// prefix_path is used to add package paths. It should be the the same path used to include this build file
+pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std.build.Target, lib_type: LibType, comptime prefix_path: []const u8) void {
+    if (prefix_path.len > 0 and !std.mem.endsWith(u8, prefix_path, "/")) @panic("prefix-path must end with '/' if it is not empty");
+
     switch (lib_type) {
         .static => {
             const lib = b.addStaticLibrary("flecs", null);
             lib.setBuildMode(builtin.Mode.ReleaseFast);
             lib.setTarget(target);
 
-            compileFlecs(b, lib, target);
+            compileFlecs(b, lib, target, prefix_path);
             lib.install();
 
             artifact.linkLibrary(lib);
         },
         .exe_compiled => {
-            compileFlecs(b, artifact, target);
+            compileFlecs(b, artifact, target, prefix_path);
         },
     }
 
-    // artifact.addPackagePath("flecs_manual", std.fs.path.join(b.allocator, &[_][]const u8{ rel_path, "flecs_manual.zig" }) catch unreachable);
-    artifact.addPackagePath("flecs", std.fs.path.join(b.allocator, &[_][]const u8{ rel_path, "flecs.zig" }) catch unreachable);
+    // artifact.addPackagePath("flecs_manual", std.fs.path.join(b.allocator, &[_][]const u8{ prefix_path, "flecs_manual.zig" }) catch unreachable);
+    artifact.addPackagePath("flecs", prefix_path ++ "src/flecs.zig");
 }
 
-fn compileFlecs(b: *Builder, exe: *std.build.LibExeObjStep, target: std.build.Target) void {
+fn compileFlecs(b: *Builder, exe: *std.build.LibExeObjStep, target: std.build.Target, comptime prefix_path: []const u8) void {
     exe.linkLibC();
     exe.addIncludeDir("flecs");
 
     const cflags = &[_][]const u8{ "-DFLECS_IMPL", "-DFALSE=0", "-DTRUE=1" };
-    exe.addCSourceFile("src/flecs/flecs.c", cflags);
+    exe.addCSourceFile(prefix_path ++ "src/flecs/flecs.c", cflags);
     // addSourceFiles(b, exe, "flecs/src");
 }
 

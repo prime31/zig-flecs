@@ -33,7 +33,7 @@ pub extern fn _ecs_vector_first(vector: [*c]const ecs_vector_t, elem_size: ecs_s
 pub extern fn _ecs_vector_sort(vector: [*c]ecs_vector_t, elem_size: ecs_size_t, offset: i16, compare_action: ecs_comparator_t) void;
 pub extern fn _ecs_vector_memory(vector: [*c]const ecs_vector_t, elem_size: ecs_size_t, offset: i16, allocd: [*c]i32, used: [*c]i32) void;
 pub extern fn _ecs_vector_copy(src: [*c]const ecs_vector_t, elem_size: ecs_size_t, offset: i16) [*c]ecs_vector_t;
-pub const struct_ecs_sparse_t = @Type(.Opaque);
+pub const struct_ecs_sparse_t = opaque {};
 pub const ecs_sparse_t = struct_ecs_sparse_t;
 pub extern fn _ecs_sparse_new(elem_size: ecs_size_t) ?*ecs_sparse_t;
 pub extern fn ecs_sparse_set_id_source(sparse: ?*ecs_sparse_t, id_source: [*c]u64) void;
@@ -56,9 +56,9 @@ pub extern fn ecs_sparse_grow(sparse: ?*ecs_sparse_t, count: i32) void;
 pub extern fn ecs_sparse_copy(src: ?*const ecs_sparse_t) ?*ecs_sparse_t;
 pub extern fn ecs_sparse_restore(dst: ?*ecs_sparse_t, src: ?*const ecs_sparse_t) void;
 pub extern fn ecs_sparse_memory(sparse: ?*ecs_sparse_t, allocd: [*c]i32, used: [*c]i32) void;
-pub const struct_ecs_map_t = @Type(.Opaque);
+pub const struct_ecs_map_t = opaque {};
 pub const ecs_map_t = struct_ecs_map_t;
-pub const struct_ecs_bucket_t = @Type(.Opaque);
+pub const struct_ecs_bucket_t = opaque {};
 pub const ecs_bucket_t = struct_ecs_bucket_t;
 pub const ecs_map_key_t = u64;
 pub const struct_ecs_map_iter_t = extern struct {
@@ -263,11 +263,11 @@ pub extern fn ecs_os_has_dl() bool;
 pub extern fn ecs_os_has_modules() bool;
 pub const ecs_entity_t = u64;
 pub const ecs_type_t = [*c]const ecs_vector_t;
-pub const struct_ecs_world_t = @Type(.Opaque);
+pub const struct_ecs_world_t = opaque {};
 pub const ecs_world_t = struct_ecs_world_t;
-pub const struct_ecs_snapshot_t = @Type(.Opaque);
+pub const struct_ecs_snapshot_t = opaque {};
 pub const ecs_snapshot_t = struct_ecs_snapshot_t;
-pub const struct_ecs_query_t = @Type(.Opaque);
+pub const struct_ecs_query_t = opaque {};
 pub const ecs_query_t = struct_ecs_query_t;
 
 pub const struct_ecs_ref_t = extern struct {
@@ -327,15 +327,15 @@ pub const ecs_compare_action_t = ?fn (ecs_entity_t, ?*c_void, ecs_entity_t, ?*c_
 pub const ecs_rank_type_action_t = ?fn (?*ecs_world_t, ecs_entity_t, ecs_type_t) callconv(.C) i32;
 pub const ecs_module_action_t = ?fn (?*ecs_world_t) callconv(.C) void;
 pub const ecs_fini_action_t = ?fn (?*ecs_world_t, ?*c_void) callconv(.C) void;
-pub const struct_ecs_stage_t = @Type(.Opaque);
+pub const struct_ecs_stage_t = opaque {};
 pub const ecs_stage_t = struct_ecs_stage_t;
-pub const struct_ecs_table_t = @Type(.Opaque);
+pub const struct_ecs_table_t = opaque {};
 pub const ecs_table_t = struct_ecs_table_t;
-pub const struct_ecs_record_t = @Type(.Opaque);
+pub const struct_ecs_record_t = opaque {};
 pub const ecs_record_t = struct_ecs_record_t;
-pub const struct_ecs_column_t = @Type(.Opaque);
+pub const struct_ecs_column_t = opaque {};
 pub const ecs_column_t = struct_ecs_column_t;
-pub const struct_ecs_data_t = @Type(.Opaque);
+pub const struct_ecs_data_t = opaque {};
 pub const ecs_data_t = struct_ecs_data_t;
 pub const struct_ecs_entities_t = extern struct {
     array: [*c]ecs_entity_t,
@@ -944,7 +944,7 @@ pub extern fn ecs_dbg_find_table(world: ?*ecs_world_t, type: ecs_type_t) ?*ecs_t
 pub extern fn ecs_dbg_get_table(world: ?*ecs_world_t, index: i32) ?*ecs_table_t;
 pub extern fn ecs_dbg_filter_table(world: ?*ecs_world_t, table: ?*ecs_table_t, filter: [*c]ecs_filter_t) bool;
 pub extern fn ecs_dbg_table(world: ?*ecs_world_t, table: ?*ecs_table_t, dbg_out: [*c]ecs_dbg_table_t) void;
-pub const struct_ecs_queue_t = @Type(.Opaque);
+pub const struct_ecs_queue_t = opaque {};
 pub const ecs_queue_t = struct_ecs_queue_t;
 pub extern fn _ecs_queue_new(elem_size: ecs_size_t, offset: i16, elem_count: i32) ?*ecs_queue_t;
 pub extern fn _ecs_queue_from_array(elem_size: ecs_size_t, offset: i16, elem_count: i32, array: ?*c_void) ?*ecs_queue_t;
