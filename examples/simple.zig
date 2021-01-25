@@ -23,7 +23,8 @@ pub fn main() !void {
     world.set(MyEntity, &Position{ .x = 100, .y = 100 });
     world.set(MyEntity, &Velocity{ .x = 5, .y = 5 });
 
-    world.setTargetFps(1);
+    world.progress(0);
+    world.progress(0);
     world.progress(0);
     world.progress(0);
 }
