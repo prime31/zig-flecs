@@ -54,8 +54,8 @@ fn createEntities(world: *flecs.World, e_pos: flecs.ecs_entity_t, e_vel: flecs.e
 
     var i: usize = 0;
     while (i < 1000000) : (i += 1) {
-        const entity = world.setPtr(0, e_pos, @sizeOf(Position), &Position{ .x = 100, .y = 100 });
-        world.set(entity, &Velocity{ .x = 5, .y = 5 });
+        world.setPtr(0, e_pos, @sizeOf(Position), &Position{ .x = 100, .y = 100 });
+        world.set(0, &Velocity{ .x = 5, .y = 5 });
     }
 
     world.set(0, &Velocity{ .x = 5, .y = 5 });

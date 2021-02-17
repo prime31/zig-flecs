@@ -8,9 +8,6 @@ pub const LibType = enum(i32) {
 };
 
 pub fn build(b: *std.build.Builder) anyerror!void {
-    // const exe = b.addStaticLibrary("JunkLib", null);
-    // linkArtifact(b, exe, b.standardTargetOptions(.{}), .static, "");
-    // exe.install();
     const target = b.standardTargetOptions(.{});
 
     const examples = [_][2][]const u8{
@@ -67,9 +64,9 @@ pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std
 
 fn compileFlecs(b: *Builder, exe: *std.build.LibExeObjStep, target: std.build.Target, comptime prefix_path: []const u8) void {
     exe.linkLibC();
-    exe.addIncludeDir(prefix_path ++ "src/flecs");
+    exe.addIncludeDir(prefix_path ++ "flecs");
 
     const cflags = &[_][]const u8{ "-DFALSE=0", "-DTRUE=1" };
-    exe.addCSourceFile(prefix_path ++ "src/flecs/flecs.c", cflags);
+    exe.addCSourceFile(prefix_path ++ "flecs/flecs.c", cflags);
 }
 
