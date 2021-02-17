@@ -26,8 +26,6 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         var exe = b.addExecutable(name, source);
         exe.setBuildMode(b.standardReleaseOptions());
 
-        // only required if doing @cImport to generate a cimport.zig file
-        exe.addIncludeDir("src/flecs/include");
         // for some reason exe_compiled + debug build results in "illegal instruction 4". Investigate at some point.
         linkArtifact(b, exe, target, .exe_compiled, "");
 
@@ -64,33 +62,14 @@ pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std
         },
     }
 
-    // artifact.addPackagePath("flecs_manual", std.fs.path.join(b.allocator, &[_][]const u8{ prefix_path, "flecs_manual.zig" }) catch unreachable);
     artifact.addPackagePath("flecs", prefix_path ++ "src/flecs.zig");
 }
 
 fn compileFlecs(b: *Builder, exe: *std.build.LibExeObjStep, target: std.build.Target, comptime prefix_path: []const u8) void {
     exe.linkLibC();
-    exe.addIncludeDir("flecs");
+    exe.addIncludeDir(prefix_path ++ "src/flecs");
 
-    const cflags = &[_][]const u8{ "-DFLECS_IMPL", "-DFALSE=0", "-DTRUE=1" };
+    const cflags = &[_][]const u8{ "-DFALSE=0", "-DTRUE=1" };
     exe.addCSourceFile(prefix_path ++ "src/flecs/flecs.c", cflags);
-    // addSourceFiles(b, exe, "flecs/src");
 }
 
-/// recursively adds all .c files to the exe
-fn addSourceFiles(b: *Builder, exe: *std.build.LibExeObjStep, src_dir: []const u8) void {
-    const cflags = &[_][]const u8{ "-DFLECS_IMPL", "-DFALSE=0", "-DTRUE=1" };
-    var dir = std.fs.cwd().openDir(src_dir, .{}) catch unreachable;
-    defer dir.close();
-
-    var iter = dir.iterate();
-    while (iter.next() catch unreachable) |entry| {
-        if (entry.kind == .Directory) {
-            const dir_path = std.fs.path.join(b.allocator, &[_][]const u8{ src_dir, entry.name }) catch unreachable;
-            addSourceFiles(b, exe, dir_path);
-        } else if (std.mem.endsWith(u8, entry.name, ".c")) {
-            const file = std.fs.path.join(b.allocator, &[_][]const u8{ src_dir, entry.name }) catch unreachable;
-            exe.addCSourceFile(file, cflags);
-        }
-    }
-}
