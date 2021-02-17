@@ -3,11 +3,11 @@ const std = @import("std");
 
 // flecs update:
 // - bump submodules
-// - regenerate cimport.zig
+// - regenerate cimport.zig using the "generator" build target
 // - clean out cruft
-// - update `ecs_iter_*` to be pointer to single item
-// - ensure the first line declaring ecs_iter_t remains in c.zig
-// - copy ecs_iter_t fields into this file
+// - update `ecs_iter_t` to be pointer to single item (find *ecs_iter_t and replace with *ecs_iter_t)
+// - copy ecs_iter_t fields into this file and delete them from the cimport.zig (so we can add methods to ecs_iter_t)
+// - ensure the first line declaring ecs_iter_t remains in c.zig since we moved it to this file
 
 pub const Entity = ecs_entity_t;
 
@@ -55,12 +55,12 @@ pub const World = struct {
         return ecs_type_from_str(self.world, expr);
     }
 
-    /// This operation will preallocate memory in the world for the specified number of entities
+    /// this operation will preallocate memory in the world for the specified number of entities
     pub fn dim(self: World, entity_count: i32) void {
         ecs_dim(self.world, entity_count);
     }
 
-    /// his operation will preallocate memory for a type (table) for the specified number of entities
+    /// this operation will preallocate memory for a type (table) for the specified number of entities
     pub fn dimType(self: World, ecs_type: ecs_type_t, entity_count: i32) void {
         ecs_dim_type(self.world, ecs_type, entity_count);
     }
@@ -92,23 +92,21 @@ pub const World = struct {
 
 pub const ecs_iter_t = extern struct {
     world: ?*ecs_world_t,
+    real_world: ?*ecs_world_t,
     system: ecs_entity_t,
-    columns: [*c]i32,
+    kind: ecs_query_iter_kind_t,
+    table: *ecs_iter_table_t,
+    query: ?*ecs_query_t,
     table_count: i32,
     inactive_table_count: i32,
     column_count: i32,
-    table: ?*ecs_table_t,
     table_columns: ?*c_void,
-    query: ?*ecs_query_t,
-    references: [*c]ecs_ref_t,
-    components: [*c]ecs_entity_t,
     entities: [*c]ecs_entity_t,
     param: ?*c_void,
     delta_time: f32,
     delta_system_time: f32,
     world_time: f32,
     frame_offset: i32,
-    table_offset: i32,
     offset: i32,
     count: i32,
     total_count: i32,
@@ -127,26 +125,26 @@ pub const ecs_iter_t = extern struct {
     }
 };
 
-pub const ECS_HI_COMPONENT_ID = 256;
+// pub const ECS_HI_COMPONENT_ID = 256;
 
 // Built-in tag ids
-pub const EcsModule = ECS_HI_COMPONENT_ID + 0;
-pub const EcsPrefab = ECS_HI_COMPONENT_ID + 1;
-pub const EcsHidden = ECS_HI_COMPONENT_ID + 2;
-pub const EcsDisabled = ECS_HI_COMPONENT_ID + 3;
-pub const EcsDisabledIntern = ECS_HI_COMPONENT_ID + 4;
-pub const EcsInactive = ECS_HI_COMPONENT_ID + 5;
-pub const EcsOnDemand = ECS_HI_COMPONENT_ID + 6;
-pub const EcsMonitor = ECS_HI_COMPONENT_ID + 7;
-pub const EcsPipeline = ECS_HI_COMPONENT_ID + 8;
+// pub const EcsModule = ECS_HI_COMPONENT_ID + 0;
+// pub const EcsPrefab = ECS_HI_COMPONENT_ID + 1;
+// pub const EcsHidden = ECS_HI_COMPONENT_ID + 2;
+// pub const EcsDisabled = ECS_HI_COMPONENT_ID + 3;
+// pub const EcsDisabledIntern = ECS_HI_COMPONENT_ID + 4;
+// pub const EcsInactive = ECS_HI_COMPONENT_ID + 5;
+// pub const EcsOnDemand = ECS_HI_COMPONENT_ID + 6;
+// pub const EcsMonitor = ECS_HI_COMPONENT_ID + 7;
+// pub const EcsPipeline = ECS_HI_COMPONENT_ID + 8;
 
 // Trigger tags
-pub const EcsOnAdd = ECS_HI_COMPONENT_ID + 9;
-pub const EcsOnRemove = ECS_HI_COMPONENT_ID + 10;
+// pub const EcsOnAdd = ECS_HI_COMPONENT_ID + 9;
+// pub const EcsOnRemove = ECS_HI_COMPONENT_ID + 10;
 
 // Set system tags
-pub const EcsOnSet = ECS_HI_COMPONENT_ID + 11;
-pub const EcsUnSet = ECS_HI_COMPONENT_ID + 12;
+// pub const EcsOnSet = ECS_HI_COMPONENT_ID + 11;
+// pub const EcsUnSet = ECS_HI_COMPONENT_ID + 12;
 
 // Builtin pipeline tags
 pub const Phase = enum(ecs_entity_t) {
@@ -162,21 +160,21 @@ pub const Phase = enum(ecs_entity_t) {
     post_frame = ECS_HI_COMPONENT_ID + 22,
 };
 
-pub const EcsPreFrame = ECS_HI_COMPONENT_ID + 13;
-pub const EcsOnLoad = ECS_HI_COMPONENT_ID + 14;
-pub const EcsPostLoad = ECS_HI_COMPONENT_ID + 15;
-pub const EcsPreUpdate = ECS_HI_COMPONENT_ID + 16;
-pub const EcsOnUpdate = ECS_HI_COMPONENT_ID + 17;
-pub const EcsOnValidate = ECS_HI_COMPONENT_ID + 18;
-pub const EcsPostUpdate = ECS_HI_COMPONENT_ID + 19;
-pub const EcsPreStore = ECS_HI_COMPONENT_ID + 20;
-pub const EcsOnStore = ECS_HI_COMPONENT_ID + 21;
-pub const EcsPostFrame = ECS_HI_COMPONENT_ID + 22;
+// pub const EcsPreFrame = ECS_HI_COMPONENT_ID + 13;
+// pub const EcsOnLoad = ECS_HI_COMPONENT_ID + 14;
+// pub const EcsPostLoad = ECS_HI_COMPONENT_ID + 15;
+// pub const EcsPreUpdate = ECS_HI_COMPONENT_ID + 16;
+// pub const EcsOnUpdate = ECS_HI_COMPONENT_ID + 17;
+// pub const EcsOnValidate = ECS_HI_COMPONENT_ID + 18;
+// pub const EcsPostUpdate = ECS_HI_COMPONENT_ID + 19;
+// pub const EcsPreStore = ECS_HI_COMPONENT_ID + 20;
+// pub const EcsOnStore = ECS_HI_COMPONENT_ID + 21;
+// pub const EcsPostFrame = ECS_HI_COMPONENT_ID + 22;
 
 // Builtin entity ids
-pub const EcsFlecs = ECS_HI_COMPONENT_ID + 23;
-pub const EcsFlecsCore = ECS_HI_COMPONENT_ID + 24;
-pub const EcsWorld = ECS_HI_COMPONENT_ID + 25;
-pub const EcsSingleton = (@import("std").meta.cast(ecs_entity_t, ECS_ENTITY_MASK)) - 1;
+// pub const EcsFlecs = ECS_HI_COMPONENT_ID + 23;
+// pub const EcsFlecsCore = ECS_HI_COMPONENT_ID + 24;
+// pub const EcsWorld = ECS_HI_COMPONENT_ID + 25;
+// pub const EcsSingleton = (@import("std").meta.cast(ecs_entity_t, ECS_ENTITY_MASK)) - 1;
 
-pub const EcsFirstUserEntityId = ECS_HI_COMPONENT_ID + 32;
+// pub const EcsFirstUserEntityId = ECS_HI_COMPONENT_ID + 32;
