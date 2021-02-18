@@ -5,7 +5,7 @@ const std = @import("std");
 // - bump submodules
 // - regenerate cimport.zig using the "generator" build target
 // - clean out cruft
-// - update `ecs_iter_t` to be pointer to single item (find *ecs_iter_t and replace with *ecs_iter_t)
+// - update `ecs_iter_t` to be pointer to single item (find [*c]ecs_iter_t and replace with *ecs_iter_t)
 // - copy ecs_iter_t fields into this file and delete them from the cimport.zig (so we can add methods to ecs_iter_t)
 // - ensure the first line declaring ecs_iter_t remains in c.zig since we moved it to this file
 
@@ -49,6 +49,9 @@ pub const World = struct {
 
     pub fn newType(self: World, id: [*c]const u8, components: [*c]const u8) Entity {
         return ecs_new_type(self.world, 0, id, components);
+    }
+    pub fn newQuery(self: World, signature: [*c]const u8) ?*ecs_query_t {
+        return ecs_query_new(self.world, signature);
     }
 
     pub fn typeFromStr(self: World, expr: [*c]const u8) ecs_type_t {
