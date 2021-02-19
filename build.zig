@@ -27,13 +27,13 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         linkArtifact(b, exe, target, .exe_compiled, "");
 
         const run_cmd = exe.run();
-        const exe_step = b.step(name, b.fmt("run {}.zig", .{name}));
+        const exe_step = b.step(name, b.fmt("run {s}.zig", .{name}));
         exe_step.dependOn(&run_cmd.step);
 
         // first element in the list is added as "run" so "zig build run" works
         if (i == 0) {
             exe.setOutputDir("zig-cache/bin");
-            const run_exe_step = b.step("run", b.fmt("run {}.zig", .{name}));
+            const run_exe_step = b.step("run", b.fmt("run {s}.zig", .{name}));
             run_exe_step.dependOn(&run_cmd.step);
         }
     }

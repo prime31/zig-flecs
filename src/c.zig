@@ -1086,17 +1086,17 @@ pub extern fn ecs_gauge_reduce(dst: [*c]ecs_gauge_t, t_dst: i32, src: [*c]ecs_ga
 pub const @"true" = 1;
 pub const @"false" = 0;
 pub const __bool_true_false_are_defined = 1;
-pub inline fn ECS_SIZEOF(T: anytype) @TypeOf((@import("std").meta.cast(ecs_size_t, @import("std").meta.sizeof(T)))) {
+pub fn ECS_SIZEOF(T: anytype) @TypeOf((@import("std").meta.cast(ecs_size_t, @import("std").meta.sizeof(T)))) {
     return (@import("std").meta.cast(ecs_size_t, @import("std").meta.sizeof(T)));
 }
-pub inline fn ECS_ALIGNOF(T: anytype) @TypeOf((@import("std").meta.cast(i64, __alignof__(T)))) {
+pub fn ECS_ALIGNOF(T: anytype) @TypeOf((@import("std").meta.cast(i64, __alignof__(T)))) {
     return (@import("std").meta.cast(i64, __alignof__(T)));
 }
 pub const ECS_UNUSED = __attribute__(unused);
-pub inline fn ECS_ALIGN(size: anytype, alignment: anytype) @TypeOf((@import("std").meta.cast(ecs_size_t, ((((@import("std").meta.cast(usize, size)) - 1) / (@import("std").meta.cast(usize, alignment))) + 1) * (@import("std").meta.cast(usize, alignment))))) {
+pub fn ECS_ALIGN(size: anytype, alignment: anytype) @TypeOf((@import("std").meta.cast(ecs_size_t, ((((@import("std").meta.cast(usize, size)) - 1) / (@import("std").meta.cast(usize, alignment))) + 1) * (@import("std").meta.cast(usize, alignment))))) {
     return (@import("std").meta.cast(ecs_size_t, ((((@import("std").meta.cast(usize, size)) - 1) / (@import("std").meta.cast(usize, alignment))) + 1) * (@import("std").meta.cast(usize, alignment))));
 }
-pub inline fn ECS_MAX(a: anytype, b: anytype) @TypeOf(if (a > b) a else b) {
+pub fn ECS_MAX(a: anytype, b: anytype) @TypeOf(if (a > b) a else b) {
     return if (a > b) a else b;
 }
 pub const FLECS__EEcsComponent = 1;
@@ -1117,275 +1117,275 @@ pub const FLECS__EEcsRateFilter = 15;
 pub const ECS_ROLE_MASK = (@import("std").meta.cast(ecs_entity_t, 0xFF << 56));
 pub const ECS_ENTITY_MASK = (@import("std").meta.cast(u64, 0xFFFFFFFF));
 pub const ECS_GENERATION_MASK = (@import("std").meta.cast(u64, 0xFFFF << 32));
-pub inline fn ECS_GENERATION(e: anytype) @TypeOf((e & ECS_GENERATION_MASK) >> 32) {
+pub fn ECS_GENERATION(e: anytype) @TypeOf((e & ECS_GENERATION_MASK) >> 32) {
     return (e & ECS_GENERATION_MASK) >> 32;
 }
-pub inline fn ECS_GENERATION_INC(e: anytype) @TypeOf((e & ~ECS_GENERATION_MASK) | ((ECS_GENERATION(e) + 1) << 32)) {
+pub fn ECS_GENERATION_INC(e: anytype) @TypeOf((e & ~ECS_GENERATION_MASK) | ((ECS_GENERATION(e) + 1) << 32)) {
     return (e & ~ECS_GENERATION_MASK) | ((ECS_GENERATION(e) + 1) << 32);
 }
 pub const ECS_TYPE_ROLE_START = ECS_CHILDOF;
-pub inline fn ecs_entity(T: anytype) @TypeOf(ecs_typeid(T)) {
+pub fn ecs_entity(T: anytype) @TypeOf(ecs_typeid(T)) {
     return ecs_typeid(T);
-}
-pub inline fn ecs_entity_t_lo(value: anytype) @TypeOf((@import("std").meta.cast(u32, value))) {
+} 
+pub fn ecs_entity_t_lo(value: anytype) @TypeOf((@import("std").meta.cast(u32, value))) {
     return (@import("std").meta.cast(u32, value));
-}
-pub inline fn ecs_entity_t_hi(value: anytype) @TypeOf((@import("std").meta.cast(u32, value >> 32))) {
+} 
+pub fn ecs_entity_t_hi(value: anytype) @TypeOf((@import("std").meta.cast(u32, value >> 32))) {
     return (@import("std").meta.cast(u32, value >> 32));
-}
-pub inline fn ecs_entity_t_comb(v1: anytype, v2: anytype) @TypeOf(((@import("std").meta.cast(u64, v2)) << 32) + (@import("std").meta.cast(u32, v1))) {
+} 
+pub fn ecs_entity_t_comb(v1: anytype, v2: anytype) @TypeOf(((@import("std").meta.cast(u64, v2)) << 32) + (@import("std").meta.cast(u32, v1))) {
     return ((@import("std").meta.cast(u64, v2)) << 32) + (@import("std").meta.cast(u32, v1));
-}
-pub inline fn ecs_trait(comp: anytype, trait: anytype) @TypeOf(ECS_TRAIT | ecs_entity_t_comb(comp, trait)) {
+} 
+pub fn ecs_trait(comp: anytype, trait: anytype) @TypeOf(ECS_TRAIT | ecs_entity_t_comb(comp, trait)) {
     return ECS_TRAIT | ecs_entity_t_comb(comp, trait);
-}
-pub inline fn ECS_VECTOR_U(size: anytype, alignment: anytype) @TypeOf(ECS_MAX(ECS_SIZEOF(ecs_vector_t), alignment)) {
+} 
+pub fn ECS_VECTOR_U(size: anytype, alignment: anytype) @TypeOf(ECS_MAX(ECS_SIZEOF(ecs_vector_t), alignment)) {
     return blk: {
         _ = size;
         break :blk ECS_MAX(ECS_SIZEOF(ecs_vector_t), alignment);
     };
-}
-pub inline fn ECS_VECTOR_T(T: anytype) @TypeOf(ECS_VECTOR_U(ECS_SIZEOF(T), ECS_ALIGNOF(T))) {
+} 
+pub fn ECS_VECTOR_T(T: anytype) @TypeOf(ECS_VECTOR_U(ECS_SIZEOF(T), ECS_ALIGNOF(T))) {
     return ECS_VECTOR_U(ECS_SIZEOF(T), ECS_ALIGNOF(T));
-}
-pub inline fn ecs_vector_new(T: anytype, elem_count: anytype) @TypeOf(_ecs_vector_new(ECS_VECTOR_T(T), elem_count)) {
+} 
+pub fn ecs_vector_new(T: anytype, elem_count: anytype) @TypeOf(_ecs_vector_new(ECS_VECTOR_T(T), elem_count)) {
     return _ecs_vector_new(ECS_VECTOR_T(T), elem_count);
-}
-pub inline fn ecs_vector_new_t(size: anytype, alignment: anytype, elem_count: anytype) @TypeOf(_ecs_vector_new(ECS_VECTOR_U(size, alignment), elem_count)) {
+} 
+pub fn ecs_vector_new_t(size: anytype, alignment: anytype, elem_count: anytype) @TypeOf(_ecs_vector_new(ECS_VECTOR_U(size, alignment), elem_count)) {
     return _ecs_vector_new(ECS_VECTOR_U(size, alignment), elem_count);
-}
-pub inline fn ecs_vector_from_array(T: anytype, elem_count: anytype, array: anytype) @TypeOf(_ecs_vector_from_array(ECS_VECTOR_T(T), elem_count, array)) {
+} 
+pub fn ecs_vector_from_array(T: anytype, elem_count: anytype, array: anytype) @TypeOf(_ecs_vector_from_array(ECS_VECTOR_T(T), elem_count, array)) {
     return _ecs_vector_from_array(ECS_VECTOR_T(T), elem_count, array);
-}
-pub inline fn ecs_vector_zero(vector: anytype, T: anytype) @TypeOf(_ecs_vector_zero(vector, ECS_VECTOR_T(T))) {
+} 
+pub fn ecs_vector_zero(vector: anytype, T: anytype) @TypeOf(_ecs_vector_zero(vector, ECS_VECTOR_T(T))) {
     return _ecs_vector_zero(vector, ECS_VECTOR_T(T));
-}
-pub inline fn ecs_vector_add(vector: anytype, T: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_add(vector, ECS_VECTOR_T(T))))) {
+} 
+pub fn ecs_vector_add(vector: anytype, T: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_add(vector, ECS_VECTOR_T(T))))) {
     return (@import("std").meta.cast([*c]T, _ecs_vector_add(vector, ECS_VECTOR_T(T))));
-}
-pub inline fn ecs_vector_add_t(vector: anytype, size: anytype, alignment: anytype) @TypeOf(_ecs_vector_add(vector, ECS_VECTOR_U(size, alignment))) {
+} 
+pub fn ecs_vector_add_t(vector: anytype, size: anytype, alignment: anytype) @TypeOf(_ecs_vector_add(vector, ECS_VECTOR_U(size, alignment))) {
     return _ecs_vector_add(vector, ECS_VECTOR_U(size, alignment));
-}
-pub inline fn ecs_vector_addn(vector: anytype, T: anytype, elem_count: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_addn(vector, ECS_VECTOR_T(T), elem_count)))) {
+} 
+pub fn ecs_vector_addn(vector: anytype, T: anytype, elem_count: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_addn(vector, ECS_VECTOR_T(T), elem_count)))) {
     return (@import("std").meta.cast([*c]T, _ecs_vector_addn(vector, ECS_VECTOR_T(T), elem_count)));
-}
-pub inline fn ecs_vector_addn_t(vector: anytype, size: anytype, alignment: anytype, elem_count: anytype) @TypeOf(_ecs_vector_addn(vector, ECS_VECTOR_U(size, alignment), elem_count)) {
+} 
+pub fn ecs_vector_addn_t(vector: anytype, size: anytype, alignment: anytype, elem_count: anytype) @TypeOf(_ecs_vector_addn(vector, ECS_VECTOR_U(size, alignment), elem_count)) {
     return _ecs_vector_addn(vector, ECS_VECTOR_U(size, alignment), elem_count);
-}
-pub inline fn ecs_vector_get(vector: anytype, T: anytype, index_1: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_get(vector, ECS_VECTOR_T(T), index_1)))) {
+} 
+pub fn ecs_vector_get(vector: anytype, T: anytype, index_1: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_get(vector, ECS_VECTOR_T(T), index_1)))) {
     return (@import("std").meta.cast([*c]T, _ecs_vector_get(vector, ECS_VECTOR_T(T), index_1)));
-}
-pub inline fn ecs_vector_get_t(vector: anytype, size: anytype, alignment: anytype, index_1: anytype) @TypeOf(_ecs_vector_get(vector, ECS_VECTOR_U(size, alignment), index_1)) {
+} 
+pub fn ecs_vector_get_t(vector: anytype, size: anytype, alignment: anytype, index_1: anytype) @TypeOf(_ecs_vector_get(vector, ECS_VECTOR_U(size, alignment), index_1)) {
     return _ecs_vector_get(vector, ECS_VECTOR_U(size, alignment), index_1);
-}
-pub inline fn ecs_vector_last(vector: anytype, T: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_last(vector, ECS_VECTOR_T(T))))) {
+} 
+pub fn ecs_vector_last(vector: anytype, T: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_last(vector, ECS_VECTOR_T(T))))) {
     return (@import("std").meta.cast([*c]T, _ecs_vector_last(vector, ECS_VECTOR_T(T))));
-}
-pub inline fn ecs_vector_set_min_size(vector: anytype, T: anytype, size: anytype) @TypeOf(_ecs_vector_set_min_size(vector, ECS_VECTOR_T(T), size)) {
+} 
+pub fn ecs_vector_set_min_size(vector: anytype, T: anytype, size: anytype) @TypeOf(_ecs_vector_set_min_size(vector, ECS_VECTOR_T(T), size)) {
     return _ecs_vector_set_min_size(vector, ECS_VECTOR_T(T), size);
-}
-pub inline fn ecs_vector_set_min_count(vector: anytype, T: anytype, size: anytype) @TypeOf(_ecs_vector_set_min_count(vector, ECS_VECTOR_T(T), size)) {
+} 
+pub fn ecs_vector_set_min_count(vector: anytype, T: anytype, size: anytype) @TypeOf(_ecs_vector_set_min_count(vector, ECS_VECTOR_T(T), size)) {
     return _ecs_vector_set_min_count(vector, ECS_VECTOR_T(T), size);
-}
-pub inline fn ecs_vector_pop(vector: anytype, T: anytype, value: anytype) @TypeOf(_ecs_vector_pop(vector, ECS_VECTOR_T(T), value)) {
+} 
+pub fn ecs_vector_pop(vector: anytype, T: anytype, value: anytype) @TypeOf(_ecs_vector_pop(vector, ECS_VECTOR_T(T), value)) {
     return _ecs_vector_pop(vector, ECS_VECTOR_T(T), value);
-}
-pub inline fn ecs_vector_move_index(dst: anytype, src: anytype, T: anytype, index_1: anytype) @TypeOf(_ecs_vector_move_index(dst, src, ECS_VECTOR_T(T), index_1)) {
+} 
+pub fn ecs_vector_move_index(dst: anytype, src: anytype, T: anytype, index_1: anytype) @TypeOf(_ecs_vector_move_index(dst, src, ECS_VECTOR_T(T), index_1)) {
     return _ecs_vector_move_index(dst, src, ECS_VECTOR_T(T), index_1);
-}
-pub inline fn ecs_vector_remove_index(vector: anytype, T: anytype, index_1: anytype) @TypeOf(_ecs_vector_remove_index(vector, ECS_VECTOR_T(T), index_1)) {
+} 
+pub fn ecs_vector_remove_index(vector: anytype, T: anytype, index_1: anytype) @TypeOf(_ecs_vector_remove_index(vector, ECS_VECTOR_T(T), index_1)) {
     return _ecs_vector_remove_index(vector, ECS_VECTOR_T(T), index_1);
-}
-pub inline fn ecs_vector_remove_index_t(vector: anytype, size: anytype, alignment: anytype, index_1: anytype) @TypeOf(_ecs_vector_remove_index(vector, ECS_VECTOR_U(size, alignment), index_1)) {
+} 
+pub fn ecs_vector_remove_index_t(vector: anytype, size: anytype, alignment: anytype, index_1: anytype) @TypeOf(_ecs_vector_remove_index(vector, ECS_VECTOR_U(size, alignment), index_1)) {
     return _ecs_vector_remove_index(vector, ECS_VECTOR_U(size, alignment), index_1);
-}
-pub inline fn ecs_vector_reclaim(vector: anytype, T: anytype) @TypeOf(_ecs_vector_reclaim(vector, ECS_VECTOR_T(T))) {
+} 
+pub fn ecs_vector_reclaim(vector: anytype, T: anytype) @TypeOf(_ecs_vector_reclaim(vector, ECS_VECTOR_T(T))) {
     return _ecs_vector_reclaim(vector, ECS_VECTOR_T(T));
-}
-pub inline fn ecs_vector_grow(vector: anytype, T: anytype, size: anytype) @TypeOf(_ecs_vector_grow(vector, ECS_VECTOR_T(T), size)) {
+} 
+pub fn ecs_vector_grow(vector: anytype, T: anytype, size: anytype) @TypeOf(_ecs_vector_grow(vector, ECS_VECTOR_T(T), size)) {
     return _ecs_vector_grow(vector, ECS_VECTOR_T(T), size);
-}
-pub inline fn ecs_vector_set_size(vector: anytype, T: anytype, elem_count: anytype) @TypeOf(_ecs_vector_set_size(vector, ECS_VECTOR_T(T), elem_count)) {
+} 
+pub fn ecs_vector_set_size(vector: anytype, T: anytype, elem_count: anytype) @TypeOf(_ecs_vector_set_size(vector, ECS_VECTOR_T(T), elem_count)) {
     return _ecs_vector_set_size(vector, ECS_VECTOR_T(T), elem_count);
-}
-pub inline fn ecs_vector_set_size_t(vector: anytype, size: anytype, alignment: anytype, elem_count: anytype) @TypeOf(_ecs_vector_set_size(vector, ECS_VECTOR_U(size, alignment), elem_count)) {
+} 
+pub fn ecs_vector_set_size_t(vector: anytype, size: anytype, alignment: anytype, elem_count: anytype) @TypeOf(_ecs_vector_set_size(vector, ECS_VECTOR_U(size, alignment), elem_count)) {
     return _ecs_vector_set_size(vector, ECS_VECTOR_U(size, alignment), elem_count);
-}
-pub inline fn ecs_vector_set_count(vector: anytype, T: anytype, elem_count: anytype) @TypeOf(_ecs_vector_set_count(vector, ECS_VECTOR_T(T), elem_count)) {
+} 
+pub fn ecs_vector_set_count(vector: anytype, T: anytype, elem_count: anytype) @TypeOf(_ecs_vector_set_count(vector, ECS_VECTOR_T(T), elem_count)) {
     return _ecs_vector_set_count(vector, ECS_VECTOR_T(T), elem_count);
-}
-pub inline fn ecs_vector_set_count_t(vector: anytype, size: anytype, alignment: anytype, elem_count: anytype) @TypeOf(_ecs_vector_set_count(vector, ECS_VECTOR_U(size, alignment), elem_count)) {
+} 
+pub fn ecs_vector_set_count_t(vector: anytype, size: anytype, alignment: anytype, elem_count: anytype) @TypeOf(_ecs_vector_set_count(vector, ECS_VECTOR_U(size, alignment), elem_count)) {
     return _ecs_vector_set_count(vector, ECS_VECTOR_U(size, alignment), elem_count);
-}
-pub inline fn ecs_vector_first(vector: anytype, T: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_first(vector, ECS_VECTOR_T(T))))) {
+} 
+pub fn ecs_vector_first(vector: anytype, T: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_first(vector, ECS_VECTOR_T(T))))) {
     return (@import("std").meta.cast([*c]T, _ecs_vector_first(vector, ECS_VECTOR_T(T))));
-}
-pub inline fn ecs_vector_first_t(vector: anytype, size: anytype, alignment: anytype) @TypeOf(_ecs_vector_first(vector, ECS_VECTOR_U(size, alignment))) {
+} 
+pub fn ecs_vector_first_t(vector: anytype, size: anytype, alignment: anytype) @TypeOf(_ecs_vector_first(vector, ECS_VECTOR_U(size, alignment))) {
     return _ecs_vector_first(vector, ECS_VECTOR_U(size, alignment));
-}
-pub inline fn ecs_vector_sort(vector: anytype, T: anytype, compare_action: anytype) @TypeOf(_ecs_vector_sort(vector, ECS_VECTOR_T(T), compare_action)) {
+} 
+pub fn ecs_vector_sort(vector: anytype, T: anytype, compare_action: anytype) @TypeOf(_ecs_vector_sort(vector, ECS_VECTOR_T(T), compare_action)) {
     return _ecs_vector_sort(vector, ECS_VECTOR_T(T), compare_action);
-}
-pub inline fn ecs_vector_memory(vector: anytype, T: anytype, allocd: anytype, used: anytype) @TypeOf(_ecs_vector_memory(vector, ECS_VECTOR_T(T), allocd, used)) {
+} 
+pub fn ecs_vector_memory(vector: anytype, T: anytype, allocd: anytype, used: anytype) @TypeOf(_ecs_vector_memory(vector, ECS_VECTOR_T(T), allocd, used)) {
     return _ecs_vector_memory(vector, ECS_VECTOR_T(T), allocd, used);
-}
-pub inline fn ecs_vector_memory_t(vector: anytype, size: anytype, alignment: anytype, allocd: anytype, used: anytype) @TypeOf(_ecs_vector_memory(vector, ECS_VECTOR_U(size, alignment), allocd, used)) {
+} 
+pub fn ecs_vector_memory_t(vector: anytype, size: anytype, alignment: anytype, allocd: anytype, used: anytype) @TypeOf(_ecs_vector_memory(vector, ECS_VECTOR_U(size, alignment), allocd, used)) {
     return _ecs_vector_memory(vector, ECS_VECTOR_U(size, alignment), allocd, used);
-}
-pub inline fn ecs_vector_copy(src: anytype, T: anytype) @TypeOf(_ecs_vector_copy(src, ECS_VECTOR_T(T))) {
+} 
+pub fn ecs_vector_copy(src: anytype, T: anytype) @TypeOf(_ecs_vector_copy(src, ECS_VECTOR_T(T))) {
     return _ecs_vector_copy(src, ECS_VECTOR_T(T));
-}
-pub inline fn ecs_vector_copy_t(src: anytype, size: anytype, alignment: anytype) @TypeOf(_ecs_vector_copy(src, ECS_VECTOR_U(size, alignment))) {
+} 
+pub fn ecs_vector_copy_t(src: anytype, size: anytype, alignment: anytype) @TypeOf(_ecs_vector_copy(src, ECS_VECTOR_U(size, alignment))) {
     return _ecs_vector_copy(src, ECS_VECTOR_U(size, alignment));
-}
-pub inline fn ecs_sparse_new(type_1: anytype) @TypeOf(_ecs_sparse_new(@import("std").meta.sizeof(type_1))) {
+} 
+pub fn ecs_sparse_new(type_1: anytype) @TypeOf(_ecs_sparse_new(@import("std").meta.sizeof(type_1))) {
     return _ecs_sparse_new(@import("std").meta.sizeof(type_1));
-}
-pub inline fn ecs_sparse_add(sparse: anytype, type_1: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_add(sparse, @import("std").meta.sizeof(type_1))))) {
+} 
+pub fn ecs_sparse_add(sparse: anytype, type_1: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_add(sparse, @import("std").meta.sizeof(type_1))))) {
     return (@import("std").meta.cast([*c]type_1, _ecs_sparse_add(sparse, @import("std").meta.sizeof(type_1))));
-}
-pub inline fn ecs_sparse_remove_get(sparse: anytype, type_1: anytype, index_2: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_remove_get(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
+} 
+pub fn ecs_sparse_remove_get(sparse: anytype, type_1: anytype, index_2: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_remove_get(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
     return (@import("std").meta.cast([*c]type_1, _ecs_sparse_remove_get(sparse, @import("std").meta.sizeof(type_1), index_2)));
-}
-pub inline fn ecs_sparse_get(sparse: anytype, type_1: anytype, index_2: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
+} 
+pub fn ecs_sparse_get(sparse: anytype, type_1: anytype, index_2: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
     return (@import("std").meta.cast([*c]type_1, _ecs_sparse_get(sparse, @import("std").meta.sizeof(type_1), index_2)));
-}
-pub inline fn ecs_sparse_get_sparse(sparse: anytype, type_1: anytype, index_2: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get_sparse(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
+} 
+pub fn ecs_sparse_get_sparse(sparse: anytype, type_1: anytype, index_2: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get_sparse(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
     return (@import("std").meta.cast([*c]type_1, _ecs_sparse_get_sparse(sparse, @import("std").meta.sizeof(type_1), index_2)));
-}
-pub inline fn ecs_sparse_get_sparse_any(sparse: anytype, type_1: anytype, index_2: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get_sparse_any(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
+} 
+pub fn ecs_sparse_get_sparse_any(sparse: anytype, type_1: anytype, index_2: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get_sparse_any(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
     return (@import("std").meta.cast([*c]type_1, _ecs_sparse_get_sparse_any(sparse, @import("std").meta.sizeof(type_1), index_2)));
-}
-pub inline fn ecs_sparse_get_or_create(sparse: anytype, type_1: anytype, index_2: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get_or_create(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
+} 
+pub fn ecs_sparse_get_or_create(sparse: anytype, type_1: anytype, index_2: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get_or_create(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
     return (@import("std").meta.cast([*c]type_1, _ecs_sparse_get_or_create(sparse, @import("std").meta.sizeof(type_1), index_2)));
-}
-pub inline fn ecs_sparse_set(sparse: anytype, type_1: anytype, index_2: anytype, value: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_set(sparse, @import("std").meta.sizeof(type_1), index_2, value)))) {
+} 
+pub fn ecs_sparse_set(sparse: anytype, type_1: anytype, index_2: anytype, value: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_set(sparse, @import("std").meta.sizeof(type_1), index_2, value)))) {
     return (@import("std").meta.cast([*c]type_1, _ecs_sparse_set(sparse, @import("std").meta.sizeof(type_1), index_2, value)));
-}
-pub inline fn ecs_map_new(T: anytype, elem_count: anytype) @TypeOf(_ecs_map_new(@import("std").meta.sizeof(T), ECS_ALIGNOF(T), elem_count)) {
+} 
+pub fn ecs_map_new(T: anytype, elem_count: anytype) @TypeOf(_ecs_map_new(@import("std").meta.sizeof(T), ECS_ALIGNOF(T), elem_count)) {
     return _ecs_map_new(@import("std").meta.sizeof(T), ECS_ALIGNOF(T), elem_count);
-}
-pub inline fn ecs_map_get(map: anytype, T: anytype, key: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_map_get(map, @import("std").meta.sizeof(T), (@import("std").meta.cast(ecs_map_key_t, key)))))) {
+} 
+pub fn ecs_map_get(map: anytype, T: anytype, key: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_map_get(map, @import("std").meta.sizeof(T), (@import("std").meta.cast(ecs_map_key_t, key)))))) {
     return (@import("std").meta.cast([*c]T, _ecs_map_get(map, @import("std").meta.sizeof(T), (@import("std").meta.cast(ecs_map_key_t, key)))));
-}
-pub inline fn ecs_map_get_ptr(map: anytype, T: anytype, key: anytype) @TypeOf((@import("std").meta.cast(T, _ecs_map_get_ptr(map, key)))) {
+} 
+pub fn ecs_map_get_ptr(map: anytype, T: anytype, key: anytype) @TypeOf((@import("std").meta.cast(T, _ecs_map_get_ptr(map, key)))) {
     return (@import("std").meta.cast(T, _ecs_map_get_ptr(map, key)));
-}
-pub inline fn ecs_map_ensure(map: anytype, T: anytype, key: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_map_ensure(map, @import("std").meta.sizeof(T), (@import("std").meta.cast(ecs_map_key_t, key)))))) {
+} 
+pub fn ecs_map_ensure(map: anytype, T: anytype, key: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_map_ensure(map, @import("std").meta.sizeof(T), (@import("std").meta.cast(ecs_map_key_t, key)))))) {
     return (@import("std").meta.cast([*c]T, _ecs_map_ensure(map, @import("std").meta.sizeof(T), (@import("std").meta.cast(ecs_map_key_t, key)))));
-}
-pub inline fn ecs_map_next(iter: anytype, T: anytype, key: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_map_next(iter, @import("std").meta.sizeof(T), key)))) {
+} 
+pub fn ecs_map_next(iter: anytype, T: anytype, key: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_map_next(iter, @import("std").meta.sizeof(T), key)))) {
     return (@import("std").meta.cast([*c]T, _ecs_map_next(iter, @import("std").meta.sizeof(T), key)));
-}
-pub inline fn ecs_map_next_ptr(iter: anytype, T: anytype, key: anytype) @TypeOf((@import("std").meta.cast(T, _ecs_map_next_ptr(iter, key)))) {
+} 
+pub fn ecs_map_next_ptr(iter: anytype, T: anytype, key: anytype) @TypeOf((@import("std").meta.cast(T, _ecs_map_next_ptr(iter, key)))) {
     return (@import("std").meta.cast(T, _ecs_map_next_ptr(iter, key)));
 }
 pub const ECS_STRBUF_INIT = @import("std").mem.zeroInit(ecs_strbuf_t, .{0});
 pub const ECS_STRBUF_ELEMENT_SIZE = 511;
 pub const ECS_STRBUF_MAX_LIST_DEPTH = 32;
-pub inline fn ecs_os_malloc(size: anytype) @TypeOf(ecs_os_api.malloc_(size)) {
+pub fn ecs_os_malloc(size: anytype) @TypeOf(ecs_os_api.malloc_(size)) {
     return ecs_os_api.malloc_(size);
-}
-pub inline fn ecs_os_free(ptr: anytype) @TypeOf(ecs_os_api.free_(ptr)) {
+} 
+pub fn ecs_os_free(ptr: anytype) @TypeOf(ecs_os_api.free_(ptr)) {
     return ecs_os_api.free_(ptr);
-}
-pub inline fn ecs_os_realloc(ptr: anytype, size: anytype) @TypeOf(ecs_os_api.realloc_(ptr, size)) {
+} 
+pub fn ecs_os_realloc(ptr: anytype, size: anytype) @TypeOf(ecs_os_api.realloc_(ptr, size)) {
     return ecs_os_api.realloc_(ptr, size);
-}
-pub inline fn ecs_os_calloc(size: anytype) @TypeOf(ecs_os_api.calloc_(size)) {
+} 
+pub fn ecs_os_calloc(size: anytype) @TypeOf(ecs_os_api.calloc_(size)) {
     return ecs_os_api.calloc_(size);
-}
-pub inline fn ecs_os_alloca(size: anytype) @TypeOf(alloca((@import("std").meta.cast(usize, size)))) {
+} 
+pub fn ecs_os_alloca(size: anytype) @TypeOf(alloca((@import("std").meta.cast(usize, size)))) {
     return alloca((@import("std").meta.cast(usize, size)));
-}
-pub inline fn ecs_os_strdup(str: anytype) @TypeOf(ecs_os_api.strdup_(str)) {
+} 
+pub fn ecs_os_strdup(str: anytype) @TypeOf(ecs_os_api.strdup_(str)) {
     return ecs_os_api.strdup_(str);
-}
-pub inline fn ecs_os_strlen(str: anytype) @TypeOf((@import("std").meta.cast(ecs_size_t, strlen(str)))) {
+} 
+pub fn ecs_os_strlen(str: anytype) @TypeOf((@import("std").meta.cast(ecs_size_t, strlen(str)))) {
     return (@import("std").meta.cast(ecs_size_t, strlen(str)));
-}
-pub inline fn ecs_os_strcmp(str1: anytype, str2: anytype) @TypeOf(strcmp(str1, str2)) {
+} 
+pub fn ecs_os_strcmp(str1: anytype, str2: anytype) @TypeOf(strcmp(str1, str2)) {
     return strcmp(str1, str2);
-}
-pub inline fn ecs_os_strncmp(str1: anytype, str2: anytype, num: anytype) @TypeOf(strncmp(str1, str2, (@import("std").meta.cast(usize, num)))) {
+} 
+pub fn ecs_os_strncmp(str1: anytype, str2: anytype, num: anytype) @TypeOf(strncmp(str1, str2, (@import("std").meta.cast(usize, num)))) {
     return strncmp(str1, str2, (@import("std").meta.cast(usize, num)));
-}
-pub inline fn ecs_os_memcmp(ptr1: anytype, ptr2: anytype, num: anytype) @TypeOf(memcmp(ptr1, ptr2, (@import("std").meta.cast(usize, num)))) {
+} 
+pub fn ecs_os_memcmp(ptr1: anytype, ptr2: anytype, num: anytype) @TypeOf(memcmp(ptr1, ptr2, (@import("std").meta.cast(usize, num)))) {
     return memcmp(ptr1, ptr2, (@import("std").meta.cast(usize, num)));
-}
-pub inline fn ecs_os_memcpy(ptr1: anytype, ptr2: anytype, num: anytype) @TypeOf(memcpy(ptr1, ptr2, (@import("std").meta.cast(usize, num)))) {
+} 
+pub fn ecs_os_memcpy(ptr1: anytype, ptr2: anytype, num: anytype) @TypeOf(memcpy(ptr1, ptr2, (@import("std").meta.cast(usize, num)))) {
     return memcpy(ptr1, ptr2, (@import("std").meta.cast(usize, num)));
-}
-pub inline fn ecs_os_memset(ptr: anytype, value: anytype, num: anytype) @TypeOf(memset(ptr, value, (@import("std").meta.cast(usize, num)))) {
+} 
+pub fn ecs_os_memset(ptr: anytype, value: anytype, num: anytype) @TypeOf(memset(ptr, value, (@import("std").meta.cast(usize, num)))) {
     return memset(ptr, value, (@import("std").meta.cast(usize, num)));
-}
-pub inline fn ecs_os_memmove(ptr: anytype, value: anytype, num: anytype) @TypeOf(memmove(ptr, value, (@import("std").meta.cast(usize, num)))) {
+} 
+pub fn ecs_os_memmove(ptr: anytype, value: anytype, num: anytype) @TypeOf(memmove(ptr, value, (@import("std").meta.cast(usize, num)))) {
     return memmove(ptr, value, (@import("std").meta.cast(usize, num)));
-}
-pub inline fn ecs_os_strcat(str1: anytype, str2: anytype) @TypeOf(strcat(str1, str2)) {
+} 
+pub fn ecs_os_strcat(str1: anytype, str2: anytype) @TypeOf(strcat(str1, str2)) {
     return strcat(str1, str2);
-}
-pub inline fn ecs_os_vsprintf(ptr: anytype, fmt: anytype, args: anytype) @TypeOf(vsprintf(ptr, fmt, args)) {
+} 
+pub fn ecs_os_vsprintf(ptr: anytype, fmt: anytype, args: anytype) @TypeOf(vsprintf(ptr, fmt, args)) {
     return vsprintf(ptr, fmt, args);
-}
-pub inline fn ecs_os_strcpy(str1: anytype, str2: anytype) @TypeOf(strcpy(str1, str2)) {
+} 
+pub fn ecs_os_strcpy(str1: anytype, str2: anytype) @TypeOf(strcpy(str1, str2)) {
     return strcpy(str1, str2);
-}
-pub inline fn ecs_os_strncpy(str1: anytype, str2: anytype, num: anytype) @TypeOf(strncpy(str1, str2, (@import("std").meta.cast(usize, num)))) {
+} 
+pub fn ecs_os_strncpy(str1: anytype, str2: anytype, num: anytype) @TypeOf(strncpy(str1, str2, (@import("std").meta.cast(usize, num)))) {
     return strncpy(str1, str2, (@import("std").meta.cast(usize, num)));
-}
-pub inline fn ecs_os_thread_new(callback: anytype, param: anytype) @TypeOf(ecs_os_api.thread_new_(callback, param)) {
+} 
+pub fn ecs_os_thread_new(callback: anytype, param: anytype) @TypeOf(ecs_os_api.thread_new_(callback, param)) {
     return ecs_os_api.thread_new_(callback, param);
-}
-pub inline fn ecs_os_thread_join(thread: anytype) @TypeOf(ecs_os_api.thread_join_(thread)) {
+} 
+pub fn ecs_os_thread_join(thread: anytype) @TypeOf(ecs_os_api.thread_join_(thread)) {
     return ecs_os_api.thread_join_(thread);
-}
-pub inline fn ecs_os_ainc(value: anytype) @TypeOf(ecs_os_api.ainc_(value)) {
+} 
+pub fn ecs_os_ainc(value: anytype) @TypeOf(ecs_os_api.ainc_(value)) {
     return ecs_os_api.ainc_(value);
-}
-pub inline fn ecs_os_adec(value: anytype) @TypeOf(ecs_os_api.adec_(value)) {
+} 
+pub fn ecs_os_adec(value: anytype) @TypeOf(ecs_os_api.adec_(value)) {
     return ecs_os_api.adec_(value);
-}
-pub inline fn ecs_os_mutex_free(mutex: anytype) @TypeOf(ecs_os_api.mutex_free_(mutex)) {
+} 
+pub fn ecs_os_mutex_free(mutex: anytype) @TypeOf(ecs_os_api.mutex_free_(mutex)) {
     return ecs_os_api.mutex_free_(mutex);
-}
-pub inline fn ecs_os_mutex_lock(mutex: anytype) @TypeOf(ecs_os_api.mutex_lock_(mutex)) {
+} 
+pub fn ecs_os_mutex_lock(mutex: anytype) @TypeOf(ecs_os_api.mutex_lock_(mutex)) {
     return ecs_os_api.mutex_lock_(mutex);
-}
-pub inline fn ecs_os_mutex_unlock(mutex: anytype) @TypeOf(ecs_os_api.mutex_unlock_(mutex)) {
+} 
+pub fn ecs_os_mutex_unlock(mutex: anytype) @TypeOf(ecs_os_api.mutex_unlock_(mutex)) {
     return ecs_os_api.mutex_unlock_(mutex);
-}
-pub inline fn ecs_os_cond_free(cond: anytype) @TypeOf(ecs_os_api.cond_free_(cond)) {
+} 
+pub fn ecs_os_cond_free(cond: anytype) @TypeOf(ecs_os_api.cond_free_(cond)) {
     return ecs_os_api.cond_free_(cond);
-}
-pub inline fn ecs_os_cond_signal(cond: anytype) @TypeOf(ecs_os_api.cond_signal_(cond)) {
+} 
+pub fn ecs_os_cond_signal(cond: anytype) @TypeOf(ecs_os_api.cond_signal_(cond)) {
     return ecs_os_api.cond_signal_(cond);
-}
-pub inline fn ecs_os_cond_broadcast(cond: anytype) @TypeOf(ecs_os_api.cond_broadcast_(cond)) {
+} 
+pub fn ecs_os_cond_broadcast(cond: anytype) @TypeOf(ecs_os_api.cond_broadcast_(cond)) {
     return ecs_os_api.cond_broadcast_(cond);
-}
-pub inline fn ecs_os_cond_wait(cond: anytype, mutex: anytype) @TypeOf(ecs_os_api.cond_wait_(cond, mutex)) {
+} 
+pub fn ecs_os_cond_wait(cond: anytype, mutex: anytype) @TypeOf(ecs_os_api.cond_wait_(cond, mutex)) {
     return ecs_os_api.cond_wait_(cond, mutex);
-}
-pub inline fn ecs_os_sleep(sec: anytype, nanosec: anytype) @TypeOf(ecs_os_api.sleep_(sec, nanosec)) {
+} 
+pub fn ecs_os_sleep(sec: anytype, nanosec: anytype) @TypeOf(ecs_os_api.sleep_(sec, nanosec)) {
     return ecs_os_api.sleep_(sec, nanosec);
-}
-pub inline fn ecs_os_get_time(time_out: anytype) @TypeOf(ecs_os_api.get_time_(time_out)) {
+} 
+pub fn ecs_os_get_time(time_out: anytype) @TypeOf(ecs_os_api.get_time_(time_out)) {
     return ecs_os_api.get_time_(time_out);
-}
-pub inline fn ecs_os_dlopen(libname: anytype) @TypeOf(ecs_os_api.dlopen_(libname)) {
+} 
+pub fn ecs_os_dlopen(libname: anytype) @TypeOf(ecs_os_api.dlopen_(libname)) {
     return ecs_os_api.dlopen_(libname);
-}
-pub inline fn ecs_os_dlproc(lib: anytype, procname: anytype) @TypeOf(ecs_os_api.dlproc_(lib, procname)) {
+} 
+pub fn ecs_os_dlproc(lib: anytype, procname: anytype) @TypeOf(ecs_os_api.dlproc_(lib, procname)) {
     return ecs_os_api.dlproc_(lib, procname);
-}
-pub inline fn ecs_os_dlclose(lib: anytype) @TypeOf(ecs_os_api.dlclose_(lib)) {
+} 
+pub fn ecs_os_dlclose(lib: anytype) @TypeOf(ecs_os_api.dlclose_(lib)) {
     return ecs_os_api.dlclose_(lib);
-}
-pub inline fn ecs_os_module_to_dl(lib: anytype) @TypeOf(ecs_os_api.module_to_dl_(lib)) {
+} 
+pub fn ecs_os_module_to_dl(lib: anytype) @TypeOf(ecs_os_api.module_to_dl_(lib)) {
     return ecs_os_api.module_to_dl_(lib);
-}
-pub inline fn ecs_os_module_to_etc(lib: anytype) @TypeOf(ecs_os_api.module_to_etc_(lib)) {
+} 
+pub fn ecs_os_module_to_etc(lib: anytype) @TypeOf(ecs_os_api.module_to_etc_(lib)) {
     return ecs_os_api.module_to_etc_(lib);
 }
 pub const ECS_HI_COMPONENT_ID = 256;
@@ -1441,7 +1441,7 @@ pub const ECS_COMPONENT_NAME_IN_USE = 47;
 pub const ECS_INCONSISTENT_NAME = 48;
 pub const ECS_INCONSISTENT_COMPONENT_ACTION = 49;
 pub const ECS_INVALID_OPERATION = 50;
-pub inline fn ECS_OFFSET(o: anytype, offset: anytype) @TypeOf((@import("std").meta.cast(?*c_void, (@import("std").meta.cast(usize, o)) + (@import("std").meta.cast(usize, offset))))) {
+pub fn ECS_OFFSET(o: anytype, offset: anytype) @TypeOf((@import("std").meta.cast(?*c_void, (@import("std").meta.cast(usize, o)) + (@import("std").meta.cast(usize, offset))))) {
     return (@import("std").meta.cast(?*c_void, (@import("std").meta.cast(usize, o)) + (@import("std").meta.cast(usize, offset))));
 }
 pub const ECS_BLACK = "\x1b[1;30m";
@@ -1498,150 +1498,150 @@ pub const EcsWildcard = ECS_HI_COMPONENT_ID + 27;
 pub const EcsLastInternalComponentId = ecs_typeid(EcsSystem);
 pub const EcsFirstUserComponentId = 32;
 pub const EcsFirstUserEntityId = ECS_HI_COMPONENT_ID + 32;
-pub inline fn ECS_ENTITY_DECLARE(id: anytype) @TypeOf(ecs_entity_t ++ id) {
+pub fn ECS_ENTITY_DECLARE(id: anytype) @TypeOf(ecs_entity_t ++ id) {
     return ecs_entity_t ++ id;
-}
-pub inline fn ecs_new(world: anytype, type_1: anytype) @TypeOf(ecs_new_w_type(world, ecs_type(type_1))) {
+} 
+pub fn ecs_new(world: anytype, type_1: anytype) @TypeOf(ecs_new_w_type(world, ecs_type(type_1))) {
     return ecs_new_w_type(world, ecs_type(type_1));
-}
-pub inline fn ecs_bulk_new(world: anytype, component: anytype, count: anytype) @TypeOf(ecs_bulk_new_w_type(world, ecs_type(component), count)) {
+} 
+pub fn ecs_bulk_new(world: anytype, component: anytype, count: anytype) @TypeOf(ecs_bulk_new_w_type(world, ecs_type(component), count)) {
     return ecs_bulk_new_w_type(world, ecs_type(component), count);
-}
-pub inline fn ecs_add(world: anytype, entity: anytype, component: anytype) @TypeOf(ecs_add_type(world, entity, ecs_type(component))) {
+} 
+pub fn ecs_add(world: anytype, entity: anytype, component: anytype) @TypeOf(ecs_add_type(world, entity, ecs_type(component))) {
     return ecs_add_type(world, entity, ecs_type(component));
-}
-pub inline fn ecs_remove(world: anytype, entity: anytype, type_1: anytype) @TypeOf(ecs_remove_type(world, entity, ecs_type(type_1))) {
+} 
+pub fn ecs_remove(world: anytype, entity: anytype, type_1: anytype) @TypeOf(ecs_remove_type(world, entity, ecs_type(type_1))) {
     return ecs_remove_type(world, entity, ecs_type(type_1));
-}
-pub inline fn ecs_add_remove(world: anytype, entity: anytype, to_add: anytype, to_remove: anytype) @TypeOf(ecs_add_remove_type(world, entity, ecs_type(to_add), ecs_type(to_remove))) {
+} 
+pub fn ecs_add_remove(world: anytype, entity: anytype, to_add: anytype, to_remove: anytype) @TypeOf(ecs_add_remove_type(world, entity, ecs_type(to_add), ecs_type(to_remove))) {
     return ecs_add_remove_type(world, entity, ecs_type(to_add), ecs_type(to_remove));
-}
-pub inline fn ecs_enable_component(world: anytype, entity: anytype, T: anytype, enable: anytype) @TypeOf(ecs_enable_component_w_entity(world, entity, ecs_typeid(T), enable)) {
+} 
+pub fn ecs_enable_component(world: anytype, entity: anytype, T: anytype, enable: anytype) @TypeOf(ecs_enable_component_w_entity(world, entity, ecs_typeid(T), enable)) {
     return ecs_enable_component_w_entity(world, entity, ecs_typeid(T), enable);
-}
-pub inline fn ecs_is_component_enabled(world: anytype, entity: anytype, T: anytype) @TypeOf(ecs_is_component_enabled_w_entity(world, entity, ecs_typeid(T))) {
+} 
+pub fn ecs_is_component_enabled(world: anytype, entity: anytype, T: anytype) @TypeOf(ecs_is_component_enabled_w_entity(world, entity, ecs_typeid(T))) {
     return ecs_is_component_enabled_w_entity(world, entity, ecs_typeid(T));
 }
-pub inline fn ecs_add_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) @TypeOf(ecs_add_entity(world, entity, ecs_trait(component, trait))) {
+pub fn ecs_add_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) @TypeOf(ecs_add_entity(world, entity, ecs_trait(component, trait))) {
     return ecs_add_entity(world, entity, ecs_trait(component, trait));
 }
-pub inline fn ecs_remove_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) @TypeOf(ecs_remove_entity(world, entity, ecs_trait(component, trait))) {
+pub fn ecs_remove_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) @TypeOf(ecs_remove_entity(world, entity, ecs_trait(component, trait))) {
     return ecs_remove_entity(world, entity, ecs_trait(component, trait));
 }
-pub inline fn ecs_has_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) @TypeOf(ecs_has_entity(world, entity, ecs_trait(component, trait))) {
+pub fn ecs_has_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) @TypeOf(ecs_has_entity(world, entity, ecs_trait(component, trait))) {
     return ecs_has_entity(world, entity, ecs_trait(component, trait));
 }
-pub inline fn ecs_get_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) @TypeOf((@import("std").meta.cast([*c]trait, ecs_get_w_entity(world, entity, ecs_trait(ecs_typeid(component), ecs_typeid(trait)))))) {
+pub fn ecs_get_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) @TypeOf((@import("std").meta.cast([*c]trait, ecs_get_w_entity(world, entity, ecs_trait(ecs_typeid(component), ecs_typeid(trait)))))) {
     return (@import("std").meta.cast([*c]trait, ecs_get_w_entity(world, entity, ecs_trait(ecs_typeid(component), ecs_typeid(trait)))));
 }
-pub inline fn ecs_get_trait_tag(world: anytype, entity: anytype, trait: anytype, component: anytype) @TypeOf((@import("std").meta.cast([*c]component, ecs_get_w_entity(world, entity, ecs_trait(ecs_typeid(component), trait))))) {
+pub fn ecs_get_trait_tag(world: anytype, entity: anytype, trait: anytype, component: anytype) @TypeOf((@import("std").meta.cast([*c]component, ecs_get_w_entity(world, entity, ecs_trait(ecs_typeid(component), trait))))) {
     return (@import("std").meta.cast([*c]component, ecs_get_w_entity(world, entity, ecs_trait(ecs_typeid(component), trait))));
 }
-pub inline fn ecs_get_mut(world: anytype, entity: anytype, component: anytype, is_added: anytype) @TypeOf((@import("std").meta.cast([*c]component, ecs_get_mut_w_entity(world, entity, ecs_typeid(component), is_added)))) {
+pub fn ecs_get_mut(world: anytype, entity: anytype, component: anytype, is_added: anytype) @TypeOf((@import("std").meta.cast([*c]component, ecs_get_mut_w_entity(world, entity, ecs_typeid(component), is_added)))) {
     return (@import("std").meta.cast([*c]component, ecs_get_mut_w_entity(world, entity, ecs_typeid(component), is_added)));
 }
-pub inline fn ecs_modified(world: anytype, entity: anytype, component: anytype) @TypeOf(ecs_modified_w_entity(world, entity, ecs_typeid(component))) {
+pub fn ecs_modified(world: anytype, entity: anytype, component: anytype) @TypeOf(ecs_modified_w_entity(world, entity, ecs_typeid(component))) {
     return ecs_modified_w_entity(world, entity, ecs_typeid(component));
 }
-pub inline fn ecs_set_ptr(world: anytype, entity: anytype, component: anytype, ptr: anytype) @TypeOf(ecs_set_ptr_w_entity(world, entity, ecs_typeid(component), @import("std").meta.sizeof(component), ptr)) {
+pub fn ecs_set_ptr(world: anytype, entity: anytype, component: anytype, ptr: anytype) @TypeOf(ecs_set_ptr_w_entity(world, entity, ecs_typeid(component), @import("std").meta.sizeof(component), ptr)) {
     return ecs_set_ptr_w_entity(world, entity, ecs_typeid(component), @import("std").meta.sizeof(component), ptr);
 }
-pub inline fn ecs_singleton_get(world: anytype, comp: anytype) @TypeOf(ecs_get(world, ecs_typeid(comp), comp)) {
+pub fn ecs_singleton_get(world: anytype, comp: anytype) @TypeOf(ecs_get(world, ecs_typeid(comp), comp)) {
     return ecs_get(world, ecs_typeid(comp), comp);
 }
-pub inline fn ecs_singleton_get_mut(world: anytype, comp: anytype) @TypeOf(ecs_get_mut(world, ecs_typeid(comp), comp, NULL)) {
+pub fn ecs_singleton_get_mut(world: anytype, comp: anytype) @TypeOf(ecs_get_mut(world, ecs_typeid(comp), comp, NULL)) {
     return ecs_get_mut(world, ecs_typeid(comp), comp, NULL);
 }
-pub inline fn ecs_singleton_modified(world: anytype, comp: anytype) @TypeOf(ecs_modified(world, ecs_typeid(comp), comp)) {
+pub fn ecs_singleton_modified(world: anytype, comp: anytype) @TypeOf(ecs_modified(world, ecs_typeid(comp), comp)) {
     return ecs_modified(world, ecs_typeid(comp), comp);
 }
-pub inline fn ecs_has(world: anytype, entity: anytype, type_1: anytype) @TypeOf(ecs_has_type(world, entity, ecs_type(type_1))) {
+pub fn ecs_has(world: anytype, entity: anytype, type_1: anytype) @TypeOf(ecs_has_type(world, entity, ecs_type(type_1))) {
     return ecs_has_type(world, entity, ecs_type(type_1));
 }
-pub inline fn ecs_owns(world: anytype, entity: anytype, type_1: anytype, owned: anytype) @TypeOf(ecs_type_owns_type(world, ecs_get_type(world, entity), ecs_type(type_1), owned)) {
+pub fn ecs_owns(world: anytype, entity: anytype, type_1: anytype, owned: anytype) @TypeOf(ecs_type_owns_type(world, ecs_get_type(world, entity), ecs_type(type_1), owned)) {
     return ecs_type_owns_type(world, ecs_get_type(world, entity), ecs_type(type_1), owned);
 }
-pub inline fn ecs_owns_entity(world: anytype, entity: anytype, has: anytype, owned: anytype) @TypeOf(ecs_type_owns_entity(world, ecs_get_type(world, entity), has, owned)) {
+pub fn ecs_owns_entity(world: anytype, entity: anytype, has: anytype, owned: anytype) @TypeOf(ecs_type_owns_entity(world, ecs_get_type(world, entity), has, owned)) {
     return ecs_type_owns_entity(world, ecs_get_type(world, entity), has, owned);
 }
-pub inline fn ecs_get_parent(world: anytype, entity: anytype, component: anytype) @TypeOf(ecs_get_parent_w_entity(world, entity, ecs_typeid(component))) {
+pub fn ecs_get_parent(world: anytype, entity: anytype, component: anytype) @TypeOf(ecs_get_parent_w_entity(world, entity, ecs_typeid(component))) {
     return ecs_get_parent_w_entity(world, entity, ecs_typeid(component));
 }
-pub inline fn ecs_count(world: anytype, type_1: anytype) @TypeOf(ecs_count_type(world, ecs_type(type_1))) {
+pub fn ecs_count(world: anytype, type_1: anytype) @TypeOf(ecs_count_type(world, ecs_type(type_1))) {
     return ecs_count_type(world, ecs_type(type_1));
 }
-pub inline fn ecs_lookup_path(world: anytype, parent: anytype, path: anytype) @TypeOf(ecs_lookup_path_w_sep(world, parent, path, ".", NULL)) {
+pub fn ecs_lookup_path(world: anytype, parent: anytype, path: anytype) @TypeOf(ecs_lookup_path_w_sep(world, parent, path, ".", NULL)) {
     return ecs_lookup_path_w_sep(world, parent, path, ".", NULL);
 }
-pub inline fn ecs_lookup_fullpath(world: anytype, path: anytype) @TypeOf(ecs_lookup_path_w_sep(world, 0, path, ".", NULL)) {
+pub fn ecs_lookup_fullpath(world: anytype, path: anytype) @TypeOf(ecs_lookup_path_w_sep(world, 0, path, ".", NULL)) {
     return ecs_lookup_path_w_sep(world, 0, path, ".", NULL);
 }
-pub inline fn ecs_get_path(world: anytype, parent: anytype, child: anytype) @TypeOf(ecs_get_path_w_sep(world, parent, child, 0, ".", NULL)) {
+pub fn ecs_get_path(world: anytype, parent: anytype, child: anytype) @TypeOf(ecs_get_path_w_sep(world, parent, child, 0, ".", NULL)) {
     return ecs_get_path_w_sep(world, parent, child, 0, ".", NULL);
 }
-pub inline fn ecs_get_fullpath(world: anytype, child: anytype) @TypeOf(ecs_get_path_w_sep(world, 0, child, 0, ".", NULL)) {
+pub fn ecs_get_fullpath(world: anytype, child: anytype) @TypeOf(ecs_get_path_w_sep(world, 0, child, 0, ".", NULL)) {
     return ecs_get_path_w_sep(world, 0, child, 0, ".", NULL);
 }
-pub inline fn ecs_new_from_path(world: anytype, parent: anytype, path: anytype) @TypeOf(ecs_new_from_path_w_sep(world, parent, path, ".", NULL)) {
+pub fn ecs_new_from_path(world: anytype, parent: anytype, path: anytype) @TypeOf(ecs_new_from_path_w_sep(world, parent, path, ".", NULL)) {
     return ecs_new_from_path_w_sep(world, parent, path, ".", NULL);
 }
-pub inline fn ecs_new_from_fullpath(world: anytype, path: anytype) @TypeOf(ecs_new_from_path_w_sep(world, 0, path, ".", NULL)) {
+pub fn ecs_new_from_fullpath(world: anytype, path: anytype) @TypeOf(ecs_new_from_path_w_sep(world, 0, path, ".", NULL)) {
     return ecs_new_from_path_w_sep(world, 0, path, ".", NULL);
 }
-pub inline fn ecs_add_path(world: anytype, entity: anytype, parent: anytype, path: anytype) @TypeOf(ecs_add_path_w_sep(world, entity, parent, path, ".", NULL)) {
+pub fn ecs_add_path(world: anytype, entity: anytype, parent: anytype, path: anytype) @TypeOf(ecs_add_path_w_sep(world, entity, parent, path, ".", NULL)) {
     return ecs_add_path_w_sep(world, entity, parent, path, ".", NULL);
 }
-pub inline fn ecs_add_fullpath(world: anytype, entity: anytype, path: anytype) @TypeOf(ecs_add_path_w_sep(world, entity, 0, path, ".", NULL)) {
+pub fn ecs_add_fullpath(world: anytype, entity: anytype, path: anytype) @TypeOf(ecs_add_path_w_sep(world, entity, 0, path, ".", NULL)) {
     return ecs_add_path_w_sep(world, entity, 0, path, ".", NULL);
 }
-pub inline fn ecs_column(it: anytype, type_1: anytype, column: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, ecs_column_w_size(it, @import("std").meta.sizeof(type_1), column)))) {
+pub fn ecs_column(it: anytype, type_1: anytype, column: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, ecs_column_w_size(it, @import("std").meta.sizeof(type_1), column)))) {
     return (@import("std").meta.cast([*c]type_1, ecs_column_w_size(it, @import("std").meta.sizeof(type_1), column)));
 }
-pub inline fn ecs_element(it: anytype, type_1: anytype, column: anytype, row: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, ecs_element_w_size(it, @import("std").meta.sizeof(type_1), column, row)))) {
+pub fn ecs_element(it: anytype, type_1: anytype, column: anytype, row: anytype) @TypeOf((@import("std").meta.cast([*c]type_1, ecs_element_w_size(it, @import("std").meta.sizeof(type_1), column, row)))) {
     return (@import("std").meta.cast([*c]type_1, ecs_element_w_size(it, @import("std").meta.sizeof(type_1), column, row)));
 }
-pub inline fn ECS_TYPE_VAR(id: anytype) @TypeOf(ecs_type_t ++ ecs_type(id)) {
+pub fn ECS_TYPE_VAR(id: anytype) @TypeOf(ecs_type_t ++ ecs_type(id)) {
     return ecs_type_t ++ ecs_type(id);
 }
-pub inline fn ECS_ENTITY_VAR(id: anytype) @TypeOf(ecs_entity_t ++ ecs_typeid(id)) {
+pub fn ECS_ENTITY_VAR(id: anytype) @TypeOf(ecs_entity_t ++ ecs_typeid(id)) {
     return ecs_entity_t ++ ecs_typeid(id);
 }
-pub inline fn ECS_DECLARE_TYPE(id: anytype) @TypeOf(ECS_DECLARE_ENTITY(id)) {
+pub fn ECS_DECLARE_TYPE(id: anytype) @TypeOf(ECS_DECLARE_ENTITY(id)) {
     return ECS_DECLARE_ENTITY(id);
 }
-pub inline fn ECS_EXPORT_COMPONENT(id: anytype) @TypeOf(ECS_SET_COMPONENT(id)) {
+pub fn ECS_EXPORT_COMPONENT(id: anytype) @TypeOf(ECS_SET_COMPONENT(id)) {
     return ECS_SET_COMPONENT(id);
 }
-pub inline fn ECS_EXPORT_ENTITY(id: anytype) @TypeOf(ECS_SET_ENTITY(id)) {
+pub fn ECS_EXPORT_ENTITY(id: anytype) @TypeOf(ECS_SET_ENTITY(id)) {
     return ECS_SET_ENTITY(id);
 }
-pub inline fn ECS_EXPORT_TYPE(id: anytype) @TypeOf(ECS_SET_TYPE(id)) {
+pub fn ECS_EXPORT_TYPE(id: anytype) @TypeOf(ECS_SET_TYPE(id)) {
     return ECS_SET_TYPE(id);
 }
-pub inline fn ecs_bulk_add(world: anytype, type_1: anytype, filter: anytype) @TypeOf(ecs_bulk_add_type(world, ecs_type(type_1), filter)) {
+pub fn ecs_bulk_add(world: anytype, type_1: anytype, filter: anytype) @TypeOf(ecs_bulk_add_type(world, ecs_type(type_1), filter)) {
     return ecs_bulk_add_type(world, ecs_type(type_1), filter);
 }
-pub inline fn ecs_bulk_remove(world: anytype, type_1: anytype, filter: anytype) @TypeOf(ecs_bulk_remove_type(world, ecs_type(type_1), filter)) {
+pub fn ecs_bulk_remove(world: anytype, type_1: anytype, filter: anytype) @TypeOf(ecs_bulk_remove_type(world, ecs_type(type_1), filter)) {
     return ecs_bulk_remove_type(world, ecs_type(type_1), filter);
 }
-pub inline fn ecs_bulk_add_remove(world: anytype, to_add: anytype, to_remove: anytype, filter: anytype) @TypeOf(ecs_bulk_add_remove_type(world, ecs_type(to_add), ecs_type(to_remove), filter)) {
+pub fn ecs_bulk_add_remove(world: anytype, to_add: anytype, to_remove: anytype, filter: anytype) @TypeOf(ecs_bulk_add_remove_type(world, ecs_type(to_add), ecs_type(to_remove), filter)) {
     return ecs_bulk_add_remove_type(world, ecs_type(to_add), ecs_type(to_remove), filter);
 }
-pub inline fn ecs_queue_new(T: anytype, elem_count: anytype) @TypeOf(_ecs_queue_new(ECS_VECTOR_T(T), elem_count)) {
+pub fn ecs_queue_new(T: anytype, elem_count: anytype) @TypeOf(_ecs_queue_new(ECS_VECTOR_T(T), elem_count)) {
     return _ecs_queue_new(ECS_VECTOR_T(T), elem_count);
 }
-pub inline fn ecs_queue_from_array(T: anytype, elem_count: anytype, array: anytype) @TypeOf(_ecs_queue_from_array(ECS_VECTOR_T(T), elem_count, array)) {
+pub fn ecs_queue_from_array(T: anytype, elem_count: anytype, array: anytype) @TypeOf(_ecs_queue_from_array(ECS_VECTOR_T(T), elem_count, array)) {
     return _ecs_queue_from_array(ECS_VECTOR_T(T), elem_count, array);
 }
-pub inline fn ecs_queue_push(queue: anytype, T: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_queue_push(queue, ECS_VECTOR_T(T))))) {
+pub fn ecs_queue_push(queue: anytype, T: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_queue_push(queue, ECS_VECTOR_T(T))))) {
     return (@import("std").meta.cast([*c]T, _ecs_queue_push(queue, ECS_VECTOR_T(T))));
 }
-pub inline fn ecs_queue_get(queue: anytype, T: anytype, index_1: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_queue_get(queue, ECS_VECTOR_T(T), index_1)))) {
+pub fn ecs_queue_get(queue: anytype, T: anytype, index_1: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_queue_get(queue, ECS_VECTOR_T(T), index_1)))) {
     return (@import("std").meta.cast([*c]T, _ecs_queue_get(queue, ECS_VECTOR_T(T), index_1)));
 }
-pub inline fn ecs_queue_get_t(vector: anytype, size: anytype, alignment: anytype, index_1: anytype) @TypeOf(_ecs_queue_get(vector, ECS_VECTOR_U(size, alignment), index_1)) {
+pub fn ecs_queue_get_t(vector: anytype, size: anytype, alignment: anytype, index_1: anytype) @TypeOf(_ecs_queue_get(vector, ECS_VECTOR_U(size, alignment), index_1)) {
     return _ecs_queue_get(vector, ECS_VECTOR_U(size, alignment), index_1);
 }
-pub inline fn ecs_queue_last(queue: anytype, T: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_queue_last(queue, ECS_VECTOR_T(T))))) {
+pub fn ecs_queue_last(queue: anytype, T: anytype) @TypeOf((@import("std").meta.cast([*c]T, _ecs_queue_last(queue, ECS_VECTOR_T(T))))) {
     return (@import("std").meta.cast([*c]T, _ecs_queue_last(queue, ECS_VECTOR_T(T))));
 }
