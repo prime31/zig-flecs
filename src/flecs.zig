@@ -10,6 +10,7 @@ const std = @import("std");
 // - ensure the first line declaring ecs_iter_t remains in c.zig since we moved it to this file
 
 pub const Entity = ecs_entity_t;
+pub const Query = ecs_query_t;
 
 /// registered component handle cache
 fn componentHandle(comptime T: type) *Entity {
@@ -54,7 +55,19 @@ pub const World = struct {
         return ecs_query_new(self.world, signature);
     }
 
-    pub fn typeFromStr(self: World, expr: [*c]const u8) ecs_type_t {
+    pub fn sortQuery(self: *World, query: ?*ecs_query_t, comptime T: type, comparer: ecs_compare_action_t) void {
+        return ecs_query_order_by(self.world, query, newComponent(self, T), comparer);
+    }
+
+    pub fn new(self: World) Entity {
+        return ecs_new_w_type(self.world, 0);
+    }
+
+    pub fn getType(self: World, comptime T: type) ecs_type_t {
+        return getTypeFromStr(self, @typeName(T));
+    }
+
+    pub fn getTypeFromStr(self: World, expr: [*c]const u8) ecs_type_t {
         return ecs_type_from_str(self.world, expr);
     }
 
@@ -68,8 +81,8 @@ pub const World = struct {
         ecs_dim_type(self.world, ecs_type, entity_count);
     }
 
-    pub fn newSystem(self: World, name: [*c]const u8, phase: Phase, signature: [*c]const u8, action: ecs_iter_action_t) void {
-        _ = ecs_new_system(self.world, 0, name, @enumToInt(phase), signature, action);
+    pub fn newSystem(self: World, name: [*c]const u8, phase: Phase, signature: [*c]const u8, action: ecs_iter_action_t) Entity {
+        return ecs_new_system(self.world, 0, name, @enumToInt(phase), signature, action);
     }
 
     pub fn setName(self: World, entity: Entity, name: [*c]const u8) void {
@@ -90,6 +103,43 @@ pub const World = struct {
 
         const child = std.meta.Child(@TypeOf(ptr));
         _ = ecs_set_ptr_w_entity(self.world, entity, self.newComponent(child), @sizeOf(child), ptr);
+    }
+
+    pub fn setSingleton(self: *World, ptr: anytype) void {
+        std.debug.assert(@typeInfo(@TypeOf(ptr)) == .Pointer);
+
+        const child = std.meta.Child(@TypeOf(ptr));
+        _ = ecs_set_ptr_w_entity(self.world, ecs_get_typeid(self.world, self.newComponent(child)), self.newComponent(child), @sizeOf(child), ptr);
+    }
+
+    //TODO: this only works if its not the first component on an entity?
+    pub fn add(self: World, entity: Entity, comptime T: type) void {
+        _ = ecs_add_type(self.world, entity, getType(self, T));
+    }
+
+    pub fn remove(self: World, entity: Entity, comptime T: type) void {
+        _ = ecs_remove_type(self.world, entity, getType(self, T));
+    }
+
+    pub fn get(self: *World, entity: Entity, comptime T: type) ?*const T {
+        const ptr = ecs_get_w_entity(self.world, entity, self.newComponent(T));
+
+        if (ptr) |p| {
+            return @ptrCast(*const T, @alignCast(@alignOf(T), p));
+        } else {
+            return null;
+        }
+    }
+
+    pub fn getSingleton(self: *World, comptime T: type) ?*const T {
+        //const ptr = ecs_singleton_get(self.world, T);
+        const ptr = self.get(ecs_get_typeid(self.world, self.newComponent(T)), T);
+
+        if (ptr) |p| {
+            return @ptrCast(*const T, @alignCast(@alignOf(T), p));
+        } else {
+            return null;
+        }
     }
 };
 
