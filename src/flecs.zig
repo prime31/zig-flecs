@@ -125,7 +125,18 @@ pub const World = struct {
         const ptr = ecs_get_w_entity(self.world, entity, self.newComponent(T));
 
         if (ptr) |p| {
-            return @ptrCast(*const T, @alignCast(@alignOf(T), p));
+            return @ptrCast(*const T, @alignCast(@alignOf(T), ptr));
+        } else {
+            return null;
+        }
+    }
+
+    pub fn getMut(self: *World, entity: Entity, comptime T: type) ?* T {
+        var is_added: bool = true;
+        const ptr = ecs_get_mut_w_entity(self.world, entity, self.newComponent(T), &is_added);
+
+        if (ptr) |p| {
+            return @ptrCast(*T, @alignCast(@alignOf(T), ptr));
         } else {
             return null;
         }
@@ -141,6 +152,19 @@ pub const World = struct {
             return null;
         }
     }
+
+    pub fn getSingletonMut (self: *World, comptime T: type ) ?*T {
+        var is_added: bool = false;
+        const ptr  = ecs_get_mut_w_entity(self.world, ecs_get_typeid(self.world, self.newComponent(T)), self.newComponent(T), &is_added);
+
+        if (ptr) |p| {
+            return @ptrCast(*T, @alignCast(@alignOf(T), ptr));
+        } else {
+            return null;
+        }
+    }
+
+    
 };
 
 pub const ecs_iter_t = extern struct {
