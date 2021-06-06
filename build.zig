@@ -46,7 +46,7 @@ pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std
     switch (lib_type) {
         .static => {
             const lib = b.addStaticLibrary("flecs", null);
-            lib.setBuildMode(builtin.Mode.ReleaseFast);
+            lib.setBuildMode(std.builtin.Mode.ReleaseFast);
             lib.setTarget(target);
 
             compileFlecs(b, lib, target, prefix_path);
