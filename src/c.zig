@@ -300,17 +300,11 @@ pub const struct_ecs_ref_t = extern struct {
     ptr: ?*const c_void,
 };
 pub const ecs_ref_t = struct_ecs_ref_t;
-pub const EcsMatchDefault = @enumToInt(enum_ecs_match_kind_t.EcsMatchDefault);
-pub const EcsMatchAll = @enumToInt(enum_ecs_match_kind_t.EcsMatchAll);
-pub const EcsMatchAny = @enumToInt(enum_ecs_match_kind_t.EcsMatchAny);
-pub const EcsMatchExact = @enumToInt(enum_ecs_match_kind_t.EcsMatchExact);
-pub const enum_ecs_match_kind_t = extern enum(c_int) {
-    EcsMatchDefault = 0,
-    EcsMatchAll = 1,
-    EcsMatchAny = 2,
-    EcsMatchExact = 3,
-    _,
-};
+pub const EcsMatchDefault: c_int = 0;
+pub const EcsMatchAll: c_int = 1;
+pub const EcsMatchAny: c_int = 2;
+pub const EcsMatchExact: c_int = 3;
+
 pub const ecs_match_kind_t = enum_ecs_match_kind_t;
 pub const struct_ecs_filter_t = extern struct {
     include: ecs_type_t,
@@ -398,17 +392,11 @@ pub const struct_ecs_filter_iter_t = extern struct {
     table: ecs_iter_table_t,
 };
 pub const ecs_filter_iter_t = struct_ecs_filter_iter_t;
-pub const EcsQuerySimpleIter = @enumToInt(enum_ecs_query_iter_kind_t.EcsQuerySimpleIter);
-pub const EcsQueryPagedIter = @enumToInt(enum_ecs_query_iter_kind_t.EcsQueryPagedIter);
-pub const EcsQuerySortedIter = @enumToInt(enum_ecs_query_iter_kind_t.EcsQuerySortedIter);
-pub const EcsQuerySwitchIter = @enumToInt(enum_ecs_query_iter_kind_t.EcsQuerySwitchIter);
-pub const enum_ecs_query_iter_kind_t = extern enum(c_int) {
-    EcsQuerySimpleIter,
-    EcsQueryPagedIter,
-    EcsQuerySortedIter,
-    EcsQuerySwitchIter,
-    _,
-};
+pub const EcsQuerySimpleIter: c_int = 0;
+pub const EcsQueryPagedIter: c_int = 1;
+pub const EcsQuerySortedIter: c_int = 3;
+pub const EcsQuerySwitchIter: c_int = 4;
+
 pub const ecs_query_iter_kind_t = enum_ecs_query_iter_kind_t;
 pub const struct_ecs_query_iter_t = extern struct {
     page_iter: ecs_page_iter_t,
@@ -425,45 +413,25 @@ pub const struct_ecs_snapshot_iter_t = extern struct {
     table: ecs_iter_table_t,
 };
 pub const ecs_snapshot_iter_t = struct_ecs_snapshot_iter_t;
-pub const EcsMatchOk = @enumToInt(enum_EcsMatchFailureReason.EcsMatchOk);
-pub const EcsMatchNotASystem = @enumToInt(enum_EcsMatchFailureReason.EcsMatchNotASystem);
-pub const EcsMatchSystemIsATask = @enumToInt(enum_EcsMatchFailureReason.EcsMatchSystemIsATask);
-pub const EcsMatchEntityIsDisabled = @enumToInt(enum_EcsMatchFailureReason.EcsMatchEntityIsDisabled);
-pub const EcsMatchEntityIsPrefab = @enumToInt(enum_EcsMatchFailureReason.EcsMatchEntityIsPrefab);
-pub const EcsMatchFromSelf = @enumToInt(enum_EcsMatchFailureReason.EcsMatchFromSelf);
-pub const EcsMatchFromOwned = @enumToInt(enum_EcsMatchFailureReason.EcsMatchFromOwned);
-pub const EcsMatchFromShared = @enumToInt(enum_EcsMatchFailureReason.EcsMatchFromShared);
-pub const EcsMatchFromContainer = @enumToInt(enum_EcsMatchFailureReason.EcsMatchFromContainer);
-pub const EcsMatchFromEntity = @enumToInt(enum_EcsMatchFailureReason.EcsMatchFromEntity);
-pub const EcsMatchOrFromSelf = @enumToInt(enum_EcsMatchFailureReason.EcsMatchOrFromSelf);
-pub const EcsMatchOrFromOwned = @enumToInt(enum_EcsMatchFailureReason.EcsMatchOrFromOwned);
-pub const EcsMatchOrFromShared = @enumToInt(enum_EcsMatchFailureReason.EcsMatchOrFromShared);
-pub const EcsMatchOrFromContainer = @enumToInt(enum_EcsMatchFailureReason.EcsMatchOrFromContainer);
-pub const EcsMatchNotFromSelf = @enumToInt(enum_EcsMatchFailureReason.EcsMatchNotFromSelf);
-pub const EcsMatchNotFromOwned = @enumToInt(enum_EcsMatchFailureReason.EcsMatchNotFromOwned);
-pub const EcsMatchNotFromShared = @enumToInt(enum_EcsMatchFailureReason.EcsMatchNotFromShared);
-pub const EcsMatchNotFromContainer = @enumToInt(enum_EcsMatchFailureReason.EcsMatchNotFromContainer);
-pub const enum_EcsMatchFailureReason = extern enum(c_int) {
-    EcsMatchOk,
-    EcsMatchNotASystem,
-    EcsMatchSystemIsATask,
-    EcsMatchEntityIsDisabled,
-    EcsMatchEntityIsPrefab,
-    EcsMatchFromSelf,
-    EcsMatchFromOwned,
-    EcsMatchFromShared,
-    EcsMatchFromContainer,
-    EcsMatchFromEntity,
-    EcsMatchOrFromSelf,
-    EcsMatchOrFromOwned,
-    EcsMatchOrFromShared,
-    EcsMatchOrFromContainer,
-    EcsMatchNotFromSelf,
-    EcsMatchNotFromOwned,
-    EcsMatchNotFromShared,
-    EcsMatchNotFromContainer,
-    _,
-};
+pub const EcsMatchOk: c_int = 0;
+pub const EcsMatchNotASystem: c_int = 1;
+pub const EcsMatchSystemIsATask: c_int = 2;
+pub const EcsMatchEntityIsDisabled: c_int = 3;
+pub const EcsMatchEntityIsPrefab: c_int = 4;
+pub const EcsMatchFromSelf: c_int = 5;
+pub const EcsMatchFromOwned: c_int = 6;
+pub const EcsMatchFromShared: c_int = 7;
+pub const EcsMatchFromContainer: c_int = 8;
+pub const EcsMatchFromEntity: c_int = 9;
+pub const EcsMatchOrFromSelf: c_int = 10;
+pub const EcsMatchOrFromOwned: c_int = 11;
+pub const EcsMatchOrFromShared: c_int = 12;
+pub const EcsMatchOrFromContainer: c_int = 13;
+pub const EcsMatchNotFromSelf: c_int = 14;
+pub const EcsMatchNotFromOwned: c_int = 15;
+pub const EcsMatchNotFromShared: c_int = 16;
+pub const EcsMatchNotFromContainer: c_int = 17;
+
 pub const EcsMatchFailureReason = enum_EcsMatchFailureReason;
 pub const struct_ecs_match_failure_t = extern struct {
     reason: EcsMatchFailureReason,
@@ -487,15 +455,10 @@ pub extern fn ecs_new_trigger(world: ?*ecs_world_t, e: ecs_entity_t, name: [*c]c
 pub extern fn ecs_new_pipeline(world: ?*ecs_world_t, e: ecs_entity_t, name: [*c]const u8, expr: [*c]const u8) ecs_entity_t;
 pub extern fn ecs_module_path_from_c(c_name: [*c]const u8) [*c]u8;
 pub extern fn ecs_component_has_actions(world: ?*ecs_world_t, component: ecs_entity_t) bool;
-pub const EcsInOut = @enumToInt(enum_ecs_sig_inout_kind_t.EcsInOut);
-pub const EcsIn = @enumToInt(enum_ecs_sig_inout_kind_t.EcsIn);
-pub const EcsOut = @enumToInt(enum_ecs_sig_inout_kind_t.EcsOut);
-pub const enum_ecs_sig_inout_kind_t = extern enum(c_int) {
-    EcsInOut,
-    EcsIn,
-    EcsOut,
-    _,
-};
+pub const EcsInOut: c_int = 0;
+pub const EcsIn: c_int = 1;
+pub const EcsOut: c_int = 2;
+
 pub const ecs_sig_inout_kind_t = enum_ecs_sig_inout_kind_t;
 pub const EcsFromAny = @enumToInt(enum_ecs_sig_from_kind_t.EcsFromAny);
 pub const EcsFromOwned = @enumToInt(enum_ecs_sig_from_kind_t.EcsFromOwned);
@@ -505,7 +468,7 @@ pub const EcsFromSystem = @enumToInt(enum_ecs_sig_from_kind_t.EcsFromSystem);
 pub const EcsFromEmpty = @enumToInt(enum_ecs_sig_from_kind_t.EcsFromEmpty);
 pub const EcsFromEntity = @enumToInt(enum_ecs_sig_from_kind_t.EcsFromEntity);
 pub const EcsCascade = @enumToInt(enum_ecs_sig_from_kind_t.EcsCascade);
-pub const enum_ecs_sig_from_kind_t = extern enum(c_int) {
+pub const enum_ecs_sig_from_kind_t = enum(c_int) {
     EcsFromAny,
     EcsFromOwned,
     EcsFromShared,
@@ -523,7 +486,7 @@ pub const EcsOperNot = @enumToInt(enum_ecs_sig_oper_kind_t.EcsOperNot);
 pub const EcsOperOptional = @enumToInt(enum_ecs_sig_oper_kind_t.EcsOperOptional);
 pub const EcsOperAll = @enumToInt(enum_ecs_sig_oper_kind_t.EcsOperAll);
 pub const EcsOperLast = @enumToInt(enum_ecs_sig_oper_kind_t.EcsOperLast);
-pub const enum_ecs_sig_oper_kind_t = extern enum(c_int) {
+pub const enum_ecs_sig_oper_kind_t = enum(c_int) {
     EcsOperAnd = 0,
     EcsOperOr = 1,
     EcsOperNot = 2,
@@ -774,7 +737,7 @@ pub const EcsSystemEnabled = @enumToInt(enum_ecs_system_status_t.EcsSystemEnable
 pub const EcsSystemDisabled = @enumToInt(enum_ecs_system_status_t.EcsSystemDisabled);
 pub const EcsSystemActivated = @enumToInt(enum_ecs_system_status_t.EcsSystemActivated);
 pub const EcsSystemDeactivated = @enumToInt(enum_ecs_system_status_t.EcsSystemDeactivated);
-pub const enum_ecs_system_status_t = extern enum(c_int) {
+pub const enum_ecs_system_status_t = enum(c_int) {
     EcsSystemStatusNone = 0,
     EcsSystemEnabled = 1,
     EcsSystemDisabled = 2,
@@ -903,7 +866,7 @@ pub const EcsTableColumnNameHeader = @enumToInt(enum_ecs_blob_header_kind_t.EcsT
 pub const EcsTableColumnNameLength = @enumToInt(enum_ecs_blob_header_kind_t.EcsTableColumnNameLength);
 pub const EcsTableColumnName = @enumToInt(enum_ecs_blob_header_kind_t.EcsTableColumnName);
 pub const EcsStreamFooter = @enumToInt(enum_ecs_blob_header_kind_t.EcsStreamFooter);
-pub const enum_ecs_blob_header_kind_t = extern enum(c_int) {
+pub const enum_ecs_blob_header_kind_t = enum(c_int) {
     EcsStreamHeader,
     EcsTableSegment,
     EcsFooterSegment,
