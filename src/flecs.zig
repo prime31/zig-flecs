@@ -13,7 +13,7 @@ pub const Entity = ecs_entity_t;
 pub const Query = ecs_query_t;
 
 /// registered component handle cache
-fn componentHandle() *Entity {
+fn componentHandle(comptime T: type) *Entity {
     return &(struct {
         pub var handle: Entity = std.math.maxInt(u64);
     }.handle);
@@ -124,7 +124,7 @@ pub const World = struct {
     pub fn get(self: *World, entity: Entity, comptime T: type) ?*const T {
         const ptr = ecs_get_w_entity(self.world, entity, self.newComponent(T));
 
-        if (ptr) |_| {
+        if (ptr) |p| {
             return @ptrCast(*const T, @alignCast(@alignOf(T), ptr));
         } else {
             return null;
@@ -135,7 +135,7 @@ pub const World = struct {
         var is_added: bool = true;
         const ptr = ecs_get_mut_w_entity(self.world, entity, self.newComponent(T), &is_added);
 
-        if (ptr) |_| {
+        if (ptr) |p| {
             return @ptrCast(*T, @alignCast(@alignOf(T), ptr));
         } else {
             return null;
@@ -157,7 +157,7 @@ pub const World = struct {
         var is_added: bool = false;
         const ptr  = ecs_get_mut_w_entity(self.world, ecs_get_typeid(self.world, self.newComponent(T)), self.newComponent(T), &is_added);
 
-        if (ptr) |_| {
+        if (ptr) |p| {
             return @ptrCast(*T, @alignCast(@alignOf(T), ptr));
         } else {
             return null;

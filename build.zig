@@ -49,20 +49,20 @@ pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std
             lib.setBuildMode(std.builtin.Mode.ReleaseFast);
             lib.setTarget(target);
 
-            compileFlecs( lib, prefix_path);
+            compileFlecs(b, lib, target, prefix_path);
             lib.install();
 
             artifact.linkLibrary(lib);
         },
         .exe_compiled => {
-            compileFlecs(artifact, prefix_path);
+            compileFlecs(b, artifact, target, prefix_path);
         },
     }
 
     artifact.addPackagePath("flecs", prefix_path ++ "src/flecs.zig");
 }
 
-fn compileFlecs( exe: *std.build.LibExeObjStep, comptime prefix_path: []const u8) void {
+fn compileFlecs(b: *Builder, exe: *std.build.LibExeObjStep, target: std.build.Target, comptime prefix_path: []const u8) void {
     exe.linkLibC();
     exe.addIncludeDir(prefix_path ++ "flecs");
 
