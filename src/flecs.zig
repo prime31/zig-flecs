@@ -13,7 +13,7 @@ pub const Entity = ecs_entity_t;
 pub const Query = ecs_query_t;
 
 /// registered component handle cache
-fn componentHandle(comptime T: type) *Entity {
+fn componentHandle() *Entity {
     return &(struct {
         pub var handle: Entity = std.math.maxInt(u64);
     }.handle);
@@ -39,7 +39,7 @@ pub const World = struct {
     }
 
     pub fn newComponent(self: *World, comptime T: type) Entity {
-        var handle = componentHandle(T);
+        var handle = componentHandle();
         if (handle.* < std.math.maxInt(Entity)) {
             return handle.*;
         }
@@ -124,7 +124,7 @@ pub const World = struct {
     pub fn get(self: *World, entity: Entity, comptime T: type) ?*const T {
         const ptr = ecs_get_w_entity(self.world, entity, self.newComponent(T));
 
-        if (ptr) |p| {
+        if (ptr) |_| {
             return @ptrCast(*const T, @alignCast(@alignOf(T), ptr));
         } else {
             return null;
@@ -135,7 +135,7 @@ pub const World = struct {
         var is_added: bool = true;
         const ptr = ecs_get_mut_w_entity(self.world, entity, self.newComponent(T), &is_added);
 
-        if (ptr) |p| {
+        if (ptr) |_| {
             return @ptrCast(*T, @alignCast(@alignOf(T), ptr));
         } else {
             return null;
@@ -157,7 +157,7 @@ pub const World = struct {
         var is_added: bool = false;
         const ptr  = ecs_get_mut_w_entity(self.world, ecs_get_typeid(self.world, self.newComponent(T)), self.newComponent(T), &is_added);
 
-        if (ptr) |p| {
+        if (ptr) |_| {
             return @ptrCast(*T, @alignCast(@alignOf(T), ptr));
         } else {
             return null;
@@ -172,10 +172,8 @@ pub const ecs_iter_t = extern struct {
     world: ?*ecs_world_t,
     real_world: ?*ecs_world_t,
     system: ecs_entity_t,
-    event: ecs_entity_t,
-    self: ecs_entity_t,
     kind: ecs_query_iter_kind_t,
-    table: [*c]ecs_iter_table_t,
+    table: *ecs_iter_table_t,
     query: ?*ecs_query_t,
     table_count: i32,
     inactive_table_count: i32,
@@ -183,8 +181,6 @@ pub const ecs_iter_t = extern struct {
     table_columns: ?*c_void,
     entities: [*c]ecs_entity_t,
     param: ?*c_void,
-    ctx: ?*c_void,
-    binding_ctx: ?*c_void,
     delta_time: f32,
     delta_system_time: f32,
     world_time: f32,
@@ -192,9 +188,14 @@ pub const ecs_iter_t = extern struct {
     offset: i32,
     count: i32,
     total_count: i32,
-    triggered_by: [*c]ecs_ids_t,
+    triggered_by: [*c]ecs_entities_t,
     interrupted_by: ecs_entity_t,
-    iter: union_unnamed_3,
+    iter: extern union {
+        parent: ecs_scope_iter_t,
+        filter: ecs_filter_iter_t,
+        query: ecs_query_iter_t,
+        snapshot: ecs_snapshot_iter_t,
+    },
 
     pub fn column(self: *ecs_iter_t, comptime T: type, index: i32) [*]T {
         var col = ecs_column_w_size(self, @sizeOf(T), index);
