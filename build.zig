@@ -49,13 +49,13 @@ pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std
             lib.setBuildMode(std.builtin.Mode.ReleaseFast);
             lib.setTarget(target);
 
-            compileFlecs( lib, prefix_path);
+            compileFlecs(b, lib, target, prefix_path);
             lib.install();
 
             artifact.linkLibrary(lib);
         },
         .exe_compiled => {
-            compileFlecs( artifact, prefix_path);
+            compileFlecs(b, artifact, target, prefix_path);
         },
     }
 

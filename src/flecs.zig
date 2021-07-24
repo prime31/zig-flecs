@@ -40,7 +40,7 @@ pub const World = struct {
     }
 
     pub fn newComponent(self: *World, comptime T: type) Entity {
-        var handle = componentHandle();
+        var handle = componentHandle(T);
         if (handle.* < std.math.maxInt(Entity)) {
             return handle.*;
         }
