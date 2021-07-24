@@ -13,7 +13,8 @@ pub const Entity = ecs_entity_t;
 pub const Query = ecs_query_t;
 
 /// registered component handle cache
-fn componentHandle() *Entity {
+fn componentHandle(comptime T: type) *Entity {
+    _ = T;
     return &(struct {
         pub var handle: Entity = std.math.maxInt(u64);
     }.handle);
