@@ -1,6 +1,8 @@
 pub usingnamespace @import("c.zig");
 const std = @import("std");
 
+const Self = @This();
+
 // flecs update:
 // - bump submodules
 // - regenerate cimport.zig using the "generator" build target
@@ -9,8 +11,8 @@ const std = @import("std");
 // - copy ecs_iter_t fields into this file and delete them from the cimport.zig (so we can add methods to ecs_iter_t)
 // - ensure the first line declaring ecs_iter_t remains in c.zig since we moved it to this file
 
-pub const Entity = ecs_entity_t;
-pub const Query = ecs_query_t;
+pub const Entity = Self.ecs_entity_t;
+pub const Query = Self.ecs_query_t;
 
 /// registered component handle cache
 fn componentHandle(comptime T: type) *Entity {
@@ -21,22 +23,22 @@ fn componentHandle(comptime T: type) *Entity {
 }
 
 pub const World = struct {
-    world: *ecs_world_t,
+    world: *Self.ecs_world_t,
 
     pub fn init() World {
-        return .{ .world = ecs_init().? };
+        return .{ .world = Self.ecs_init().? };
     }
 
     pub fn deinit(self: *World) void {
-        _ = ecs_fini(self.world);
+        _ = Self.ecs_fini(self.world);
     }
 
     pub fn setTargetFps(self: World, fps: f32) void {
-        ecs_set_target_fps(self.world, fps);
+        Self.ecs_set_target_fps(self.world, fps);
     }
 
     pub fn progress(self: World, delta_time: f32) void {
-        _ = ecs_progress(self.world, delta_time);
+        _ = Self.ecs_progress(self.world, delta_time);
     }
 
     pub fn newComponent(self: *World, comptime T: type) Entity {
@@ -45,85 +47,85 @@ pub const World = struct {
             return handle.*;
         }
 
-        handle.* = ecs_new_component(self.world, 0, @typeName(T), @sizeOf(T), @alignOf(T));
+        handle.* = Self.ecs_new_component(self.world, 0, @typeName(T), @sizeOf(T), @alignOf(T));
         return handle.*;
     }
 
     pub fn newType(self: World, id: [*c]const u8, components: [*c]const u8) Entity {
-        return ecs_new_type(self.world, 0, id, components);
+        return Self.ecs_new_type(self.world, 0, id, components);
     }
-    pub fn newQuery(self: World, signature: [*c]const u8) ?*ecs_query_t {
-        return ecs_query_new(self.world, signature);
+    pub fn newQuery(self: World, signature: [*c]const u8) ?*Self.ecs_query_t {
+        return Self.ecs_query_new(self.world, signature);
     }
 
-    pub fn sortQuery(self: *World, query: ?*ecs_query_t, comptime T: type, comparer: ecs_compare_action_t) void {
-        return ecs_query_order_by(self.world, query, newComponent(self, T), comparer);
+    pub fn sortQuery(self: *World, query: ?*Self.ecs_query_t, comptime T: type, comparer: Self.ecs_compare_action_t) void {
+        return Self.ecs_query_order_by(self.world, query, newComponent(self, T), comparer);
     }
 
     pub fn new(self: World) Entity {
-        return ecs_new_w_type(self.world, 0);
+        return Self.ecs_new_w_type(self.world, 0);
     }
 
-    pub fn getType(self: World, comptime T: type) ecs_type_t {
+    pub fn getType(self: World, comptime T: type) Self.ecs_type_t {
         return getTypeFromStr(self, @typeName(T));
     }
 
-    pub fn getTypeFromStr(self: World, expr: [*c]const u8) ecs_type_t {
-        return ecs_type_from_str(self.world, expr);
+    pub fn getTypeFromStr(self: World, expr: [*c]const u8) Self.ecs_type_t {
+        return Self.ecs_type_from_str(self.world, expr);
     }
 
     /// this operation will preallocate memory in the world for the specified number of entities
     pub fn dim(self: World, entity_count: i32) void {
-        ecs_dim(self.world, entity_count);
+        Self.ecs_dim(self.world, entity_count);
     }
 
     /// this operation will preallocate memory for a type (table) for the specified number of entities
-    pub fn dimType(self: World, ecs_type: ecs_type_t, entity_count: i32) void {
-        ecs_dim_type(self.world, ecs_type, entity_count);
+    pub fn dimType(self: World, ecs_type: Self.ecs_type_t, entity_count: i32) void {
+        Self.ecs_dim_type(self.world, ecs_type, entity_count);
     }
 
-    pub fn newSystem(self: World, name: [*c]const u8, phase: Phase, signature: [*c]const u8, action: ecs_iter_action_t) Entity {
-        return ecs_new_system(self.world, 0, name, @enumToInt(phase), signature, action);
+    pub fn newSystem(self: World, name: [*c]const u8, phase: Phase, signature: [*c]const u8, action: Self.ecs_iter_action_t) Entity {
+        return Self.ecs_new_system(self.world, 0, name, @enumToInt(phase), signature, action);
     }
 
     pub fn setName(self: World, entity: Entity, name: [*c]const u8) void {
-        var ecs_name = EcsName{ .value = name, .symbol = null, .alloc_value = null };
-        self.setPtr(entity, FLECS__EEcsName, @sizeOf(EcsName), &ecs_name);
+        var ecs_name = Self.EcsName{ .value = name, .symbol = null, .alloc_value = null };
+        self.setPtr(entity, Self.FLECS__EEcsName, @sizeOf(Self.EcsName), &ecs_name);
     }
 
     pub fn getName(self: World, entity: Entity) [*c]const u8 {
-        return ecs_get_name(self.world, entity);
+        return Self.ecs_get_name(self.world, entity);
     }
 
-    pub fn setPtr(self: World, entity: Entity, component: Entity, size: usize, ptr: ?*const c_void) void {
-        _ = ecs_set_ptr_w_entity(self.world, entity, component, size, ptr);
+    pub fn setPtr(self: World, entity: Entity, component: Entity, size: usize, ptr: ?*const anyopaque) void {
+        _ = Self.ecs_set_ptr_w_entity(self.world, entity, component, size, ptr);
     }
 
     pub fn set(self: *World, entity: Entity, ptr: anytype) void {
         std.debug.assert(@typeInfo(@TypeOf(ptr)) == .Pointer);
 
         const child = std.meta.Child(@TypeOf(ptr));
-        _ = ecs_set_ptr_w_entity(self.world, entity, self.newComponent(child), @sizeOf(child), ptr);
+        _ = Self.ecs_set_ptr_w_entity(self.world, entity, self.newComponent(child), @sizeOf(child), ptr);
     }
 
     pub fn setSingleton(self: *World, ptr: anytype) void {
         std.debug.assert(@typeInfo(@TypeOf(ptr)) == .Pointer);
 
         const child = std.meta.Child(@TypeOf(ptr));
-        _ = ecs_set_ptr_w_entity(self.world, ecs_get_typeid(self.world, self.newComponent(child)), self.newComponent(child), @sizeOf(child), ptr);
+        _ = Self.ecs_set_ptr_w_entity(self.world, Self.ecs_get_typeid(self.world, self.newComponent(child)), self.newComponent(child), @sizeOf(child), ptr);
     }
 
     //TODO: this only works if its not the first component on an entity?
     pub fn add(self: World, entity: Entity, comptime T: type) void {
-        _ = ecs_add_type(self.world, entity, getType(self, T));
+        _ = Self.ecs_add_type(self.world, entity, getType(self, T));
     }
 
     pub fn remove(self: World, entity: Entity, comptime T: type) void {
-        _ = ecs_remove_type(self.world, entity, getType(self, T));
+        _ = Self.ecs_remove_type(self.world, entity, getType(self, T));
     }
 
     pub fn get(self: *World, entity: Entity, comptime T: type) ?*const T {
-        const ptr = ecs_get_w_entity(self.world, entity, self.newComponent(T));
+        const ptr = Self.ecs_get_w_entity(self.world, entity, self.newComponent(T));
 
         if (ptr) |_| {
             return @ptrCast(*const T, @alignCast(@alignOf(T), ptr));
@@ -134,7 +136,7 @@ pub const World = struct {
 
     pub fn getMut(self: *World, entity: Entity, comptime T: type) ?* T {
         var is_added: bool = true;
-        const ptr = ecs_get_mut_w_entity(self.world, entity, self.newComponent(T), &is_added);
+        const ptr = Self.ecs_get_mut_w_entity(self.world, entity, self.newComponent(T), &is_added);
 
         if (ptr) |_| {
             return @ptrCast(*T, @alignCast(@alignOf(T), ptr));
@@ -145,7 +147,7 @@ pub const World = struct {
 
     pub fn getSingleton(self: *World, comptime T: type) ?*const T {
         //const ptr = ecs_singleton_get(self.world, T);
-        const ptr = self.get(ecs_get_typeid(self.world, self.newComponent(T)), T);
+        const ptr = self.get(Self.ecs_get_typeid(self.world, self.newComponent(T)), T);
 
         if (ptr) |p| {
             return @ptrCast(*const T, @alignCast(@alignOf(T), p));
@@ -156,7 +158,7 @@ pub const World = struct {
 
     pub fn getSingletonMut (self: *World, comptime T: type ) ?*T {
         var is_added: bool = false;
-        const ptr  = ecs_get_mut_w_entity(self.world, ecs_get_typeid(self.world, self.newComponent(T)), self.newComponent(T), &is_added);
+        const ptr  = Self.ecs_get_mut_w_entity(self.world, Self.ecs_get_typeid(self.world, self.newComponent(T)), self.newComponent(T), &is_added);
 
         if (ptr) |_| {
             return @ptrCast(*T, @alignCast(@alignOf(T), ptr));
@@ -170,18 +172,18 @@ pub const World = struct {
 
 
 pub const ecs_iter_t = extern struct {
-    world: ?*ecs_world_t,
-    real_world: ?*ecs_world_t,
-    system: ecs_entity_t,
-    kind: ecs_query_iter_kind_t,
-    table: *ecs_iter_table_t,
-    query: ?*ecs_query_t,
+    world: ?*Self.ecs_world_t,
+    real_world: ?*Self.ecs_world_t,
+    system: Self.ecs_entity_t,
+    kind: Self.ecs_query_iter_kind_t,
+    table: *Self.ecs_iter_table_t,
+    query: ?*Self.ecs_query_t,
     table_count: i32,
     inactive_table_count: i32,
     column_count: i32,
-    table_columns: ?*c_void,
-    entities: [*c]ecs_entity_t,
-    param: ?*c_void,
+    table_columns: ?*anyopaque,
+    entities: [*c]Self.ecs_entity_t,
+    param: ?*anyopaque,
     delta_time: f32,
     delta_system_time: f32,
     world_time: f32,
@@ -189,17 +191,17 @@ pub const ecs_iter_t = extern struct {
     offset: i32,
     count: i32,
     total_count: i32,
-    triggered_by: [*c]ecs_entities_t,
-    interrupted_by: ecs_entity_t,
+    triggered_by: [*c]Self.ecs_entities_t,
+    interrupted_by: Self.ecs_entity_t,
     iter: extern union {
-        parent: ecs_scope_iter_t,
-        filter: ecs_filter_iter_t,
-        query: ecs_query_iter_t,
-        snapshot: ecs_snapshot_iter_t,
+        parent: Self.ecs_scope_iter_t,
+        filter: Self.ecs_filter_iter_t,
+        query: Self.ecs_query_iter_t,
+        snapshot: Self.ecs_snapshot_iter_t,
     },
 
-    pub fn column(self: *ecs_iter_t, comptime T: type, index: i32) [*]T {
-        var col = ecs_column_w_size(self, @sizeOf(T), index);
+    pub fn column(self: *Self.ecs_iter_t, comptime T: type, index: i32) [*]T {
+        var col = Self.ecs_column_w_size(self, @sizeOf(T), index);
         return @ptrCast([*]T, @alignCast(@alignOf(T), col));
     }
 };
@@ -226,17 +228,17 @@ pub const ecs_iter_t = extern struct {
 // pub const EcsUnSet = ECS_HI_COMPONENT_ID + 12;
 
 // Builtin pipeline tags
-pub const Phase = enum(ecs_entity_t) {
-    pre_frame = ECS_HI_COMPONENT_ID + 13,
-    on_load = ECS_HI_COMPONENT_ID + 14,
-    post_load = ECS_HI_COMPONENT_ID + 15,
-    pre_update = ECS_HI_COMPONENT_ID + 16,
-    on_update = ECS_HI_COMPONENT_ID + 17,
-    on_validate = ECS_HI_COMPONENT_ID + 18,
-    post_update = ECS_HI_COMPONENT_ID + 19,
-    pre_store = ECS_HI_COMPONENT_ID + 20,
-    on_store = ECS_HI_COMPONENT_ID + 21,
-    post_frame = ECS_HI_COMPONENT_ID + 22,
+pub const Phase = enum(Self.ecs_entity_t) {
+    pre_frame = Self.ECS_HI_COMPONENT_ID + 13,
+    on_load = Self.ECS_HI_COMPONENT_ID + 14,
+    post_load = Self.ECS_HI_COMPONENT_ID + 15,
+    pre_update = Self.ECS_HI_COMPONENT_ID + 16,
+    on_update = Self.ECS_HI_COMPONENT_ID + 17,
+    on_validate = Self.ECS_HI_COMPONENT_ID + 18,
+    post_update = Self.ECS_HI_COMPONENT_ID + 19,
+    pre_store = Self.ECS_HI_COMPONENT_ID + 20,
+    on_store = Self.ECS_HI_COMPONENT_ID + 21,
+    post_frame = Self.ECS_HI_COMPONENT_ID + 22,
 };
 
 // pub const EcsPreFrame = ECS_HI_COMPONENT_ID + 13;

@@ -7,22 +7,22 @@ pub const struct_ecs_vector_t = extern struct {
     elem_size: i64,
 };
 pub const ecs_vector_t = struct_ecs_vector_t;
-pub const ecs_comparator_t = ?fn (?*const c_void, ?*const c_void) callconv(.C) c_int;
+pub const ecs_comparator_t = ?fn (?*const anyopaque, ?*const anyopaque) callconv(.C) c_int;
 pub extern fn _ecs_vector_new(elem_size: ecs_size_t, offset: i16, elem_count: i32) [*c]ecs_vector_t;
-pub extern fn _ecs_vector_from_array(elem_size: ecs_size_t, offset: i16, elem_count: i32, array: ?*c_void) [*c]ecs_vector_t;
+pub extern fn _ecs_vector_from_array(elem_size: ecs_size_t, offset: i16, elem_count: i32, array: ?*anyopaque) [*c]ecs_vector_t;
 pub extern fn _ecs_vector_zero(vector: [*c]ecs_vector_t, elem_size: ecs_size_t, offset: i16) void;
 pub extern fn ecs_vector_free(vector: [*c]ecs_vector_t) void;
 pub extern fn ecs_vector_clear(vector: [*c]ecs_vector_t) void;
 pub extern fn ecs_vector_assert_size(vector_inout: [*c]ecs_vector_t, elem_size: ecs_size_t) void;
 pub extern fn ecs_vector_assert_alignment(vector: [*c]ecs_vector_t, elem_alignment: ecs_size_t) void;
-pub extern fn _ecs_vector_add(array_inout: [*c][*c]ecs_vector_t, elem_size: ecs_size_t, offset: i16) ?*c_void;
-pub extern fn _ecs_vector_addn(array_inout: [*c][*c]ecs_size_ts_vector_t, elem_size: ecs_size_t, offset: i16, elem_count: i32) ?*c_void;
-pub extern fn _ecs_vector_get(vector: [*c]const ecs_vector_t, elem_size: ecs_size_t, offset: i16, index: i32) ?*c_void;
-pub extern fn _ecs_vector_last(vector: [*c]const ecs_vector_t, elem_size: ecs_size_t, offset: i16) ?*c_void;
+pub extern fn _ecs_vector_add(array_inout: [*c][*c]ecs_vector_t, elem_size: ecs_size_t, offset: i16) ?*anyopaque;
+// pub extern fn _ecs_vector_addn(array_inout: [*c][*c]ecs_size_ts_vector_t, elem_size: ecs_size_t, offset: i16, elem_count: i32) ?*anyopaque;
+pub extern fn _ecs_vector_get(vector: [*c]const ecs_vector_t, elem_size: ecs_size_t, offset: i16, index: i32) ?*anyopaque;
+pub extern fn _ecs_vector_last(vector: [*c]const ecs_vector_t, elem_size: ecs_size_t, offset: i16) ?*anyopaque;
 pub extern fn _ecs_vector_set_min_size(array_inout: [*c][*c]ecs_vector_t, elem_size: ecs_size_t, offset: i16, elem_count: i32) i32;
 pub extern fn _ecs_vector_set_min_count(vector_inout: [*c][*c]ecs_vector_t, elem_size: ecs_size_t, offset: i16, elem_count: i32) i32;
 pub extern fn ecs_vector_remove_last(vector: [*c]ecs_vector_t) void;
-pub extern fn _ecs_vector_pop(vector: [*c]ecs_vector_t, elem_size: ecs_size_t, offset: i16, value: ?*c_void) bool;
+pub extern fn _ecs_vector_pop(vector: [*c]ecs_vector_t, elem_size: ecs_size_t, offset: i16, value: ?*anyopaque) bool;
 pub extern fn _ecs_vector_move_index(dst: [*c][*c]ecs_vector_t, src: [*c]ecs_vector_t, elem_size: ecs_size_t, offset: i16, index: i32) i32;
 pub extern fn _ecs_vector_remove_index(vector: [*c]ecs_vector_t, elem_size: ecs_size_t, offset: i16, index: i32) i32;
 pub extern fn _ecs_vector_reclaim(vector: [*c][*c]ecs_vector_t, elem_size: ecs_size_t, offset: i16) void;
@@ -31,7 +31,7 @@ pub extern fn _ecs_vector_set_size(vector: [*c][*c]ecs_vector_t, elem_size: ecs_
 pub extern fn _ecs_vector_set_count(vector: [*c][*c]ecs_vector_t, elem_size: ecs_size_t, offset: i16, elem_count: i32) i32;
 pub extern fn ecs_vector_count(vector: [*c]const ecs_vector_t) i32;
 pub extern fn ecs_vector_size(vector: [*c]const ecs_vector_t) i32;
-pub extern fn _ecs_vector_first(vector: [*c]const ecs_vector_t, elem_size: ecs_size_t, offset: i16) ?*c_void;
+pub extern fn _ecs_vector_first(vector: [*c]const ecs_vector_t, elem_size: ecs_size_t, offset: i16) ?*anyopaque;
 pub extern fn _ecs_vector_sort(vector: [*c]ecs_vector_t, elem_size: ecs_size_t, offset: i16, compare_action: ecs_comparator_t) void;
 pub extern fn _ecs_vector_memory(vector: [*c]const ecs_vector_t, elem_size: ecs_size_t, offset: i16, allocd: [*c]i32, used: [*c]i32) void;
 pub extern fn _ecs_vector_copy(src: [*c]const ecs_vector_t, elem_size: ecs_size_t, offset: i16) [*c]ecs_vector_t;
@@ -41,22 +41,22 @@ pub extern fn _ecs_sparse_new(elem_size: ecs_size_t) ?*ecs_sparse_t;
 pub extern fn ecs_sparse_set_id_source(sparse: ?*ecs_sparse_t, id_source: [*c]u64) void;
 pub extern fn ecs_sparse_free(sparse: ?*ecs_sparse_t) void;
 pub extern fn ecs_sparse_clear(sparse: ?*ecs_sparse_t) void;
-pub extern fn _ecs_sparse_add(sparse: ?*ecs_sparse_t, elem_size: ecs_size_t) ?*c_void;
+pub extern fn _ecs_sparse_add(sparse: ?*ecs_sparse_t, elem_size: ecs_size_t) ?*anyopaque;
 pub extern fn ecs_sparse_last_id(sparse: ?*ecs_sparse_t) u64;
 pub extern fn ecs_sparse_new_id(sparse: ?*ecs_sparse_t) u64;
 pub extern fn ecs_sparse_new_ids(sparse: ?*ecs_sparse_t, count: i32) [*c]const u64;
 pub extern fn ecs_sparse_remove(sparse: ?*ecs_sparse_t, index: u64) void;
-pub extern fn _ecs_sparse_remove_get(sparse: ?*ecs_sparse_t, elem_size: ecs_size_t, index: u64) ?*c_void;
+pub extern fn _ecs_sparse_remove_get(sparse: ?*ecs_sparse_t, elem_size: ecs_size_t, index: u64) ?*anyopaque;
 pub extern fn ecs_sparse_set_generation(sparse: ?*ecs_sparse_t, index: u64) void;
 pub extern fn ecs_sparse_exists(sparse: ?*ecs_sparse_t, index: u64) bool;
 pub extern fn ecs_sparse_is_alive(sparse: ?*const ecs_sparse_t, index: u64) bool;
-pub extern fn _ecs_sparse_get(sparse: ?*const ecs_sparse_t, elem_size: ecs_size_t, index: i32) ?*c_void;
+pub extern fn _ecs_sparse_get(sparse: ?*const ecs_sparse_t, elem_size: ecs_size_t, index: i32) ?*anyopaque;
 pub extern fn ecs_sparse_count(sparse: ?*const ecs_sparse_t) i32;
 pub extern fn ecs_sparse_size(sparse: ?*const ecs_sparse_t) i32;
-pub extern fn _ecs_sparse_get_sparse(sparse: ?*const ecs_sparse_t, elem_size: ecs_size_t, index: u64) ?*c_void;
-pub extern fn _ecs_sparse_get_sparse_any(sparse: ?*ecs_sparse_t, elem_size: ecs_size_t, index: u64) ?*c_void;
-pub extern fn _ecs_sparse_get_or_create(sparse: ?*ecs_sparse_t, elem_size: ecs_size_t, index: u64) ?*c_void;
-pub extern fn _ecs_sparse_set(sparse: ?*ecs_sparse_t, elem_size: ecs_size_t, index: u64, value: ?*c_void) ?*c_void;
+pub extern fn _ecs_sparse_get_sparse(sparse: ?*const ecs_sparse_t, elem_size: ecs_size_t, index: u64) ?*anyopaque;
+pub extern fn _ecs_sparse_get_sparse_any(sparse: ?*ecs_sparse_t, elem_size: ecs_size_t, index: u64) ?*anyopaque;
+pub extern fn _ecs_sparse_get_or_create(sparse: ?*ecs_sparse_t, elem_size: ecs_size_t, index: u64) ?*anyopaque;
+pub extern fn _ecs_sparse_set(sparse: ?*ecs_sparse_t, elem_size: ecs_size_t, index: u64, value: ?*anyopaque) ?*anyopaque;
 pub extern fn ecs_sparse_ids(sparse: ?*const ecs_sparse_t) [*c]const u64;
 pub extern fn ecs_sparse_set_size(sparse: ?*ecs_sparse_t, elem_count: i32) void;
 pub extern fn ecs_sparse_copy(src: ?*const ecs_sparse_t) ?*ecs_sparse_t;
@@ -87,22 +87,22 @@ pub const struct_ecs_map_iter_t = extern struct {
     bucket: ?*ecs_bucket_t,
     bucket_index: i32,
     element_index: i32,
-    payload: ?*c_void,
+    payload: ?*anyopaque,
 };
 pub const ecs_map_iter_t = struct_ecs_map_iter_t;
 pub extern fn _ecs_map_new(elem_size: ecs_size_t, alignment: ecs_size_t, elem_count: i32) ?*ecs_map_t;
-pub extern fn _ecs_map_get(map: ?*const ecs_map_t, elem_size: ecs_size_t, key: ecs_map_key_t) ?*c_void;
-pub extern fn _ecs_map_get_ptr(map: ?*const ecs_map_t, key: ecs_map_key_t) ?*c_void;
-pub extern fn _ecs_map_ensure(map: ?*ecs_map_t, elem_size: ecs_size_t, key: ecs_map_key_t) ?*c_void;
-pub extern fn _ecs_map_set(map: ?*ecs_map_t, elem_size: ecs_size_t, key: ecs_map_key_t, payload: ?*const c_void) ?*c_void;
+pub extern fn _ecs_map_get(map: ?*const ecs_map_t, elem_size: ecs_size_t, key: ecs_map_key_t) ?*anyopaque;
+pub extern fn _ecs_map_get_ptr(map: ?*const ecs_map_t, key: ecs_map_key_t) ?*anyopaque;
+pub extern fn _ecs_map_ensure(map: ?*ecs_map_t, elem_size: ecs_size_t, key: ecs_map_key_t) ?*anyopaque;
+pub extern fn _ecs_map_set(map: ?*ecs_map_t, elem_size: ecs_size_t, key: ecs_map_key_t, payload: ?*const anyopaque) ?*anyopaque;
 pub extern fn ecs_map_free(map: ?*ecs_map_t) void;
 pub extern fn ecs_map_remove(map: ?*ecs_map_t, key: ecs_map_key_t) void;
 pub extern fn ecs_map_clear(map: ?*ecs_map_t) void;
 pub extern fn ecs_map_count(map: ?*const ecs_map_t) i32;
 pub extern fn ecs_map_bucket_count(map: ?*const ecs_map_t) i32;
 pub extern fn ecs_map_iter(map: ?*const ecs_map_t) ecs_map_iter_t;
-pub extern fn _ecs_map_next(iter: [*c]ecs_map_iter_t, elem_size: ecs_size_t, key: [*c]ecs_map_key_t) ?*c_void;
-pub extern fn _ecs_map_next_ptr(iter: [*c]ecs_map_iter_t, key: [*c]ecs_map_key_t) ?*c_void;
+pub extern fn _ecs_map_next(iter: [*c]ecs_map_iter_t, elem_size: ecs_size_t, key: [*c]ecs_map_key_t) ?*anyopaque;
+pub extern fn _ecs_map_next_ptr(iter: [*c]ecs_map_iter_t, key: [*c]ecs_map_key_t) ?*anyopaque;
 pub extern fn ecs_map_grow(map: ?*ecs_map_t, elem_count: i32) void;
 pub extern fn ecs_map_set_size(map: ?*ecs_map_t, elem_count: i32) void;
 pub extern fn ecs_map_memory(map: ?*ecs_map_t, allocd: [*c]i32, used: [*c]i32) void;
@@ -172,7 +172,7 @@ pub const struct_ecs_strbuf_t = extern struct {
 };
 pub const ecs_strbuf_t = struct_ecs_strbuf_t;
 pub extern fn ecs_strbuf_append(buffer: [*c]ecs_strbuf_t, fmt: [*c]const u8, ...) bool;
-pub extern fn ecs_strbuf_vappend(buffer: [*c]ecs_strbuf_t, fmt: [*c]const u8, args: [*c]struct___va_list_tag) bool;
+// pub extern fn ecs_strbuf_vappend(buffer: [*c]ecs_strbuf_t, fmt: [*c]const u8, args: [*c]struct___va_list_tag) bool;
 pub extern fn ecs_strbuf_appendstr(buffer: [*c]ecs_strbuf_t, str: [*c]const u8) bool;
 pub extern fn ecs_strbuf_mergebuff(dst_buffer: [*c]ecs_strbuf_t, src_buffer: [*c]ecs_strbuf_t) bool;
 pub extern fn ecs_strbuf_appendstr_zerocpy(buffer: [*c]ecs_strbuf_t, str: [*c]u8) bool;
@@ -201,14 +201,14 @@ pub const ecs_os_dl_t = usize;
 pub const ecs_os_proc_t = ?fn () callconv(.C) void;
 pub const ecs_os_api_init_t = ?fn () callconv(.C) void;
 pub const ecs_os_api_fini_t = ?fn () callconv(.C) void;
-pub const ecs_os_api_malloc_t = ?fn (ecs_size_t) callconv(.C) ?*c_void;
-pub const ecs_os_api_free_t = ?fn (?*c_void) callconv(.C) void;
-pub const ecs_os_api_realloc_t = ?fn (?*c_void, ecs_size_t) callconv(.C) ?*c_void;
-pub const ecs_os_api_calloc_t = ?fn (ecs_size_t) callconv(.C) ?*c_void;
+pub const ecs_os_api_malloc_t = ?fn (ecs_size_t) callconv(.C) ?*anyopaque;
+pub const ecs_os_api_free_t = ?fn (?*anyopaque) callconv(.C) void;
+pub const ecs_os_api_realloc_t = ?fn (?*anyopaque, ecs_size_t) callconv(.C) ?*anyopaque;
+pub const ecs_os_api_calloc_t = ?fn (ecs_size_t) callconv(.C) ?*anyopaque;
 pub const ecs_os_api_strdup_t = ?fn ([*c]const u8) callconv(.C) [*c]u8;
-pub const ecs_os_thread_callback_t = ?fn (?*c_void) callconv(.C) ?*c_void;
-pub const ecs_os_api_thread_new_t = ?fn (ecs_os_thread_callback_t, ?*c_void) callconv(.C) ecs_os_thread_t;
-pub const ecs_os_api_thread_join_t = ?fn (ecs_os_thread_t) callconv(.C) ?*c_void;
+pub const ecs_os_thread_callback_t = ?fn (?*anyopaque) callconv(.C) ?*anyopaque;
+pub const ecs_os_api_thread_new_t = ?fn (ecs_os_thread_callback_t, ?*anyopaque) callconv(.C) ecs_os_thread_t;
+pub const ecs_os_api_thread_join_t = ?fn (ecs_os_thread_t) callconv(.C) ?*anyopaque;
 pub const ecs_os_api_ainc_t = ?fn ([*c]i32) callconv(.C) c_int;
 pub const ecs_os_api_mutex_new_t = ?fn () callconv(.C) ecs_os_mutex_t;
 pub const ecs_os_api_mutex_lock_t = ?fn (ecs_os_mutex_t) callconv(.C) void;
@@ -221,51 +221,51 @@ pub const ecs_os_api_cond_broadcast_t = ?fn (ecs_os_cond_t) callconv(.C) void;
 pub const ecs_os_api_cond_wait_t = ?fn (ecs_os_cond_t, ecs_os_mutex_t) callconv(.C) void;
 pub const ecs_os_api_sleep_t = ?fn (i32, i32) callconv(.C) void;
 pub const ecs_os_api_get_time_t = ?fn ([*c]ecs_time_t) callconv(.C) void;
-pub const ecs_os_api_log_t = ?fn ([*c]const u8, [*c]struct___va_list_tag) callconv(.C) void;
+// pub const ecs_os_api_log_t = ?fn ([*c]const u8, [*c]struct___va_list_tag) callconv(.C) void;
 pub const ecs_os_api_abort_t = ?fn () callconv(.C) void;
 pub const ecs_os_api_dlopen_t = ?fn ([*c]const u8) callconv(.C) ecs_os_dl_t;
 pub const ecs_os_api_dlproc_t = ?fn (ecs_os_dl_t, [*c]const u8) callconv(.C) ecs_os_proc_t;
 pub const ecs_os_api_dlclose_t = ?fn (ecs_os_dl_t) callconv(.C) void;
 pub const ecs_os_api_module_to_path_t = ?fn ([*c]const u8) callconv(.C) [*c]u8;
-pub const struct_ecs_os_api_t = extern struct {
-    init_: ecs_os_api_init_t,
-    fini_: ecs_os_api_fini_t,
-    malloc_: ecs_os_api_malloc_t,
-    realloc_: ecs_os_api_realloc_t,
-    calloc_: ecs_os_api_calloc_t,
-    free_: ecs_os_api_free_t,
-    strdup_: ecs_os_api_strdup_t,
-    thread_new_: ecs_os_api_thread_new_t,
-    thread_join_: ecs_os_api_thread_join_t,
-    ainc_: ecs_os_api_ainc_t,
-    adec_: ecs_os_api_ainc_t,
-    mutex_new_: ecs_os_api_mutex_new_t,
-    mutex_free_: ecs_os_api_mutex_free_t,
-    mutex_lock_: ecs_os_api_mutex_lock_t,
-    mutex_unlock_: ecs_os_api_mutex_lock_t,
-    cond_new_: ecs_os_api_cond_new_t,
-    cond_free_: ecs_os_api_cond_free_t,
-    cond_signal_: ecs_os_api_cond_signal_t,
-    cond_broadcast_: ecs_os_api_cond_broadcast_t,
-    cond_wait_: ecs_os_api_cond_wait_t,
-    sleep_: ecs_os_api_sleep_t,
-    get_time_: ecs_os_api_get_time_t,
-    log_: ecs_os_api_log_t,
-    log_error_: ecs_os_api_log_t,
-    log_debug_: ecs_os_api_log_t,
-    log_warning_: ecs_os_api_log_t,
-    abort_: ecs_os_api_abort_t,
-    dlopen_: ecs_os_api_dlopen_t,
-    dlproc_: ecs_os_api_dlproc_t,
-    dlclose_: ecs_os_api_dlclose_t,
-    module_to_dl_: ecs_os_api_module_to_path_t,
-    module_to_etc_: ecs_os_api_module_to_path_t,
-};
-pub const ecs_os_api_t = struct_ecs_os_api_t;
-pub extern var ecs_os_api: ecs_os_api_t;
+// pub const struct_ecs_os_api_t = extern struct {
+//     init_: ecs_os_api_init_t,
+//     fini_: ecs_os_api_fini_t,
+//     malloc_: ecs_os_api_malloc_t,
+//     realloc_: ecs_os_api_realloc_t,
+//     calloc_: ecs_os_api_calloc_t,
+//     free_: ecs_os_api_free_t,
+//     strdup_: ecs_os_api_strdup_t,
+//     thread_new_: ecs_os_api_thread_new_t,
+//     thread_join_: ecs_os_api_thread_join_t,
+//     ainc_: ecs_os_api_ainc_t,
+//     adec_: ecs_os_api_ainc_t,
+//     mutex_new_: ecs_os_api_mutex_new_t,
+//     mutex_free_: ecs_os_api_mutex_free_t,
+//     mutex_lock_: ecs_os_api_mutex_lock_t,
+//     mutex_unlock_: ecs_os_api_mutex_lock_t,
+//     cond_new_: ecs_os_api_cond_new_t,
+//     cond_free_: ecs_os_api_cond_free_t,
+//     cond_signal_: ecs_os_api_cond_signal_t,
+//     cond_broadcast_: ecs_os_api_cond_broadcast_t,
+//     cond_wait_: ecs_os_api_cond_wait_t,
+//     sleep_: ecs_os_api_sleep_t,
+//     get_time_: ecs_os_api_get_time_t,
+//     log_: ecs_os_api_log_t,
+//     log_error_: ecs_os_api_log_t,
+//     log_debug_: ecs_os_api_log_t,
+//     log_warning_: ecs_os_api_log_t,
+//     abort_: ecs_os_api_abort_t,
+//     dlopen_: ecs_os_api_dlopen_t,
+//     dlproc_: ecs_os_api_dlproc_t,
+//     dlclose_: ecs_os_api_dlclose_t,
+//     module_to_dl_: ecs_os_api_module_to_path_t,
+//     module_to_etc_: ecs_os_api_module_to_path_t,
+// };
+// pub const ecs_os_api_t = struct_ecs_os_api_t;
+// pub extern var ecs_os_api: ecs_os_api_t;
 pub extern fn ecs_os_init() void;
 pub extern fn ecs_os_fini() void;
-pub extern fn ecs_os_set_api(os_api: [*c]ecs_os_api_t) void;
+// pub extern fn ecs_os_set_api(os_api: [*c]ecs_os_api_t) void;
 pub extern fn ecs_os_set_api_defaults() void;
 pub extern fn ecs_os_log(fmt: [*c]const u8, ...) void;
 pub extern fn ecs_os_warn(fmt: [*c]const u8, ...) void;
@@ -275,7 +275,7 @@ pub extern fn ecs_sleepf(t: f64) void;
 pub extern fn ecs_time_measure(start: [*c]ecs_time_t) f64;
 pub extern fn ecs_time_sub(t1: ecs_time_t, t2: ecs_time_t) ecs_time_t;
 pub extern fn ecs_time_to_double(t: ecs_time_t) f64;
-pub extern fn ecs_os_memdup(src: ?*const c_void, size: ecs_size_t) ?*c_void;
+pub extern fn ecs_os_memdup(src: ?*const anyopaque, size: ecs_size_t) ?*anyopaque;
 pub extern fn ecs_os_has_heap() bool;
 pub extern fn ecs_os_has_threading() bool;
 pub extern fn ecs_os_has_time() bool;
@@ -293,11 +293,11 @@ pub const ecs_query_t = struct_ecs_query_t;
 pub const struct_ecs_ref_t = extern struct {
     entity: ecs_entity_t,
     component: ecs_entity_t,
-    table: ?*c_void,
+    table: ?*anyopaque,
     row: i32,
     alloc_count: i32,
     record: [*c]ecs_record_t,
-    ptr: ?*const c_void,
+    ptr: ?*const anyopaque,
 };
 pub const ecs_ref_t = struct_ecs_ref_t;
 pub const EcsMatchDefault = @enumToInt(enum_ecs_match_kind_t.EcsMatchDefault);
@@ -342,10 +342,10 @@ pub const struct_ecs_world_info_t = extern struct {
 pub const ecs_world_info_t = struct_ecs_world_info_t;
 pub const ecs_iter_action_t = ?fn (*ecs_iter_t) callconv(.C) void;
 pub const ecs_iter_next_action_t = ?fn (*ecs_iter_t) callconv(.C) bool;
-pub const ecs_compare_action_t = ?fn (ecs_entity_t, ?*const c_void, ecs_entity_t, ?*const c_void) callconv(.C) c_int;
+pub const ecs_compare_action_t = ?fn (ecs_entity_t, ?*const anyopaque, ecs_entity_t, ?*const anyopaque) callconv(.C) c_int;
 pub const ecs_rank_type_action_t = ?fn (?*ecs_world_t, ecs_entity_t, ecs_type_t) callconv(.C) i32;
 pub const ecs_module_action_t = ?fn (?*ecs_world_t) callconv(.C) void;
-pub const ecs_fini_action_t = ?fn (?*ecs_world_t, ?*c_void) callconv(.C) void;
+pub const ecs_fini_action_t = ?fn (?*ecs_world_t, ?*anyopaque) callconv(.C) void;
 pub const struct_ecs_stage_t = opaque {};
 pub const ecs_stage_t = struct_ecs_stage_t;
 pub const struct_ecs_table_t = opaque {};
@@ -470,9 +470,9 @@ pub const struct_ecs_match_failure_t = extern struct {
     column: i32,
 };
 pub const ecs_match_failure_t = struct_ecs_match_failure_t;
-pub const ecs_xtor_t = ?fn (?*ecs_world_t, ecs_entity_t, [*c]const ecs_entity_t, ?*c_void, usize, i32, ?*c_void) callconv(.C) void;
-pub const ecs_copy_t = ?fn (?*ecs_world_t, ecs_entity_t, [*c]const ecs_entity_t, [*c]const ecs_entity_t, ?*c_void, ?*const c_void, usize, i32, ?*c_void) callconv(.C) void;
-pub const ecs_move_t = ?fn (?*ecs_world_t, ecs_entity_t, [*c]const ecs_entity_t, [*c]const ecs_entity_t, ?*c_void, ?*c_void, usize, i32, ?*c_void) callconv(.C) void;
+pub const ecs_xtor_t = ?fn (?*ecs_world_t, ecs_entity_t, [*c]const ecs_entity_t, ?*anyopaque, usize, i32, ?*anyopaque) callconv(.C) void;
+pub const ecs_copy_t = ?fn (?*ecs_world_t, ecs_entity_t, [*c]const ecs_entity_t, [*c]const ecs_entity_t, ?*anyopaque, ?*const anyopaque, usize, i32, ?*anyopaque) callconv(.C) void;
+pub const ecs_move_t = ?fn (?*ecs_world_t, ecs_entity_t, [*c]const ecs_entity_t, [*c]const ecs_entity_t, ?*anyopaque, ?*anyopaque, usize, i32, ?*anyopaque) callconv(.C) void;
 pub extern var FLECS__TEcsComponent: ecs_type_t;
 pub extern var FLECS__TEcsComponentLifecycle: ecs_type_t;
 pub extern var FLECS__TEcsType: ecs_type_t;
@@ -602,7 +602,7 @@ pub const struct_EcsComponentLifecycle = extern struct {
     dtor: ecs_xtor_t,
     copy: ecs_copy_t,
     move: ecs_move_t,
-    ctx: ?*c_void,
+    ctx: ?*anyopaque,
 };
 pub const EcsComponentLifecycle = struct_EcsComponentLifecycle;
 pub const struct_EcsTrigger = extern struct {
@@ -610,18 +610,18 @@ pub const struct_EcsTrigger = extern struct {
     action: ecs_iter_action_t,
     component: ecs_entity_t,
     self: ecs_entity_t,
-    ctx: ?*c_void,
+    ctx: ?*anyopaque,
 };
 pub const EcsTrigger = struct_EcsTrigger;
 pub extern fn ecs_init() ?*ecs_world_t;
 pub extern fn ecs_mini() ?*ecs_world_t;
 pub extern fn ecs_init_w_args(argc: c_int, argv: [*c][*c]u8) ?*ecs_world_t;
 pub extern fn ecs_fini(world: ?*ecs_world_t) c_int;
-pub extern fn ecs_atfini(world: ?*ecs_world_t, action: ecs_fini_action_t, ctx: ?*c_void) void;
-pub extern fn ecs_run_post_frame(world: ?*ecs_world_t, action: ecs_fini_action_t, ctx: ?*c_void) void;
+pub extern fn ecs_atfini(world: ?*ecs_world_t, action: ecs_fini_action_t, ctx: ?*anyopaque) void;
+pub extern fn ecs_run_post_frame(world: ?*ecs_world_t, action: ecs_fini_action_t, ctx: ?*anyopaque) void;
 pub extern fn ecs_set_component_actions_w_entity(world: ?*ecs_world_t, component: ecs_entity_t, actions: [*c]EcsComponentLifecycle) void;
-pub extern fn ecs_set_context(world: ?*ecs_world_t, ctx: ?*c_void) void;
-pub extern fn ecs_get_context(world: ?*ecs_world_t) ?*c_void;
+pub extern fn ecs_set_context(world: ?*ecs_world_t, ctx: ?*anyopaque) void;
+pub extern fn ecs_get_context(world: ?*ecs_world_t) ?*anyopaque;
 pub extern fn ecs_get_world_info(world: ?*ecs_world_t) [*c]const ecs_world_info_t;
 pub extern fn ecs_dim(world: ?*ecs_world_t, entity_count: i32) void;
 pub extern fn ecs_dim_type(world: ?*ecs_world_t, type: ecs_type_t, entity_count: i32) void;
@@ -644,7 +644,7 @@ pub extern fn ecs_new_w_entity(world: ?*ecs_world_t, entity: ecs_entity_t) ecs_e
 pub extern fn ecs_new_w_type(world: ?*ecs_world_t, type: ecs_type_t) ecs_entity_t;
 pub extern fn ecs_bulk_new_w_entity(world: ?*ecs_world_t, entity: ecs_entity_t, count: i32) [*c]const ecs_entity_t;
 pub extern fn ecs_bulk_new_w_type(world: ?*ecs_world_t, type: ecs_type_t, count: i32) [*c]const ecs_entity_t;
-pub extern fn ecs_bulk_new_w_data(world: ?*ecs_world_t, count: i32, component_ids: [*c]ecs_entities_t, data: ?*c_void) [*c]const ecs_entity_t;
+pub extern fn ecs_bulk_new_w_data(world: ?*ecs_world_t, count: i32, component_ids: [*c]ecs_entities_t, data: ?*anyopaque) [*c]const ecs_entity_t;
 pub extern fn ecs_clone(world: ?*ecs_world_t, dst: ecs_entity_t, src: ecs_entity_t, copy_value: bool) ecs_entity_t;
 pub extern fn ecs_add_entity(world: ?*ecs_world_t, entity: ecs_entity_t, entity_add: ecs_entity_t) void;
 pub extern fn ecs_add_type(world: ?*ecs_world_t, entity: ecs_entity_t, type: ecs_type_t) void;
@@ -658,11 +658,11 @@ pub extern fn ecs_get_case(world: ?*ecs_world_t, e: ecs_entity_t, sw: ecs_entity
 pub extern fn ecs_clear(world: ?*ecs_world_t, entity: ecs_entity_t) void;
 pub extern fn ecs_delete(world: ?*ecs_world_t, entity: ecs_entity_t) void;
 pub extern fn ecs_delete_children(world: ?*ecs_world_t, parent: ecs_entity_t) void;
-pub extern fn ecs_get_w_entity(world: ?*ecs_world_t, entity: ecs_entity_t, component: ecs_entity_t) ?*const c_void;
-pub extern fn ecs_get_ref_w_entity(world: ?*ecs_world_t, ref: [*c]ecs_ref_t, entity: ecs_entity_t, component: ecs_entity_t) ?*const c_void;
-pub extern fn ecs_get_mut_w_entity(world: ?*ecs_world_t, entity: ecs_entity_t, component: ecs_entity_t, is_added: [*c]bool) ?*c_void;
+pub extern fn ecs_get_w_entity(world: ?*ecs_world_t, entity: ecs_entity_t, component: ecs_entity_t) ?*const anyopaque;
+pub extern fn ecs_get_ref_w_entity(world: ?*ecs_world_t, ref: [*c]ecs_ref_t, entity: ecs_entity_t, component: ecs_entity_t) ?*const anyopaque;
+pub extern fn ecs_get_mut_w_entity(world: ?*ecs_world_t, entity: ecs_entity_t, component: ecs_entity_t, is_added: [*c]bool) ?*anyopaque;
 pub extern fn ecs_modified_w_entity(world: ?*ecs_world_t, entity: ecs_entity_t, component: ecs_entity_t) void;
-pub extern fn ecs_set_ptr_w_entity(world: ?*ecs_world_t, entity: ecs_entity_t, component: ecs_entity_t, size: usize, ptr: ?*const c_void) ecs_entity_t;
+pub extern fn ecs_set_ptr_w_entity(world: ?*ecs_world_t, entity: ecs_entity_t, component: ecs_entity_t, size: usize, ptr: ?*const anyopaque) ecs_entity_t;
 pub extern fn ecs_has_entity(world: ?*ecs_world_t, entity: ecs_entity_t, to_check: ecs_entity_t) bool;
 pub extern fn ecs_has_type(world: ?*ecs_world_t, entity: ecs_entity_t, type: ecs_type_t) bool;
 pub extern fn ecs_is_alive(world: ?*ecs_world_t, e: ecs_entity_t) bool;
@@ -706,17 +706,17 @@ pub extern fn ecs_query_order_by(world: ?*ecs_world_t, query: ?*ecs_query_t, com
 pub extern fn ecs_query_group_by(world: ?*ecs_world_t, query: ?*ecs_query_t, component: ecs_entity_t, rank_action: ecs_rank_type_action_t) void;
 pub extern fn ecs_query_changed(query: ?*ecs_query_t) bool;
 pub extern fn ecs_query_orphaned(query: ?*ecs_query_t) bool;
-pub extern fn ecs_column_w_size(it: [*c]const ecs_iter_t, size: usize, column: i32) ?*c_void;
+pub extern fn ecs_column_w_size(it: [*c]const ecs_iter_t, size: usize, column: i32) ?*anyopaque;
 pub extern fn ecs_column_index_from_name(it: [*c]const ecs_iter_t, name: [*c]const u8) i32;
 pub extern fn ecs_is_owned(it: [*c]const ecs_iter_t, column: i32) bool;
-pub extern fn ecs_element_w_size(it: [*c]const ecs_iter_t, size: usize, column: i32, row: i32) ?*c_void;
+pub extern fn ecs_element_w_size(it: [*c]const ecs_iter_t, size: usize, column: i32, row: i32) ?*anyopaque;
 pub extern fn ecs_column_source(it: [*c]const ecs_iter_t, column: i32) ecs_entity_t;
 pub extern fn ecs_column_entity(it: [*c]const ecs_iter_t, column: i32) ecs_entity_t;
 pub extern fn ecs_column_type(it: [*c]const ecs_iter_t, column: i32) ecs_type_t;
 pub extern fn ecs_column_size(it: [*c]const ecs_iter_t, column: i32) usize;
 pub extern fn ecs_is_readonly(it: [*c]const ecs_iter_t, column: i32) bool;
 pub extern fn ecs_iter_type(it: [*c]const ecs_iter_t) ecs_type_t;
-pub extern fn ecs_table_column(it: [*c]const ecs_iter_t, column: i32) ?*c_void;
+pub extern fn ecs_table_column(it: [*c]const ecs_iter_t, column: i32) ?*anyopaque;
 pub extern fn ecs_table_column_size(it: [*c]const ecs_iter_t, column: i32) usize;
 pub extern fn ecs_table_component_index(it: [*c]const ecs_iter_t, component: ecs_entity_t) i32;
 pub extern fn ecs_frame_begin(world: ?*ecs_world_t, delta_time: f32) f32;
@@ -732,7 +732,7 @@ pub extern fn ecs_table_from_type(world: ?*ecs_world_t, type: ecs_type_t) ?*ecs_
 pub extern fn ecs_table_get_type(table: ?*ecs_table_t) ecs_type_t;
 pub extern fn ecs_table_insert(world: ?*ecs_world_t, table: ?*ecs_table_t, entity: ecs_entity_t, record: [*c]ecs_record_t) ecs_record_t;
 pub extern fn ecs_table_count(table: ?*ecs_table_t) i32;
-pub extern fn ecs_import(world: ?*ecs_world_t, module: ecs_module_action_t, module_name: [*c]const u8, handles_out: ?*c_void, handles_size: usize) ecs_entity_t;
+pub extern fn ecs_import(world: ?*ecs_world_t, module: ecs_module_action_t, module_name: [*c]const u8, handles_out: ?*anyopaque, handles_size: usize) ecs_entity_t;
 pub extern fn ecs_import_from_library(world: ?*ecs_world_t, library_name: [*c]const u8, module_name: [*c]const u8) ecs_entity_t;
 pub extern var FLECS__TEcsTrigger: ecs_type_t;
 pub extern var FLECS__TEcsSystem: ecs_type_t;
@@ -764,11 +764,11 @@ pub const struct_EcsIterAction = extern struct {
 };
 pub const EcsIterAction = struct_EcsIterAction;
 pub const struct_EcsContext = extern struct {
-    ctx: ?*const c_void,
+    ctx: ?*const anyopaque,
 };
 pub const EcsContext = struct_EcsContext;
-pub extern fn ecs_run(world: ?*ecs_world_t, system: ecs_entity_t, delta_time: f32, param: ?*c_void) ecs_entity_t;
-pub extern fn ecs_run_w_filter(world: ?*ecs_world_t, system: ecs_entity_t, delta_time: f32, offset: i32, limit: i32, filter: [*c]const ecs_filter_t, param: ?*c_void) ecs_entity_t;
+pub extern fn ecs_run(world: ?*ecs_world_t, system: ecs_entity_t, delta_time: f32, param: ?*anyopaque) ecs_entity_t;
+pub extern fn ecs_run_w_filter(world: ?*ecs_world_t, system: ecs_entity_t, delta_time: f32, offset: i32, limit: i32, filter: [*c]const ecs_filter_t, param: ?*anyopaque) ecs_entity_t;
 pub const EcsSystemStatusNone = @enumToInt(enum_ecs_system_status_t.EcsSystemStatusNone);
 pub const EcsSystemEnabled = @enumToInt(enum_ecs_system_status_t.EcsSystemEnabled);
 pub const EcsSystemDisabled = @enumToInt(enum_ecs_system_status_t.EcsSystemDisabled);
@@ -783,15 +783,15 @@ pub const enum_ecs_system_status_t = enum(c_int) {
     _,
 };
 pub const ecs_system_status_t = enum_ecs_system_status_t;
-pub const ecs_system_status_action_t = ?fn (?*ecs_world_t, ecs_entity_t, ecs_system_status_t, ?*c_void) callconv(.C) void;
-pub extern fn ecs_set_system_status_action(world: ?*ecs_world_t, system: ecs_entity_t, action: ecs_system_status_action_t, ctx: ?*const c_void) void;
+pub const ecs_system_status_action_t = ?fn (?*ecs_world_t, ecs_entity_t, ecs_system_status_t, ?*anyopaque) callconv(.C) void;
+pub extern fn ecs_set_system_status_action(world: ?*ecs_world_t, system: ecs_entity_t, action: ecs_system_status_action_t, ctx: ?*const anyopaque) void;
 pub const struct_ecs_dbg_system_t = extern struct {
     system: ecs_entity_t,
     entities_matched_count: i32,
     active_table_count: i32,
     inactive_table_count: i32,
     enabled: bool,
-    system_data: ?*c_void,
+    system_data: ?*anyopaque,
 };
 pub const ecs_dbg_system_t = struct_ecs_dbg_system_t;
 pub extern fn ecs_dbg_system(world: ?*ecs_world_t, system: ecs_entity_t, dbg_out: [*c]ecs_dbg_system_t) c_int;
@@ -881,10 +881,10 @@ pub extern fn ecs_dbg_table(world: ?*ecs_world_t, table: ?*ecs_table_t, dbg_out:
 pub const struct_ecs_queue_t = opaque {};
 pub const ecs_queue_t = struct_ecs_queue_t;
 pub extern fn _ecs_queue_new(elem_size: ecs_size_t, offset: i16, elem_count: i32) ?*ecs_queue_t;
-pub extern fn _ecs_queue_from_array(elem_size: ecs_size_t, offset: i16, elem_count: i32, array: ?*c_void) ?*ecs_queue_t;
-pub extern fn _ecs_queue_push(queue: ?*ecs_queue_t, elem_size: ecs_size_t, offset: i16) ?*c_void;
-pub extern fn _ecs_queue_get(queue: ?*ecs_queue_t, elem_size: ecs_size_t, offset: i16, index: i32) ?*c_void;
-pub extern fn _ecs_queue_last(queue: ?*ecs_queue_t, elem_size: ecs_size_t, offset: i16) ?*c_void;
+pub extern fn _ecs_queue_from_array(elem_size: ecs_size_t, offset: i16, elem_count: i32, array: ?*anyopaque) ?*ecs_queue_t;
+pub extern fn _ecs_queue_push(queue: ?*ecs_queue_t, elem_size: ecs_size_t, offset: i16) ?*anyopaque;
+pub extern fn _ecs_queue_get(queue: ?*ecs_queue_t, elem_size: ecs_size_t, offset: i16, index: i32) ?*anyopaque;
+pub extern fn _ecs_queue_last(queue: ?*ecs_queue_t, elem_size: ecs_size_t, offset: i16) ?*anyopaque;
 pub extern fn ecs_queue_index(queue: ?*ecs_queue_t) i32;
 pub extern fn ecs_queue_count(queue: ?*ecs_queue_t) i32;
 pub extern fn ecs_queue_free(queue: ?*ecs_queue_t) void;
@@ -932,7 +932,7 @@ pub const struct_ecs_table_reader_t = extern struct {
     column_vector: [*c]ecs_vector_t,
     column_index: i32,
     total_columns: i32,
-    column_data: ?*c_void,
+    column_data: ?*anyopaque,
     column_size: i16,
     column_alignment: i16,
     column_written: ecs_size_t,
@@ -973,7 +973,7 @@ pub const struct_ecs_table_writer_t = extern struct {
     column_size: i16,
     column_alignment: i16,
     column_written: ecs_size_t,
-    column_data: ?*c_void,
+    column_data: ?*anyopaque,
     row_count: i32,
     row_index: i32,
     name: ecs_name_writer_t,
@@ -1008,10 +1008,10 @@ pub extern fn ecs_table_set_entities(table: ?*ecs_table_t, entities: [*c]ecs_vec
 pub extern fn ecs_table_delete_column(world: ?*ecs_world_t, table: ?*ecs_table_t, column: i32, vector: [*c]ecs_vector_t) void;
 pub extern fn ecs_record_find(world: ?*ecs_world_t, entity: ecs_entity_t) [*c]ecs_record_t;
 pub extern fn ecs_record_ensure(world: ?*ecs_world_t, entity: ecs_entity_t) [*c]ecs_record_t;
-pub extern fn ecs_record_get_column(r: [*c]ecs_record_t, column: i32, size: usize) ?*c_void;
-pub extern fn ecs_record_copy_to(world: ?*ecs_world_t, r: [*c]ecs_record_t, column: i32, size: usize, value: ?*const c_void, count: i32) void;
-pub extern fn ecs_record_copy_pod_to(world: ?*ecs_world_t, r: [*c]ecs_record_t, column: i32, size: usize, value: ?*const c_void, count: i32) void;
-pub extern fn ecs_record_move_to(world: ?*ecs_world_t, r: [*c]ecs_record_t, column: i32, size: usize, value: ?*c_void, count: i32) void;
+pub extern fn ecs_record_get_column(r: [*c]ecs_record_t, column: i32, size: usize) ?*anyopaque;
+pub extern fn ecs_record_copy_to(world: ?*ecs_world_t, r: [*c]ecs_record_t, column: i32, size: usize, value: ?*const anyopaque, count: i32) void;
+pub extern fn ecs_record_copy_pod_to(world: ?*ecs_world_t, r: [*c]ecs_record_t, column: i32, size: usize, value: ?*const anyopaque, count: i32) void;
+pub extern fn ecs_record_move_to(world: ?*ecs_world_t, r: [*c]ecs_record_t, column: i32, size: usize, value: ?*anyopaque, count: i32) void;
 pub const struct_ecs_gauge_t = extern struct {
     avg: [60]f32,
     min: [60]f32,
@@ -1089,10 +1089,10 @@ pub const __bool_true_false_are_defined = 1;
 pub fn ECS_SIZEOF(T: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(ecs_size_t, @import("std").meta.sizeof(T)))) {
     return (@import("std").meta.cast(ecs_size_t, @import("std").meta.sizeof(T)));
 }
-pub fn ECS_ALIGNOF(T: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(i64, __alignof__(T)))) {
-    return (@import("std").meta.cast(i64, __alignof__(T)));
-}
-pub const ECS_UNUSED = __attribute__(unused);
+// pub fn ECS_ALIGNOF(T: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(i64, __alignof__(T)))) {
+//     return (@import("std").meta.cast(i64, __alignof__(T)));
+// }
+// pub const ECS_UNUSED = __attribute__(unused);
 pub fn ECS_ALIGN(size: anytype, alignment: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(ecs_size_t, ((((@import("std").meta.cast(usize, size)) - 1) / (@import("std").meta.cast(usize, alignment))) + 1) * (@import("std").meta.cast(usize, alignment))))) {
     return (@import("std").meta.cast(ecs_size_t, ((((@import("std").meta.cast(usize, size)) - 1) / (@import("std").meta.cast(usize, alignment))) + 1) * (@import("std").meta.cast(usize, alignment))));
 }
@@ -1124,270 +1124,270 @@ pub fn ECS_GENERATION_INC(e: anytype) callconv(.Inline) @TypeOf((e & ~ECS_GENERA
     return (e & ~ECS_GENERATION_MASK) | ((ECS_GENERATION(e) + 1) << 32);
 }
 pub const ECS_TYPE_ROLE_START = ECS_CHILDOF;
-pub fn ecs_entity(T: anytype) callconv(.Inline) @TypeOf(ecs_typeid(T)) {
-    return ecs_typeid(T);
-}
-pub fn ecs_entity_t_lo(value: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(u32, value))) {
-    return (@import("std").meta.cast(u32, value));
-}
-pub fn ecs_entity_t_hi(value: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(u32, value >> 32))) {
-    return (@import("std").meta.cast(u32, value >> 32));
-}
-pub fn ecs_entity_t_comb(v1: anytype, v2: anytype) callconv(.Inline) @TypeOf(((@import("std").meta.cast(u64, v2)) << 32) + (@import("std").meta.cast(u32, v1))) {
-    return ((@import("std").meta.cast(u64, v2)) << 32) + (@import("std").meta.cast(u32, v1));
-}
-pub fn ecs_trait(comp: anytype, trait: anytype) callconv(.Inline) @TypeOf(ECS_TRAIT | ecs_entity_t_comb(comp, trait)) {
-    return ECS_TRAIT | ecs_entity_t_comb(comp, trait);
-}
-pub fn ECS_VECTOR_U(size: anytype, alignment: anytype) callconv(.Inline) @TypeOf(ECS_MAX(ECS_SIZEOF(ecs_vector_t), alignment)) {
-    return blk: {
-        _ = size;
-        break :blk ECS_MAX(ECS_SIZEOF(ecs_vector_t), alignment);
-    };
-}
-pub fn ECS_VECTOR_T(T: anytype) callconv(.Inline) @TypeOf(ECS_VECTOR_U(ECS_SIZEOF(T), ECS_ALIGNOF(T))) {
-    return ECS_VECTOR_U(ECS_SIZEOF(T), ECS_ALIGNOF(T));
-}
-pub fn ecs_vector_new(T: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_vector_new(ECS_VECTOR_T(T), elem_count)) {
-    return _ecs_vector_new(ECS_VECTOR_T(T), elem_count);
-}
-pub fn ecs_vector_new_t(size: anytype, alignment: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_vector_new(ECS_VECTOR_U(size, alignment), elem_count)) {
-    return _ecs_vector_new(ECS_VECTOR_U(size, alignment), elem_count);
-}
-pub fn ecs_vector_from_array(T: anytype, elem_count: anytype, array: anytype) callconv(.Inline) @TypeOf(_ecs_vector_from_array(ECS_VECTOR_T(T), elem_count, array)) {
-    return _ecs_vector_from_array(ECS_VECTOR_T(T), elem_count, array);
-}
-pub fn ecs_vector_zero(vector: anytype, T: anytype) callconv(.Inline) @TypeOf(_ecs_vector_zero(vector, ECS_VECTOR_T(T))) {
-    return _ecs_vector_zero(vector, ECS_VECTOR_T(T));
-}
-pub fn ecs_vector_add(vector: anytype, T: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_add(vector, ECS_VECTOR_T(T))))) {
-    return (@import("std").meta.cast([*c]T, _ecs_vector_add(vector, ECS_VECTOR_T(T))));
-}
-pub fn ecs_vector_add_t(vector: anytype, size: anytype, alignment: anytype) callconv(.Inline) @TypeOf(_ecs_vector_add(vector, ECS_VECTOR_U(size, alignment))) {
-    return _ecs_vector_add(vector, ECS_VECTOR_U(size, alignment));
-}
-pub fn ecs_vector_addn(vector: anytype, T: anytype, elem_count: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_addn(vector, ECS_VECTOR_T(T), elem_count)))) {
-    return (@import("std").meta.cast([*c]T, _ecs_vector_addn(vector, ECS_VECTOR_T(T), elem_count)));
-}
-pub fn ecs_vector_addn_t(vector: anytype, size: anytype, alignment: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_vector_addn(vector, ECS_VECTOR_U(size, alignment), elem_count)) {
-    return _ecs_vector_addn(vector, ECS_VECTOR_U(size, alignment), elem_count);
-}
-pub fn ecs_vector_get(vector: anytype, T: anytype, index_1: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_get(vector, ECS_VECTOR_T(T), index_1)))) {
-    return (@import("std").meta.cast([*c]T, _ecs_vector_get(vector, ECS_VECTOR_T(T), index_1)));
-}
-pub fn ecs_vector_get_t(vector: anytype, size: anytype, alignment: anytype, index_1: anytype) callconv(.Inline) @TypeOf(_ecs_vector_get(vector, ECS_VECTOR_U(size, alignment), index_1)) {
-    return _ecs_vector_get(vector, ECS_VECTOR_U(size, alignment), index_1);
-}
-pub fn ecs_vector_last(vector: anytype, T: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_last(vector, ECS_VECTOR_T(T))))) {
-    return (@import("std").meta.cast([*c]T, _ecs_vector_last(vector, ECS_VECTOR_T(T))));
-}
-pub fn ecs_vector_set_min_size(vector: anytype, T: anytype, size: anytype) callconv(.Inline) @TypeOf(_ecs_vector_set_min_size(vector, ECS_VECTOR_T(T), size)) {
-    return _ecs_vector_set_min_size(vector, ECS_VECTOR_T(T), size);
-}
-pub fn ecs_vector_set_min_count(vector: anytype, T: anytype, size: anytype) callconv(.Inline) @TypeOf(_ecs_vector_set_min_count(vector, ECS_VECTOR_T(T), size)) {
-    return _ecs_vector_set_min_count(vector, ECS_VECTOR_T(T), size);
-}
-pub fn ecs_vector_pop(vector: anytype, T: anytype, value: anytype) callconv(.Inline) @TypeOf(_ecs_vector_pop(vector, ECS_VECTOR_T(T), value)) {
-    return _ecs_vector_pop(vector, ECS_VECTOR_T(T), value);
-}
-pub fn ecs_vector_move_index(dst: anytype, src: anytype, T: anytype, index_1: anytype) callconv(.Inline) @TypeOf(_ecs_vector_move_index(dst, src, ECS_VECTOR_T(T), index_1)) {
-    return _ecs_vector_move_index(dst, src, ECS_VECTOR_T(T), index_1);
-}
-pub fn ecs_vector_remove_index(vector: anytype, T: anytype, index_1: anytype) callconv(.Inline) @TypeOf(_ecs_vector_remove_index(vector, ECS_VECTOR_T(T), index_1)) {
-    return _ecs_vector_remove_index(vector, ECS_VECTOR_T(T), index_1);
-}
-pub fn ecs_vector_remove_index_t(vector: anytype, size: anytype, alignment: anytype, index_1: anytype) callconv(.Inline) @TypeOf(_ecs_vector_remove_index(vector, ECS_VECTOR_U(size, alignment), index_1)) {
-    return _ecs_vector_remove_index(vector, ECS_VECTOR_U(size, alignment), index_1);
-}
-pub fn ecs_vector_reclaim(vector: anytype, T: anytype) callconv(.Inline) @TypeOf(_ecs_vector_reclaim(vector, ECS_VECTOR_T(T))) {
-    return _ecs_vector_reclaim(vector, ECS_VECTOR_T(T));
-}
-pub fn ecs_vector_grow(vector: anytype, T: anytype, size: anytype) callconv(.Inline) @TypeOf(_ecs_vector_grow(vector, ECS_VECTOR_T(T), size)) {
-    return _ecs_vector_grow(vector, ECS_VECTOR_T(T), size);
-}
-pub fn ecs_vector_set_size(vector: anytype, T: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_vector_set_size(vector, ECS_VECTOR_T(T), elem_count)) {
-    return _ecs_vector_set_size(vector, ECS_VECTOR_T(T), elem_count);
-}
-pub fn ecs_vector_set_size_t(vector: anytype, size: anytype, alignment: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_vector_set_size(vector, ECS_VECTOR_U(size, alignment), elem_count)) {
-    return _ecs_vector_set_size(vector, ECS_VECTOR_U(size, alignment), elem_count);
-}
-pub fn ecs_vector_set_count(vector: anytype, T: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_vector_set_count(vector, ECS_VECTOR_T(T), elem_count)) {
-    return _ecs_vector_set_count(vector, ECS_VECTOR_T(T), elem_count);
-}
-pub fn ecs_vector_set_count_t(vector: anytype, size: anytype, alignment: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_vector_set_count(vector, ECS_VECTOR_U(size, alignment), elem_count)) {
-    return _ecs_vector_set_count(vector, ECS_VECTOR_U(size, alignment), elem_count);
-}
-pub fn ecs_vector_first(vector: anytype, T: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_first(vector, ECS_VECTOR_T(T))))) {
-    return (@import("std").meta.cast([*c]T, _ecs_vector_first(vector, ECS_VECTOR_T(T))));
-}
-pub fn ecs_vector_first_t(vector: anytype, size: anytype, alignment: anytype) callconv(.Inline) @TypeOf(_ecs_vector_first(vector, ECS_VECTOR_U(size, alignment))) {
-    return _ecs_vector_first(vector, ECS_VECTOR_U(size, alignment));
-}
-pub fn ecs_vector_sort(vector: anytype, T: anytype, compare_action: anytype) callconv(.Inline) @TypeOf(_ecs_vector_sort(vector, ECS_VECTOR_T(T), compare_action)) {
-    return _ecs_vector_sort(vector, ECS_VECTOR_T(T), compare_action);
-}
-pub fn ecs_vector_memory(vector: anytype, T: anytype, allocd: anytype, used: anytype) callconv(.Inline) @TypeOf(_ecs_vector_memory(vector, ECS_VECTOR_T(T), allocd, used)) {
-    return _ecs_vector_memory(vector, ECS_VECTOR_T(T), allocd, used);
-}
-pub fn ecs_vector_memory_t(vector: anytype, size: anytype, alignment: anytype, allocd: anytype, used: anytype) callconv(.Inline) @TypeOf(_ecs_vector_memory(vector, ECS_VECTOR_U(size, alignment), allocd, used)) {
-    return _ecs_vector_memory(vector, ECS_VECTOR_U(size, alignment), allocd, used);
-}
-pub fn ecs_vector_copy(src: anytype, T: anytype) callconv(.Inline) @TypeOf(_ecs_vector_copy(src, ECS_VECTOR_T(T))) {
-    return _ecs_vector_copy(src, ECS_VECTOR_T(T));
-}
-pub fn ecs_vector_copy_t(src: anytype, size: anytype, alignment: anytype) callconv(.Inline) @TypeOf(_ecs_vector_copy(src, ECS_VECTOR_U(size, alignment))) {
-    return _ecs_vector_copy(src, ECS_VECTOR_U(size, alignment));
-}
-pub fn ecs_sparse_new(type_1: anytype) callconv(.Inline) @TypeOf(_ecs_sparse_new(@import("std").meta.sizeof(type_1))) {
-    return _ecs_sparse_new(@import("std").meta.sizeof(type_1));
-}
-pub fn ecs_sparse_add(sparse: anytype, type_1: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_add(sparse, @import("std").meta.sizeof(type_1))))) {
-    return (@import("std").meta.cast([*c]type_1, _ecs_sparse_add(sparse, @import("std").meta.sizeof(type_1))));
-}
-pub fn ecs_sparse_remove_get(sparse: anytype, type_1: anytype, index_2: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_remove_get(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
-    return (@import("std").meta.cast([*c]type_1, _ecs_sparse_remove_get(sparse, @import("std").meta.sizeof(type_1), index_2)));
-}
-pub fn ecs_sparse_get(sparse: anytype, type_1: anytype, index_2: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
-    return (@import("std").meta.cast([*c]type_1, _ecs_sparse_get(sparse, @import("std").meta.sizeof(type_1), index_2)));
-}
-pub fn ecs_sparse_get_sparse(sparse: anytype, type_1: anytype, index_2: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get_sparse(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
-    return (@import("std").meta.cast([*c]type_1, _ecs_sparse_get_sparse(sparse, @import("std").meta.sizeof(type_1), index_2)));
-}
-pub fn ecs_sparse_get_sparse_any(sparse: anytype, type_1: anytype, index_2: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get_sparse_any(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
-    return (@import("std").meta.cast([*c]type_1, _ecs_sparse_get_sparse_any(sparse, @import("std").meta.sizeof(type_1), index_2)));
-}
-pub fn ecs_sparse_get_or_create(sparse: anytype, type_1: anytype, index_2: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get_or_create(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
-    return (@import("std").meta.cast([*c]type_1, _ecs_sparse_get_or_create(sparse, @import("std").meta.sizeof(type_1), index_2)));
-}
-pub fn ecs_sparse_set(sparse: anytype, type_1: anytype, index_2: anytype, value: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_set(sparse, @import("std").meta.sizeof(type_1), index_2, value)))) {
-    return (@import("std").meta.cast([*c]type_1, _ecs_sparse_set(sparse, @import("std").meta.sizeof(type_1), index_2, value)));
-}
-pub fn ecs_map_new(T: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_map_new(@import("std").meta.sizeof(T), ECS_ALIGNOF(T), elem_count)) {
-    return _ecs_map_new(@import("std").meta.sizeof(T), ECS_ALIGNOF(T), elem_count);
-}
-pub fn ecs_map_get(map: anytype, T: anytype, key: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_map_get(map, @import("std").meta.sizeof(T), (@import("std").meta.cast(ecs_map_key_t, key)))))) {
-    return (@import("std").meta.cast([*c]T, _ecs_map_get(map, @import("std").meta.sizeof(T), (@import("std").meta.cast(ecs_map_key_t, key)))));
-}
-pub fn ecs_map_get_ptr(map: anytype, T: anytype, key: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(T, _ecs_map_get_ptr(map, key)))) {
-    return (@import("std").meta.cast(T, _ecs_map_get_ptr(map, key)));
-}
-pub fn ecs_map_ensure(map: anytype, T: anytype, key: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_map_ensure(map, @import("std").meta.sizeof(T), (@import("std").meta.cast(ecs_map_key_t, key)))))) {
-    return (@import("std").meta.cast([*c]T, _ecs_map_ensure(map, @import("std").meta.sizeof(T), (@import("std").meta.cast(ecs_map_key_t, key)))));
-}
-pub fn ecs_map_next(iter: anytype, T: anytype, key: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_map_next(iter, @import("std").meta.sizeof(T), key)))) {
-    return (@import("std").meta.cast([*c]T, _ecs_map_next(iter, @import("std").meta.sizeof(T), key)));
-}
-pub fn ecs_map_next_ptr(iter: anytype, T: anytype, key: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(T, _ecs_map_next_ptr(iter, key)))) {
-    return (@import("std").meta.cast(T, _ecs_map_next_ptr(iter, key)));
-}
-pub const ECS_STRBUF_INIT = @import("std").mem.zeroInit(ecs_strbuf_t, .{0});
-pub const ECS_STRBUF_ELEMENT_SIZE = 511;
-pub const ECS_STRBUF_MAX_LIST_DEPTH = 32;
-pub fn ecs_os_malloc(size: anytype) callconv(.Inline) @TypeOf(ecs_os_api.malloc_(size)) {
-    return ecs_os_api.malloc_(size);
-}
-pub fn ecs_os_free(ptr: anytype) callconv(.Inline) @TypeOf(ecs_os_api.free_(ptr)) {
-    return ecs_os_api.free_(ptr);
-}
-pub fn ecs_os_realloc(ptr: anytype, size: anytype) callconv(.Inline) @TypeOf(ecs_os_api.realloc_(ptr, size)) {
-    return ecs_os_api.realloc_(ptr, size);
-}
-pub fn ecs_os_calloc(size: anytype) callconv(.Inline) @TypeOf(ecs_os_api.calloc_(size)) {
-    return ecs_os_api.calloc_(size);
-}
-pub fn ecs_os_alloca(size: anytype) callconv(.Inline) @TypeOf(alloca((@import("std").meta.cast(usize, size)))) {
-    return alloca((@import("std").meta.cast(usize, size)));
-}
-pub fn ecs_os_strdup(str: anytype) callconv(.Inline) @TypeOf(ecs_os_api.strdup_(str)) {
-    return ecs_os_api.strdup_(str);
-}
-pub fn ecs_os_strlen(str: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(ecs_size_t, strlen(str)))) {
-    return (@import("std").meta.cast(ecs_size_t, strlen(str)));
-}
-pub fn ecs_os_strcmp(str1: anytype, str2: anytype) callconv(.Inline) @TypeOf(strcmp(str1, str2)) {
-    return strcmp(str1, str2);
-}
-pub fn ecs_os_strncmp(str1: anytype, str2: anytype, num: anytype) callconv(.Inline) @TypeOf(strncmp(str1, str2, (@import("std").meta.cast(usize, num)))) {
-    return strncmp(str1, str2, (@import("std").meta.cast(usize, num)));
-}
-pub fn ecs_os_memcmp(ptr1: anytype, ptr2: anytype, num: anytype) callconv(.Inline) @TypeOf(memcmp(ptr1, ptr2, (@import("std").meta.cast(usize, num)))) {
-    return memcmp(ptr1, ptr2, (@import("std").meta.cast(usize, num)));
-}
-pub fn ecs_os_memcpy(ptr1: anytype, ptr2: anytype, num: anytype) callconv(.Inline) @TypeOf(memcpy(ptr1, ptr2, (@import("std").meta.cast(usize, num)))) {
-    return memcpy(ptr1, ptr2, (@import("std").meta.cast(usize, num)));
-}
-pub fn ecs_os_memset(ptr: anytype, value: anytype, num: anytype) callconv(.Inline) @TypeOf(memset(ptr, value, (@import("std").meta.cast(usize, num)))) {
-    return memset(ptr, value, (@import("std").meta.cast(usize, num)));
-}
-pub fn ecs_os_memmove(ptr: anytype, value: anytype, num: anytype) callconv(.Inline) @TypeOf(memmove(ptr, value, (@import("std").meta.cast(usize, num)))) {
-    return memmove(ptr, value, (@import("std").meta.cast(usize, num)));
-}
-pub fn ecs_os_strcat(str1: anytype, str2: anytype) callconv(.Inline) @TypeOf(strcat(str1, str2)) {
-    return strcat(str1, str2);
-}
-pub fn ecs_os_vsprintf(ptr: anytype, fmt: anytype, args: anytype) callconv(.Inline) @TypeOf(vsprintf(ptr, fmt, args)) {
-    return vsprintf(ptr, fmt, args);
-}
-pub fn ecs_os_strcpy(str1: anytype, str2: anytype) callconv(.Inline) @TypeOf(strcpy(str1, str2)) {
-    return strcpy(str1, str2);
-}
-pub fn ecs_os_strncpy(str1: anytype, str2: anytype, num: anytype) callconv(.Inline) @TypeOf(strncpy(str1, str2, (@import("std").meta.cast(usize, num)))) {
-    return strncpy(str1, str2, (@import("std").meta.cast(usize, num)));
-}
-pub fn ecs_os_thread_new(callback: anytype, param: anytype) callconv(.Inline) @TypeOf(ecs_os_api.thread_new_(callback, param)) {
-    return ecs_os_api.thread_new_(callback, param);
-}
-pub fn ecs_os_thread_join(thread: anytype) callconv(.Inline) @TypeOf(ecs_os_api.thread_join_(thread)) {
-    return ecs_os_api.thread_join_(thread);
-}
-pub fn ecs_os_ainc(value: anytype) callconv(.Inline) @TypeOf(ecs_os_api.ainc_(value)) {
-    return ecs_os_api.ainc_(value);
-}
-pub fn ecs_os_adec(value: anytype) callconv(.Inline) @TypeOf(ecs_os_api.adec_(value)) {
-    return ecs_os_api.adec_(value);
-}
-pub fn ecs_os_mutex_free(mutex: anytype) callconv(.Inline) @TypeOf(ecs_os_api.mutex_free_(mutex)) {
-    return ecs_os_api.mutex_free_(mutex);
-}
-pub fn ecs_os_mutex_lock(mutex: anytype) callconv(.Inline) @TypeOf(ecs_os_api.mutex_lock_(mutex)) {
-    return ecs_os_api.mutex_lock_(mutex);
-}
-pub fn ecs_os_mutex_unlock(mutex: anytype) callconv(.Inline) @TypeOf(ecs_os_api.mutex_unlock_(mutex)) {
-    return ecs_os_api.mutex_unlock_(mutex);
-}
-pub fn ecs_os_cond_free(cond: anytype) callconv(.Inline) @TypeOf(ecs_os_api.cond_free_(cond)) {
-    return ecs_os_api.cond_free_(cond);
-}
-pub fn ecs_os_cond_signal(cond: anytype) callconv(.Inline) @TypeOf(ecs_os_api.cond_signal_(cond)) {
-    return ecs_os_api.cond_signal_(cond);
-}
-pub fn ecs_os_cond_broadcast(cond: anytype) callconv(.Inline) @TypeOf(ecs_os_api.cond_broadcast_(cond)) {
-    return ecs_os_api.cond_broadcast_(cond);
-}
-pub fn ecs_os_cond_wait(cond: anytype, mutex: anytype) callconv(.Inline) @TypeOf(ecs_os_api.cond_wait_(cond, mutex)) {
-    return ecs_os_api.cond_wait_(cond, mutex);
-}
-pub fn ecs_os_sleep(sec: anytype, nanosec: anytype) callconv(.Inline) @TypeOf(ecs_os_api.sleep_(sec, nanosec)) {
-    return ecs_os_api.sleep_(sec, nanosec);
-}
-pub fn ecs_os_get_time(time_out: anytype) callconv(.Inline) @TypeOf(ecs_os_api.get_time_(time_out)) {
-    return ecs_os_api.get_time_(time_out);
-}
-pub fn ecs_os_dlopen(libname: anytype) callconv(.Inline) @TypeOf(ecs_os_api.dlopen_(libname)) {
-    return ecs_os_api.dlopen_(libname);
-}
-pub fn ecs_os_dlproc(lib: anytype, procname: anytype) callconv(.Inline) @TypeOf(ecs_os_api.dlproc_(lib, procname)) {
-    return ecs_os_api.dlproc_(lib, procname);
-}
-pub fn ecs_os_dlclose(lib: anytype) callconv(.Inline) @TypeOf(ecs_os_api.dlclose_(lib)) {
-    return ecs_os_api.dlclose_(lib);
-}
-pub fn ecs_os_module_to_dl(lib: anytype) callconv(.Inline) @TypeOf(ecs_os_api.module_to_dl_(lib)) {
-    return ecs_os_api.module_to_dl_(lib);
-}
-pub fn ecs_os_module_to_etc(lib: anytype) callconv(.Inline) @TypeOf(ecs_os_api.module_to_etc_(lib)) {
-    return ecs_os_api.module_to_etc_(lib);
-}
+// pub fn ecs_entity(T: anytype) callconv(.Inline) @TypeOf(ecs_typeid(T)) {
+//     return ecs_typeid(T);
+// }
+// pub fn ecs_entity_t_lo(value: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(u32, value))) {
+//     return (@import("std").meta.cast(u32, value));
+// }
+// pub fn ecs_entity_t_hi(value: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(u32, value >> 32))) {
+//     return (@import("std").meta.cast(u32, value >> 32));
+// }
+// pub fn ecs_entity_t_comb(v1: anytype, v2: anytype) callconv(.Inline) @TypeOf(((@import("std").meta.cast(u64, v2)) << 32) + (@import("std").meta.cast(u32, v1))) {
+//     return ((@import("std").meta.cast(u64, v2)) << 32) + (@import("std").meta.cast(u32, v1));
+// }
+// pub fn ecs_trait(comp: anytype, trait: anytype) callconv(.Inline) @TypeOf(ECS_TRAIT | ecs_entity_t_comb(comp, trait)) {
+//     return ECS_TRAIT | ecs_entity_t_comb(comp, trait);
+// }
+// pub fn ECS_VECTOR_U(size: anytype, alignment: anytype) callconv(.Inline) @TypeOf(ECS_MAX(ECS_SIZEOF(ecs_vector_t), alignment)) {
+//     return blk: {
+//         _ = size;
+//         break :blk ECS_MAX(ECS_SIZEOF(ecs_vector_t), alignment);
+//     };
+// }
+// pub fn ECS_VECTOR_T(T: anytype) callconv(.Inline) @TypeOf(ECS_VECTOR_U(ECS_SIZEOF(T), ECS_ALIGNOF(T))) {
+//     return ECS_VECTOR_U(ECS_SIZEOF(T), ECS_ALIGNOF(T));
+// }
+// pub fn ecs_vector_new(T: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_vector_new(ECS_VECTOR_T(T), elem_count)) {
+//     return _ecs_vector_new(ECS_VECTOR_T(T), elem_count);
+// }
+// pub fn ecs_vector_new_t(size: anytype, alignment: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_vector_new(ECS_VECTOR_U(size, alignment), elem_count)) {
+//     return _ecs_vector_new(ECS_VECTOR_U(size, alignment), elem_count);
+// }
+// pub fn ecs_vector_from_array(T: anytype, elem_count: anytype, array: anytype) callconv(.Inline) @TypeOf(_ecs_vector_from_array(ECS_VECTOR_T(T), elem_count, array)) {
+//     return _ecs_vector_from_array(ECS_VECTOR_T(T), elem_count, array);
+// }
+// pub fn ecs_vector_zero(vector: anytype, T: anytype) callconv(.Inline) @TypeOf(_ecs_vector_zero(vector, ECS_VECTOR_T(T))) {
+//     return _ecs_vector_zero(vector, ECS_VECTOR_T(T));
+// }
+// pub fn ecs_vector_add(vector: anytype, T: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_add(vector, ECS_VECTOR_T(T))))) {
+//     return (@import("std").meta.cast([*c]T, _ecs_vector_add(vector, ECS_VECTOR_T(T))));
+// }
+// pub fn ecs_vector_add_t(vector: anytype, size: anytype, alignment: anytype) callconv(.Inline) @TypeOf(_ecs_vector_add(vector, ECS_VECTOR_U(size, alignment))) {
+//     return _ecs_vector_add(vector, ECS_VECTOR_U(size, alignment));
+// }
+// pub fn ecs_vector_addn(vector: anytype, T: anytype, elem_count: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_addn(vector, ECS_VECTOR_T(T), elem_count)))) {
+//     return (@import("std").meta.cast([*c]T, _ecs_vector_addn(vector, ECS_VECTOR_T(T), elem_count)));
+// }
+// pub fn ecs_vector_addn_t(vector: anytype, size: anytype, alignment: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_vector_addn(vector, ECS_VECTOR_U(size, alignment), elem_count)) {
+//     return _ecs_vector_addn(vector, ECS_VECTOR_U(size, alignment), elem_count);
+// }
+// pub fn ecs_vector_get(vector: anytype, T: anytype, index_1: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_get(vector, ECS_VECTOR_T(T), index_1)))) {
+//     return (@import("std").meta.cast([*c]T, _ecs_vector_get(vector, ECS_VECTOR_T(T), index_1)));
+// }
+// pub fn ecs_vector_get_t(vector: anytype, size: anytype, alignment: anytype, index_1: anytype) callconv(.Inline) @TypeOf(_ecs_vector_get(vector, ECS_VECTOR_U(size, alignment), index_1)) {
+//     return _ecs_vector_get(vector, ECS_VECTOR_U(size, alignment), index_1);
+// }
+// pub fn ecs_vector_last(vector: anytype, T: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_last(vector, ECS_VECTOR_T(T))))) {
+//     return (@import("std").meta.cast([*c]T, _ecs_vector_last(vector, ECS_VECTOR_T(T))));
+// }
+// pub fn ecs_vector_set_min_size(vector: anytype, T: anytype, size: anytype) callconv(.Inline) @TypeOf(_ecs_vector_set_min_size(vector, ECS_VECTOR_T(T), size)) {
+//     return _ecs_vector_set_min_size(vector, ECS_VECTOR_T(T), size);
+// }
+// pub fn ecs_vector_set_min_count(vector: anytype, T: anytype, size: anytype) callconv(.Inline) @TypeOf(_ecs_vector_set_min_count(vector, ECS_VECTOR_T(T), size)) {
+//     return _ecs_vector_set_min_count(vector, ECS_VECTOR_T(T), size);
+// }
+// pub fn ecs_vector_pop(vector: anytype, T: anytype, value: anytype) callconv(.Inline) @TypeOf(_ecs_vector_pop(vector, ECS_VECTOR_T(T), value)) {
+//     return _ecs_vector_pop(vector, ECS_VECTOR_T(T), value);
+// }
+// pub fn ecs_vector_move_index(dst: anytype, src: anytype, T: anytype, index_1: anytype) callconv(.Inline) @TypeOf(_ecs_vector_move_index(dst, src, ECS_VECTOR_T(T), index_1)) {
+//     return _ecs_vector_move_index(dst, src, ECS_VECTOR_T(T), index_1);
+// }
+// pub fn ecs_vector_remove_index(vector: anytype, T: anytype, index_1: anytype) callconv(.Inline) @TypeOf(_ecs_vector_remove_index(vector, ECS_VECTOR_T(T), index_1)) {
+//     return _ecs_vector_remove_index(vector, ECS_VECTOR_T(T), index_1);
+// }
+// pub fn ecs_vector_remove_index_t(vector: anytype, size: anytype, alignment: anytype, index_1: anytype) callconv(.Inline) @TypeOf(_ecs_vector_remove_index(vector, ECS_VECTOR_U(size, alignment), index_1)) {
+//     return _ecs_vector_remove_index(vector, ECS_VECTOR_U(size, alignment), index_1);
+// }
+// pub fn ecs_vector_reclaim(vector: anytype, T: anytype) callconv(.Inline) @TypeOf(_ecs_vector_reclaim(vector, ECS_VECTOR_T(T))) {
+//     return _ecs_vector_reclaim(vector, ECS_VECTOR_T(T));
+// }
+// pub fn ecs_vector_grow(vector: anytype, T: anytype, size: anytype) callconv(.Inline) @TypeOf(_ecs_vector_grow(vector, ECS_VECTOR_T(T), size)) {
+//     return _ecs_vector_grow(vector, ECS_VECTOR_T(T), size);
+// }
+// pub fn ecs_vector_set_size(vector: anytype, T: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_vector_set_size(vector, ECS_VECTOR_T(T), elem_count)) {
+//     return _ecs_vector_set_size(vector, ECS_VECTOR_T(T), elem_count);
+// }
+// pub fn ecs_vector_set_size_t(vector: anytype, size: anytype, alignment: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_vector_set_size(vector, ECS_VECTOR_U(size, alignment), elem_count)) {
+//     return _ecs_vector_set_size(vector, ECS_VECTOR_U(size, alignment), elem_count);
+// }
+// pub fn ecs_vector_set_count(vector: anytype, T: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_vector_set_count(vector, ECS_VECTOR_T(T), elem_count)) {
+//     return _ecs_vector_set_count(vector, ECS_VECTOR_T(T), elem_count);
+// }
+// pub fn ecs_vector_set_count_t(vector: anytype, size: anytype, alignment: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_vector_set_count(vector, ECS_VECTOR_U(size, alignment), elem_count)) {
+//     return _ecs_vector_set_count(vector, ECS_VECTOR_U(size, alignment), elem_count);
+// }
+// pub fn ecs_vector_first(vector: anytype, T: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_vector_first(vector, ECS_VECTOR_T(T))))) {
+//     return (@import("std").meta.cast([*c]T, _ecs_vector_first(vector, ECS_VECTOR_T(T))));
+// }
+// pub fn ecs_vector_first_t(vector: anytype, size: anytype, alignment: anytype) callconv(.Inline) @TypeOf(_ecs_vector_first(vector, ECS_VECTOR_U(size, alignment))) {
+//     return _ecs_vector_first(vector, ECS_VECTOR_U(size, alignment));
+// }
+// pub fn ecs_vector_sort(vector: anytype, T: anytype, compare_action: anytype) callconv(.Inline) @TypeOf(_ecs_vector_sort(vector, ECS_VECTOR_T(T), compare_action)) {
+//     return _ecs_vector_sort(vector, ECS_VECTOR_T(T), compare_action);
+// }
+// pub fn ecs_vector_memory(vector: anytype, T: anytype, allocd: anytype, used: anytype) callconv(.Inline) @TypeOf(_ecs_vector_memory(vector, ECS_VECTOR_T(T), allocd, used)) {
+//     return _ecs_vector_memory(vector, ECS_VECTOR_T(T), allocd, used);
+// }
+// pub fn ecs_vector_memory_t(vector: anytype, size: anytype, alignment: anytype, allocd: anytype, used: anytype) callconv(.Inline) @TypeOf(_ecs_vector_memory(vector, ECS_VECTOR_U(size, alignment), allocd, used)) {
+//     return _ecs_vector_memory(vector, ECS_VECTOR_U(size, alignment), allocd, used);
+// }
+// pub fn ecs_vector_copy(src: anytype, T: anytype) callconv(.Inline) @TypeOf(_ecs_vector_copy(src, ECS_VECTOR_T(T))) {
+//     return _ecs_vector_copy(src, ECS_VECTOR_T(T));
+// }
+// pub fn ecs_vector_copy_t(src: anytype, size: anytype, alignment: anytype) callconv(.Inline) @TypeOf(_ecs_vector_copy(src, ECS_VECTOR_U(size, alignment))) {
+//     return _ecs_vector_copy(src, ECS_VECTOR_U(size, alignment));
+// }
+// pub fn ecs_sparse_new(type_1: anytype) callconv(.Inline) @TypeOf(_ecs_sparse_new(@import("std").meta.sizeof(type_1))) {
+//     return _ecs_sparse_new(@import("std").meta.sizeof(type_1));
+// }
+// pub fn ecs_sparse_add(sparse: anytype, type_1: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_add(sparse, @import("std").meta.sizeof(type_1))))) {
+//     return (@import("std").meta.cast([*c]type_1, _ecs_sparse_add(sparse, @import("std").meta.sizeof(type_1))));
+// }
+// pub fn ecs_sparse_remove_get(sparse: anytype, type_1: anytype, index_2: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_remove_get(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
+//     return (@import("std").meta.cast([*c]type_1, _ecs_sparse_remove_get(sparse, @import("std").meta.sizeof(type_1), index_2)));
+// }
+// pub fn ecs_sparse_get(sparse: anytype, type_1: anytype, index_2: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
+//     return (@import("std").meta.cast([*c]type_1, _ecs_sparse_get(sparse, @import("std").meta.sizeof(type_1), index_2)));
+// }
+// pub fn ecs_sparse_get_sparse(sparse: anytype, type_1: anytype, index_2: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get_sparse(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
+//     return (@import("std").meta.cast([*c]type_1, _ecs_sparse_get_sparse(sparse, @import("std").meta.sizeof(type_1), index_2)));
+// }
+// pub fn ecs_sparse_get_sparse_any(sparse: anytype, type_1: anytype, index_2: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get_sparse_any(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
+//     return (@import("std").meta.cast([*c]type_1, _ecs_sparse_get_sparse_any(sparse, @import("std").meta.sizeof(type_1), index_2)));
+// }
+// pub fn ecs_sparse_get_or_create(sparse: anytype, type_1: anytype, index_2: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_get_or_create(sparse, @import("std").meta.sizeof(type_1), index_2)))) {
+//     return (@import("std").meta.cast([*c]type_1, _ecs_sparse_get_or_create(sparse, @import("std").meta.sizeof(type_1), index_2)));
+// }
+// pub fn ecs_sparse_set(sparse: anytype, type_1: anytype, index_2: anytype, value: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, _ecs_sparse_set(sparse, @import("std").meta.sizeof(type_1), index_2, value)))) {
+//     return (@import("std").meta.cast([*c]type_1, _ecs_sparse_set(sparse, @import("std").meta.sizeof(type_1), index_2, value)));
+// }
+// pub fn ecs_map_new(T: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_map_new(@import("std").meta.sizeof(T), ECS_ALIGNOF(T), elem_count)) {
+//     return _ecs_map_new(@import("std").meta.sizeof(T), ECS_ALIGNOF(T), elem_count);
+// }
+// pub fn ecs_map_get(map: anytype, T: anytype, key: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_map_get(map, @import("std").meta.sizeof(T), (@import("std").meta.cast(ecs_map_key_t, key)))))) {
+//     return (@import("std").meta.cast([*c]T, _ecs_map_get(map, @import("std").meta.sizeof(T), (@import("std").meta.cast(ecs_map_key_t, key)))));
+// }
+// pub fn ecs_map_get_ptr(map: anytype, T: anytype, key: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(T, _ecs_map_get_ptr(map, key)))) {
+//     return (@import("std").meta.cast(T, _ecs_map_get_ptr(map, key)));
+// }
+// pub fn ecs_map_ensure(map: anytype, T: anytype, key: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_map_ensure(map, @import("std").meta.sizeof(T), (@import("std").meta.cast(ecs_map_key_t, key)))))) {
+//     return (@import("std").meta.cast([*c]T, _ecs_map_ensure(map, @import("std").meta.sizeof(T), (@import("std").meta.cast(ecs_map_key_t, key)))));
+// }
+// pub fn ecs_map_next(iter: anytype, T: anytype, key: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_map_next(iter, @import("std").meta.sizeof(T), key)))) {
+//     return (@import("std").meta.cast([*c]T, _ecs_map_next(iter, @import("std").meta.sizeof(T), key)));
+// }
+// pub fn ecs_map_next_ptr(iter: anytype, T: anytype, key: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(T, _ecs_map_next_ptr(iter, key)))) {
+//     return (@import("std").meta.cast(T, _ecs_map_next_ptr(iter, key)));
+// }
+// pub const ECS_STRBUF_INIT = @import("std").mem.zeroInit(ecs_strbuf_t, .{0});
+// pub const ECS_STRBUF_ELEMENT_SIZE = 511;
+// pub const ECS_STRBUF_MAX_LIST_DEPTH = 32;
+// pub fn ecs_os_malloc(size: anytype) callconv(.Inline) @TypeOf(ecs_os_api.malloc_(size)) {
+//     return ecs_os_api.malloc_(size);
+// }
+// pub fn ecs_os_free(ptr: anytype) callconv(.Inline) @TypeOf(ecs_os_api.free_(ptr)) {
+//     return ecs_os_api.free_(ptr);
+// }
+// pub fn ecs_os_realloc(ptr: anytype, size: anytype) callconv(.Inline) @TypeOf(ecs_os_api.realloc_(ptr, size)) {
+//     return ecs_os_api.realloc_(ptr, size);
+// }
+// pub fn ecs_os_calloc(size: anytype) callconv(.Inline) @TypeOf(ecs_os_api.calloc_(size)) {
+//     return ecs_os_api.calloc_(size);
+// }
+// pub fn ecs_os_alloca(size: anytype) callconv(.Inline) @TypeOf(alloca((@import("std").meta.cast(usize, size)))) {
+//     return alloca((@import("std").meta.cast(usize, size)));
+// }
+// pub fn ecs_os_strdup(str: anytype) callconv(.Inline) @TypeOf(ecs_os_api.strdup_(str)) {
+//     return ecs_os_api.strdup_(str);
+// }
+// pub fn ecs_os_strlen(str: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(ecs_size_t, strlen(str)))) {
+//     return (@import("std").meta.cast(ecs_size_t, strlen(str)));
+// }
+// pub fn ecs_os_strcmp(str1: anytype, str2: anytype) callconv(.Inline) @TypeOf(strcmp(str1, str2)) {
+//     return strcmp(str1, str2);
+// }
+// pub fn ecs_os_strncmp(str1: anytype, str2: anytype, num: anytype) callconv(.Inline) @TypeOf(strncmp(str1, str2, (@import("std").meta.cast(usize, num)))) {
+//     return strncmp(str1, str2, (@import("std").meta.cast(usize, num)));
+// }
+// pub fn ecs_os_memcmp(ptr1: anytype, ptr2: anytype, num: anytype) callconv(.Inline) @TypeOf(memcmp(ptr1, ptr2, (@import("std").meta.cast(usize, num)))) {
+//     return memcmp(ptr1, ptr2, (@import("std").meta.cast(usize, num)));
+// }
+// pub fn ecs_os_memcpy(ptr1: anytype, ptr2: anytype, num: anytype) callconv(.Inline) @TypeOf(memcpy(ptr1, ptr2, (@import("std").meta.cast(usize, num)))) {
+//     return memcpy(ptr1, ptr2, (@import("std").meta.cast(usize, num)));
+// }
+// pub fn ecs_os_memset(ptr: anytype, value: anytype, num: anytype) callconv(.Inline) @TypeOf(memset(ptr, value, (@import("std").meta.cast(usize, num)))) {
+//     return memset(ptr, value, (@import("std").meta.cast(usize, num)));
+// }
+// pub fn ecs_os_memmove(ptr: anytype, value: anytype, num: anytype) callconv(.Inline) @TypeOf(memmove(ptr, value, (@import("std").meta.cast(usize, num)))) {
+//     return memmove(ptr, value, (@import("std").meta.cast(usize, num)));
+// }
+// pub fn ecs_os_strcat(str1: anytype, str2: anytype) callconv(.Inline) @TypeOf(strcat(str1, str2)) {
+//     return strcat(str1, str2);
+// }
+// pub fn ecs_os_vsprintf(ptr: anytype, fmt: anytype, args: anytype) callconv(.Inline) @TypeOf(vsprintf(ptr, fmt, args)) {
+//     return vsprintf(ptr, fmt, args);
+// }
+// pub fn ecs_os_strcpy(str1: anytype, str2: anytype) callconv(.Inline) @TypeOf(strcpy(str1, str2)) {
+//     return strcpy(str1, str2);
+// }
+// pub fn ecs_os_strncpy(str1: anytype, str2: anytype, num: anytype) callconv(.Inline) @TypeOf(strncpy(str1, str2, (@import("std").meta.cast(usize, num)))) {
+//     return strncpy(str1, str2, (@import("std").meta.cast(usize, num)));
+// }
+// pub fn ecs_os_thread_new(callback: anytype, param: anytype) callconv(.Inline) @TypeOf(ecs_os_api.thread_new_(callback, param)) {
+//     return ecs_os_api.thread_new_(callback, param);
+// }
+// pub fn ecs_os_thread_join(thread: anytype) callconv(.Inline) @TypeOf(ecs_os_api.thread_join_(thread)) {
+//     return ecs_os_api.thread_join_(thread);
+// }
+// pub fn ecs_os_ainc(value: anytype) callconv(.Inline) @TypeOf(ecs_os_api.ainc_(value)) {
+//     return ecs_os_api.ainc_(value);
+// }
+// pub fn ecs_os_adec(value: anytype) callconv(.Inline) @TypeOf(ecs_os_api.adec_(value)) {
+//     return ecs_os_api.adec_(value);
+// }
+// pub fn ecs_os_mutex_free(mutex: anytype) callconv(.Inline) @TypeOf(ecs_os_api.mutex_free_(mutex)) {
+//     return ecs_os_api.mutex_free_(mutex);
+// }
+// pub fn ecs_os_mutex_lock(mutex: anytype) callconv(.Inline) @TypeOf(ecs_os_api.mutex_lock_(mutex)) {
+//     return ecs_os_api.mutex_lock_(mutex);
+// }
+// pub fn ecs_os_mutex_unlock(mutex: anytype) callconv(.Inline) @TypeOf(ecs_os_api.mutex_unlock_(mutex)) {
+//     return ecs_os_api.mutex_unlock_(mutex);
+// }
+// pub fn ecs_os_cond_free(cond: anytype) callconv(.Inline) @TypeOf(ecs_os_api.cond_free_(cond)) {
+//     return ecs_os_api.cond_free_(cond);
+// }
+// pub fn ecs_os_cond_signal(cond: anytype) callconv(.Inline) @TypeOf(ecs_os_api.cond_signal_(cond)) {
+//     return ecs_os_api.cond_signal_(cond);
+// }
+// pub fn ecs_os_cond_broadcast(cond: anytype) callconv(.Inline) @TypeOf(ecs_os_api.cond_broadcast_(cond)) {
+//     return ecs_os_api.cond_broadcast_(cond);
+// }
+// pub fn ecs_os_cond_wait(cond: anytype, mutex: anytype) callconv(.Inline) @TypeOf(ecs_os_api.cond_wait_(cond, mutex)) {
+//     return ecs_os_api.cond_wait_(cond, mutex);
+// }
+// pub fn ecs_os_sleep(sec: anytype, nanosec: anytype) callconv(.Inline) @TypeOf(ecs_os_api.sleep_(sec, nanosec)) {
+//     return ecs_os_api.sleep_(sec, nanosec);
+// }
+// pub fn ecs_os_get_time(time_out: anytype) callconv(.Inline) @TypeOf(ecs_os_api.get_time_(time_out)) {
+//     return ecs_os_api.get_time_(time_out);
+// }
+// pub fn ecs_os_dlopen(libname: anytype) callconv(.Inline) @TypeOf(ecs_os_api.dlopen_(libname)) {
+//     return ecs_os_api.dlopen_(libname);
+// }
+// pub fn ecs_os_dlproc(lib: anytype, procname: anytype) callconv(.Inline) @TypeOf(ecs_os_api.dlproc_(lib, procname)) {
+//     return ecs_os_api.dlproc_(lib, procname);
+// }
+// pub fn ecs_os_dlclose(lib: anytype) callconv(.Inline) @TypeOf(ecs_os_api.dlclose_(lib)) {
+//     return ecs_os_api.dlclose_(lib);
+// }
+// pub fn ecs_os_module_to_dl(lib: anytype) callconv(.Inline) @TypeOf(ecs_os_api.module_to_dl_(lib)) {
+//     return ecs_os_api.module_to_dl_(lib);
+// }
+// pub fn ecs_os_module_to_etc(lib: anytype) callconv(.Inline) @TypeOf(ecs_os_api.module_to_etc_(lib)) {
+//     return ecs_os_api.module_to_etc_(lib);
+// }
 pub const ECS_HI_COMPONENT_ID = 256;
 pub const FLECS__TNULL = 0;
 pub const FLECS__T0 = 0;
@@ -1441,8 +1441,8 @@ pub const ECS_COMPONENT_NAME_IN_USE = 47;
 pub const ECS_INCONSISTENT_NAME = 48;
 pub const ECS_INCONSISTENT_COMPONENT_ACTION = 49;
 pub const ECS_INVALID_OPERATION = 50;
-pub fn ECS_OFFSET(o: anytype, offset: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(?*c_void, (@import("std").meta.cast(usize, o)) + (@import("std").meta.cast(usize, offset))))) {
-    return (@import("std").meta.cast(?*c_void, (@import("std").meta.cast(usize, o)) + (@import("std").meta.cast(usize, offset))));
+pub fn ECS_OFFSET(o: anytype, offset: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast(?*anyopaque, (@import("std").meta.cast(usize, o)) + (@import("std").meta.cast(usize, offset))))) {
+    return (@import("std").meta.cast(?*anyopaque, (@import("std").meta.cast(usize, o)) + (@import("std").meta.cast(usize, offset))));
 }
 pub const ECS_BLACK = "\x1b[1;30m";
 pub const ECS_RED = "\x1b[0;31m";
@@ -1495,153 +1495,153 @@ pub const EcsFlecsCore = ECS_HI_COMPONENT_ID + 24;
 pub const EcsWorld = ECS_HI_COMPONENT_ID + 25;
 pub const EcsSingleton = ECS_HI_COMPONENT_ID + 26;
 pub const EcsWildcard = ECS_HI_COMPONENT_ID + 27;
-pub const EcsLastInternalComponentId = ecs_typeid(EcsSystem);
+// pub const EcsLastInternalComponentId = ecs_typeid(EcsSystem);
 pub const EcsFirstUserComponentId = 32;
 pub const EcsFirstUserEntityId = ECS_HI_COMPONENT_ID + 32;
-pub fn ECS_ENTITY_DECLARE(id: anytype) callconv(.Inline) @TypeOf(ecs_entity_t ++ id) {
-    return ecs_entity_t ++ id;
-}
-pub fn ecs_new(world: anytype, type_1: anytype) callconv(.Inline) @TypeOf(ecs_new_w_type(world, ecs_type(type_1))) {
-    return ecs_new_w_type(world, ecs_type(type_1));
-}
-pub fn ecs_bulk_new(world: anytype, component: anytype, count: anytype) callconv(.Inline) @TypeOf(ecs_bulk_new_w_type(world, ecs_type(component), count)) {
-    return ecs_bulk_new_w_type(world, ecs_type(component), count);
-}
-pub fn ecs_add(world: anytype, entity: anytype, component: anytype) callconv(.Inline) @TypeOf(ecs_add_type(world, entity, ecs_type(component))) {
-    return ecs_add_type(world, entity, ecs_type(component));
-}
-pub fn ecs_remove(world: anytype, entity: anytype, type_1: anytype) callconv(.Inline) @TypeOf(ecs_remove_type(world, entity, ecs_type(type_1))) {
-    return ecs_remove_type(world, entity, ecs_type(type_1));
-}
-pub fn ecs_add_remove(world: anytype, entity: anytype, to_add: anytype, to_remove: anytype) callconv(.Inline) @TypeOf(ecs_add_remove_type(world, entity, ecs_type(to_add), ecs_type(to_remove))) {
-    return ecs_add_remove_type(world, entity, ecs_type(to_add), ecs_type(to_remove));
-}
-pub fn ecs_enable_component(world: anytype, entity: anytype, T: anytype, enable: anytype) callconv(.Inline) @TypeOf(ecs_enable_component_w_entity(world, entity, ecs_typeid(T), enable)) {
-    return ecs_enable_component_w_entity(world, entity, ecs_typeid(T), enable);
-}
-pub fn ecs_is_component_enabled(world: anytype, entity: anytype, T: anytype) callconv(.Inline) @TypeOf(ecs_is_component_enabled_w_entity(world, entity, ecs_typeid(T))) {
-    return ecs_is_component_enabled_w_entity(world, entity, ecs_typeid(T));
-}
-pub fn ecs_add_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) callconv(.Inline) @TypeOf(ecs_add_entity(world, entity, ecs_trait(component, trait))) {
-    return ecs_add_entity(world, entity, ecs_trait(component, trait));
-}
-pub fn ecs_remove_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) callconv(.Inline) @TypeOf(ecs_remove_entity(world, entity, ecs_trait(component, trait))) {
-    return ecs_remove_entity(world, entity, ecs_trait(component, trait));
-}
-pub fn ecs_has_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) callconv(.Inline) @TypeOf(ecs_has_entity(world, entity, ecs_trait(component, trait))) {
-    return ecs_has_entity(world, entity, ecs_trait(component, trait));
-}
-pub fn ecs_get_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]trait, ecs_get_w_entity(world, entity, ecs_trait(ecs_typeid(component), ecs_typeid(trait)))))) {
-    return (@import("std").meta.cast([*c]trait, ecs_get_w_entity(world, entity, ecs_trait(ecs_typeid(component), ecs_typeid(trait)))));
-}
-pub fn ecs_get_trait_tag(world: anytype, entity: anytype, trait: anytype, component: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]component, ecs_get_w_entity(world, entity, ecs_trait(ecs_typeid(component), trait))))) {
-    return (@import("std").meta.cast([*c]component, ecs_get_w_entity(world, entity, ecs_trait(ecs_typeid(component), trait))));
-}
-pub fn ecs_get_mut(world: anytype, entity: anytype, component: anytype, is_added: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]component, ecs_get_mut_w_entity(world, entity, ecs_typeid(component), is_added)))) {
-    return (@import("std").meta.cast([*c]component, ecs_get_mut_w_entity(world, entity, ecs_typeid(component), is_added)));
-}
-pub fn ecs_modified(world: anytype, entity: anytype, component: anytype) callconv(.Inline) @TypeOf(ecs_modified_w_entity(world, entity, ecs_typeid(component))) {
-    return ecs_modified_w_entity(world, entity, ecs_typeid(component));
-}
-pub fn ecs_set_ptr(world: anytype, entity: anytype, component: anytype, ptr: anytype) callconv(.Inline) @TypeOf(ecs_set_ptr_w_entity(world, entity, ecs_typeid(component), @import("std").meta.sizeof(component), ptr)) {
-    return ecs_set_ptr_w_entity(world, entity, ecs_typeid(component), @import("std").meta.sizeof(component), ptr);
-}
-pub fn ecs_singleton_get(world: anytype, comp: anytype) callconv(.Inline) @TypeOf(ecs_get(world, ecs_typeid(comp), comp)) {
-    return ecs_get(world, ecs_typeid(comp), comp);
-}
-pub fn ecs_singleton_get_mut(world: anytype, comp: anytype) callconv(.Inline) @TypeOf(ecs_get_mut(world, ecs_typeid(comp), comp, NULL)) {
-    return ecs_get_mut(world, ecs_typeid(comp), comp, NULL);
-}
-pub fn ecs_singleton_modified(world: anytype, comp: anytype) callconv(.Inline) @TypeOf(ecs_modified(world, ecs_typeid(comp), comp)) {
-    return ecs_modified(world, ecs_typeid(comp), comp);
-}
-pub fn ecs_has(world: anytype, entity: anytype, type_1: anytype) callconv(.Inline) @TypeOf(ecs_has_type(world, entity, ecs_type(type_1))) {
-    return ecs_has_type(world, entity, ecs_type(type_1));
-}
-pub fn ecs_owns(world: anytype, entity: anytype, type_1: anytype, owned: anytype) callconv(.Inline) @TypeOf(ecs_type_owns_type(world, ecs_get_type(world, entity), ecs_type(type_1), owned)) {
-    return ecs_type_owns_type(world, ecs_get_type(world, entity), ecs_type(type_1), owned);
-}
-pub fn ecs_owns_entity(world: anytype, entity: anytype, has: anytype, owned: anytype) callconv(.Inline) @TypeOf(ecs_type_owns_entity(world, ecs_get_type(world, entity), has, owned)) {
-    return ecs_type_owns_entity(world, ecs_get_type(world, entity), has, owned);
-}
-pub fn ecs_get_parent(world: anytype, entity: anytype, component: anytype) callconv(.Inline) @TypeOf(ecs_get_parent_w_entity(world, entity, ecs_typeid(component))) {
-    return ecs_get_parent_w_entity(world, entity, ecs_typeid(component));
-}
-pub fn ecs_count(world: anytype, type_1: anytype) callconv(.Inline) @TypeOf(ecs_count_type(world, ecs_type(type_1))) {
-    return ecs_count_type(world, ecs_type(type_1));
-}
-pub fn ecs_lookup_path(world: anytype, parent: anytype, path: anytype) callconv(.Inline) @TypeOf(ecs_lookup_path_w_sep(world, parent, path, ".", NULL)) {
-    return ecs_lookup_path_w_sep(world, parent, path, ".", NULL);
-}
-pub fn ecs_lookup_fullpath(world: anytype, path: anytype) callconv(.Inline) @TypeOf(ecs_lookup_path_w_sep(world, 0, path, ".", NULL)) {
-    return ecs_lookup_path_w_sep(world, 0, path, ".", NULL);
-}
-pub fn ecs_get_path(world: anytype, parent: anytype, child: anytype) callconv(.Inline) @TypeOf(ecs_get_path_w_sep(world, parent, child, 0, ".", NULL)) {
-    return ecs_get_path_w_sep(world, parent, child, 0, ".", NULL);
-}
-pub fn ecs_get_fullpath(world: anytype, child: anytype) callconv(.Inline) @TypeOf(ecs_get_path_w_sep(world, 0, child, 0, ".", NULL)) {
-    return ecs_get_path_w_sep(world, 0, child, 0, ".", NULL);
-}
-pub fn ecs_new_from_path(world: anytype, parent: anytype, path: anytype) callconv(.Inline) @TypeOf(ecs_new_from_path_w_sep(world, parent, path, ".", NULL)) {
-    return ecs_new_from_path_w_sep(world, parent, path, ".", NULL);
-}
-pub fn ecs_new_from_fullpath(world: anytype, path: anytype) callconv(.Inline) @TypeOf(ecs_new_from_path_w_sep(world, 0, path, ".", NULL)) {
-    return ecs_new_from_path_w_sep(world, 0, path, ".", NULL);
-}
-pub fn ecs_add_path(world: anytype, entity: anytype, parent: anytype, path: anytype) callconv(.Inline) @TypeOf(ecs_add_path_w_sep(world, entity, parent, path, ".", NULL)) {
-    return ecs_add_path_w_sep(world, entity, parent, path, ".", NULL);
-}
-pub fn ecs_add_fullpath(world: anytype, entity: anytype, path: anytype) callconv(.Inline) @TypeOf(ecs_add_path_w_sep(world, entity, 0, path, ".", NULL)) {
-    return ecs_add_path_w_sep(world, entity, 0, path, ".", NULL);
-}
-pub fn ecs_column(it: anytype, type_1: anytype, column: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, ecs_column_w_size(it, @import("std").meta.sizeof(type_1), column)))) {
-    return (@import("std").meta.cast([*c]type_1, ecs_column_w_size(it, @import("std").meta.sizeof(type_1), column)));
-}
-pub fn ecs_element(it: anytype, type_1: anytype, column: anytype, row: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, ecs_element_w_size(it, @import("std").meta.sizeof(type_1), column, row)))) {
-    return (@import("std").meta.cast([*c]type_1, ecs_element_w_size(it, @import("std").meta.sizeof(type_1), column, row)));
-}
-pub fn ECS_TYPE_VAR(id: anytype) callconv(.Inline) @TypeOf(ecs_type_t ++ ecs_type(id)) {
-    return ecs_type_t ++ ecs_type(id);
-}
-pub fn ECS_ENTITY_VAR(id: anytype) callconv(.Inline) @TypeOf(ecs_entity_t ++ ecs_typeid(id)) {
-    return ecs_entity_t ++ ecs_typeid(id);
-}
-pub fn ECS_DECLARE_TYPE(id: anytype) callconv(.Inline) @TypeOf(ECS_DECLARE_ENTITY(id)) {
-    return ECS_DECLARE_ENTITY(id);
-}
-pub fn ECS_EXPORT_COMPONENT(id: anytype) callconv(.Inline) @TypeOf(ECS_SET_COMPONENT(id)) {
-    return ECS_SET_COMPONENT(id);
-}
-pub fn ECS_EXPORT_ENTITY(id: anytype) callconv(.Inline) @TypeOf(ECS_SET_ENTITY(id)) {
-    return ECS_SET_ENTITY(id);
-}
-pub fn ECS_EXPORT_TYPE(id: anytype) callconv(.Inline) @TypeOf(ECS_SET_TYPE(id)) {
-    return ECS_SET_TYPE(id);
-}
-pub fn ecs_bulk_add(world: anytype, type_1: anytype, filter: anytype) callconv(.Inline) @TypeOf(ecs_bulk_add_type(world, ecs_type(type_1), filter)) {
-    return ecs_bulk_add_type(world, ecs_type(type_1), filter);
-}
-pub fn ecs_bulk_remove(world: anytype, type_1: anytype, filter: anytype) callconv(.Inline) @TypeOf(ecs_bulk_remove_type(world, ecs_type(type_1), filter)) {
-    return ecs_bulk_remove_type(world, ecs_type(type_1), filter);
-}
-pub fn ecs_bulk_add_remove(world: anytype, to_add: anytype, to_remove: anytype, filter: anytype) callconv(.Inline) @TypeOf(ecs_bulk_add_remove_type(world, ecs_type(to_add), ecs_type(to_remove), filter)) {
-    return ecs_bulk_add_remove_type(world, ecs_type(to_add), ecs_type(to_remove), filter);
-}
-pub fn ecs_queue_new(T: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_queue_new(ECS_VECTOR_T(T), elem_count)) {
-    return _ecs_queue_new(ECS_VECTOR_T(T), elem_count);
-}
-pub fn ecs_queue_from_array(T: anytype, elem_count: anytype, array: anytype) callconv(.Inline) @TypeOf(_ecs_queue_from_array(ECS_VECTOR_T(T), elem_count, array)) {
-    return _ecs_queue_from_array(ECS_VECTOR_T(T), elem_count, array);
-}
-pub fn ecs_queue_push(queue: anytype, T: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_queue_push(queue, ECS_VECTOR_T(T))))) {
-    return (@import("std").meta.cast([*c]T, _ecs_queue_push(queue, ECS_VECTOR_T(T))));
-}
-pub fn ecs_queue_get(queue: anytype, T: anytype, index_1: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_queue_get(queue, ECS_VECTOR_T(T), index_1)))) {
-    return (@import("std").meta.cast([*c]T, _ecs_queue_get(queue, ECS_VECTOR_T(T), index_1)));
-}
-pub fn ecs_queue_get_t(vector: anytype, size: anytype, alignment: anytype, index_1: anytype) callconv(.Inline) @TypeOf(_ecs_queue_get(vector, ECS_VECTOR_U(size, alignment), index_1)) {
-    return _ecs_queue_get(vector, ECS_VECTOR_U(size, alignment), index_1);
-}
-pub fn ecs_queue_last(queue: anytype, T: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_queue_last(queue, ECS_VECTOR_T(T))))) {
-    return (@import("std").meta.cast([*c]T, _ecs_queue_last(queue, ECS_VECTOR_T(T))));
-}
+// pub fn ECS_ENTITY_DECLARE(id: anytype) callconv(.Inline) @TypeOf(ecs_entity_t ++ id) {
+//     return ecs_entity_t ++ id;
+// }
+// pub fn ecs_new(world: anytype, type_1: anytype) callconv(.Inline) @TypeOf(ecs_new_w_type(world, ecs_type(type_1))) {
+//     return ecs_new_w_type(world, ecs_type(type_1));
+// }
+// pub fn ecs_bulk_new(world: anytype, component: anytype, count: anytype) callconv(.Inline) @TypeOf(ecs_bulk_new_w_type(world, ecs_type(component), count)) {
+//     return ecs_bulk_new_w_type(world, ecs_type(component), count);
+// }
+// pub fn ecs_add(world: anytype, entity: anytype, component: anytype) callconv(.Inline) @TypeOf(ecs_add_type(world, entity, ecs_type(component))) {
+//     return ecs_add_type(world, entity, ecs_type(component));
+// }
+// pub fn ecs_remove(world: anytype, entity: anytype, type_1: anytype) callconv(.Inline) @TypeOf(ecs_remove_type(world, entity, ecs_type(type_1))) {
+//     return ecs_remove_type(world, entity, ecs_type(type_1));
+// }
+// pub fn ecs_add_remove(world: anytype, entity: anytype, to_add: anytype, to_remove: anytype) callconv(.Inline) @TypeOf(ecs_add_remove_type(world, entity, ecs_type(to_add), ecs_type(to_remove))) {
+//     return ecs_add_remove_type(world, entity, ecs_type(to_add), ecs_type(to_remove));
+// }
+// pub fn ecs_enable_component(world: anytype, entity: anytype, T: anytype, enable: anytype) callconv(.Inline) @TypeOf(ecs_enable_component_w_entity(world, entity, ecs_typeid(T), enable)) {
+//     return ecs_enable_component_w_entity(world, entity, ecs_typeid(T), enable);
+// }
+// pub fn ecs_is_component_enabled(world: anytype, entity: anytype, T: anytype) callconv(.Inline) @TypeOf(ecs_is_component_enabled_w_entity(world, entity, ecs_typeid(T))) {
+//     return ecs_is_component_enabled_w_entity(world, entity, ecs_typeid(T));
+// }
+// pub fn ecs_add_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) callconv(.Inline) @TypeOf(ecs_add_entity(world, entity, ecs_trait(component, trait))) {
+//     return ecs_add_entity(world, entity, ecs_trait(component, trait));
+// }
+// pub fn ecs_remove_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) callconv(.Inline) @TypeOf(ecs_remove_entity(world, entity, ecs_trait(component, trait))) {
+//     return ecs_remove_entity(world, entity, ecs_trait(component, trait));
+// }
+// pub fn ecs_has_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) callconv(.Inline) @TypeOf(ecs_has_entity(world, entity, ecs_trait(component, trait))) {
+//     return ecs_has_entity(world, entity, ecs_trait(component, trait));
+// }
+// pub fn ecs_get_trait(world: anytype, entity: anytype, component: anytype, trait: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]trait, ecs_get_w_entity(world, entity, ecs_trait(ecs_typeid(component), ecs_typeid(trait)))))) {
+//     return (@import("std").meta.cast([*c]trait, ecs_get_w_entity(world, entity, ecs_trait(ecs_typeid(component), ecs_typeid(trait)))));
+// }
+// pub fn ecs_get_trait_tag(world: anytype, entity: anytype, trait: anytype, component: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]component, ecs_get_w_entity(world, entity, ecs_trait(ecs_typeid(component), trait))))) {
+//     return (@import("std").meta.cast([*c]component, ecs_get_w_entity(world, entity, ecs_trait(ecs_typeid(component), trait))));
+// }
+// pub fn ecs_get_mut(world: anytype, entity: anytype, component: anytype, is_added: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]component, ecs_get_mut_w_entity(world, entity, ecs_typeid(component), is_added)))) {
+//     return (@import("std").meta.cast([*c]component, ecs_get_mut_w_entity(world, entity, ecs_typeid(component), is_added)));
+// }
+// pub fn ecs_modified(world: anytype, entity: anytype, component: anytype) callconv(.Inline) @TypeOf(ecs_modified_w_entity(world, entity, ecs_typeid(component))) {
+//     return ecs_modified_w_entity(world, entity, ecs_typeid(component));
+// }
+// pub fn ecs_set_ptr(world: anytype, entity: anytype, component: anytype, ptr: anytype) callconv(.Inline) @TypeOf(ecs_set_ptr_w_entity(world, entity, ecs_typeid(component), @import("std").meta.sizeof(component), ptr)) {
+//     return ecs_set_ptr_w_entity(world, entity, ecs_typeid(component), @import("std").meta.sizeof(component), ptr);
+// }
+// pub fn ecs_singleton_get(world: anytype, comp: anytype) callconv(.Inline) @TypeOf(ecs_get(world, ecs_typeid(comp), comp)) {
+//     return ecs_get(world, ecs_typeid(comp), comp);
+// }
+// pub fn ecs_singleton_get_mut(world: anytype, comp: anytype) callconv(.Inline) @TypeOf(ecs_get_mut(world, ecs_typeid(comp), comp, NULL)) {
+//     return ecs_get_mut(world, ecs_typeid(comp), comp, NULL);
+// }
+// pub fn ecs_singleton_modified(world: anytype, comp: anytype) callconv(.Inline) @TypeOf(ecs_modified(world, ecs_typeid(comp), comp)) {
+//     return ecs_modified(world, ecs_typeid(comp), comp);
+// }
+// pub fn ecs_has(world: anytype, entity: anytype, type_1: anytype) callconv(.Inline) @TypeOf(ecs_has_type(world, entity, ecs_type(type_1))) {
+//     return ecs_has_type(world, entity, ecs_type(type_1));
+// }
+// pub fn ecs_owns(world: anytype, entity: anytype, type_1: anytype, owned: anytype) callconv(.Inline) @TypeOf(ecs_type_owns_type(world, ecs_get_type(world, entity), ecs_type(type_1), owned)) {
+//     return ecs_type_owns_type(world, ecs_get_type(world, entity), ecs_type(type_1), owned);
+// }
+// pub fn ecs_owns_entity(world: anytype, entity: anytype, has: anytype, owned: anytype) callconv(.Inline) @TypeOf(ecs_type_owns_entity(world, ecs_get_type(world, entity), has, owned)) {
+//     return ecs_type_owns_entity(world, ecs_get_type(world, entity), has, owned);
+// }
+// pub fn ecs_get_parent(world: anytype, entity: anytype, component: anytype) callconv(.Inline) @TypeOf(ecs_get_parent_w_entity(world, entity, ecs_typeid(component))) {
+//     return ecs_get_parent_w_entity(world, entity, ecs_typeid(component));
+// }
+// pub fn ecs_count(world: anytype, type_1: anytype) callconv(.Inline) @TypeOf(ecs_count_type(world, ecs_type(type_1))) {
+//     return ecs_count_type(world, ecs_type(type_1));
+// }
+// pub fn ecs_lookup_path(world: anytype, parent: anytype, path: anytype) callconv(.Inline) @TypeOf(ecs_lookup_path_w_sep(world, parent, path, ".", NULL)) {
+//     return ecs_lookup_path_w_sep(world, parent, path, ".", NULL);
+// }
+// pub fn ecs_lookup_fullpath(world: anytype, path: anytype) callconv(.Inline) @TypeOf(ecs_lookup_path_w_sep(world, 0, path, ".", NULL)) {
+//     return ecs_lookup_path_w_sep(world, 0, path, ".", NULL);
+// }
+// pub fn ecs_get_path(world: anytype, parent: anytype, child: anytype) callconv(.Inline) @TypeOf(ecs_get_path_w_sep(world, parent, child, 0, ".", NULL)) {
+//     return ecs_get_path_w_sep(world, parent, child, 0, ".", NULL);
+// }
+// pub fn ecs_get_fullpath(world: anytype, child: anytype) callconv(.Inline) @TypeOf(ecs_get_path_w_sep(world, 0, child, 0, ".", NULL)) {
+//     return ecs_get_path_w_sep(world, 0, child, 0, ".", NULL);
+// }
+// pub fn ecs_new_from_path(world: anytype, parent: anytype, path: anytype) callconv(.Inline) @TypeOf(ecs_new_from_path_w_sep(world, parent, path, ".", NULL)) {
+//     return ecs_new_from_path_w_sep(world, parent, path, ".", NULL);
+// }
+// pub fn ecs_new_from_fullpath(world: anytype, path: anytype) callconv(.Inline) @TypeOf(ecs_new_from_path_w_sep(world, 0, path, ".", NULL)) {
+//     return ecs_new_from_path_w_sep(world, 0, path, ".", NULL);
+// }
+// pub fn ecs_add_path(world: anytype, entity: anytype, parent: anytype, path: anytype) callconv(.Inline) @TypeOf(ecs_add_path_w_sep(world, entity, parent, path, ".", NULL)) {
+//     return ecs_add_path_w_sep(world, entity, parent, path, ".", NULL);
+// }
+// pub fn ecs_add_fullpath(world: anytype, entity: anytype, path: anytype) callconv(.Inline) @TypeOf(ecs_add_path_w_sep(world, entity, 0, path, ".", NULL)) {
+//     return ecs_add_path_w_sep(world, entity, 0, path, ".", NULL);
+// }
+// pub fn ecs_column(it: anytype, type_1: anytype, column: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, ecs_column_w_size(it, @import("std").meta.sizeof(type_1), column)))) {
+//     return (@import("std").meta.cast([*c]type_1, ecs_column_w_size(it, @import("std").meta.sizeof(type_1), column)));
+// }
+// pub fn ecs_element(it: anytype, type_1: anytype, column: anytype, row: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]type_1, ecs_element_w_size(it, @import("std").meta.sizeof(type_1), column, row)))) {
+//     return (@import("std").meta.cast([*c]type_1, ecs_element_w_size(it, @import("std").meta.sizeof(type_1), column, row)));
+// }
+// pub fn ECS_TYPE_VAR(id: anytype) callconv(.Inline) @TypeOf(ecs_type_t ++ ecs_type(id)) {
+//     return ecs_type_t ++ ecs_type(id);
+// }
+// pub fn ECS_ENTITY_VAR(id: anytype) callconv(.Inline) @TypeOf(ecs_entity_t ++ ecs_typeid(id)) {
+//     return ecs_entity_t ++ ecs_typeid(id);
+// }
+// pub fn ECS_DECLARE_TYPE(id: anytype) callconv(.Inline) @TypeOf(ECS_DECLARE_ENTITY(id)) {
+//     return ECS_DECLARE_ENTITY(id);
+// }
+// pub fn ECS_EXPORT_COMPONENT(id: anytype) callconv(.Inline) @TypeOf(ECS_SET_COMPONENT(id)) {
+//     return ECS_SET_COMPONENT(id);
+// }
+// pub fn ECS_EXPORT_ENTITY(id: anytype) callconv(.Inline) @TypeOf(ECS_SET_ENTITY(id)) {
+//     return ECS_SET_ENTITY(id);
+// }
+// pub fn ECS_EXPORT_TYPE(id: anytype) callconv(.Inline) @TypeOf(ECS_SET_TYPE(id)) {
+//     return ECS_SET_TYPE(id);
+// }
+// pub fn ecs_bulk_add(world: anytype, type_1: anytype, filter: anytype) callconv(.Inline) @TypeOf(ecs_bulk_add_type(world, ecs_type(type_1), filter)) {
+//     return ecs_bulk_add_type(world, ecs_type(type_1), filter);
+// }
+// pub fn ecs_bulk_remove(world: anytype, type_1: anytype, filter: anytype) callconv(.Inline) @TypeOf(ecs_bulk_remove_type(world, ecs_type(type_1), filter)) {
+//     return ecs_bulk_remove_type(world, ecs_type(type_1), filter);
+// }
+// pub fn ecs_bulk_add_remove(world: anytype, to_add: anytype, to_remove: anytype, filter: anytype) callconv(.Inline) @TypeOf(ecs_bulk_add_remove_type(world, ecs_type(to_add), ecs_type(to_remove), filter)) {
+//     return ecs_bulk_add_remove_type(world, ecs_type(to_add), ecs_type(to_remove), filter);
+// }
+// pub fn ecs_queue_new(T: anytype, elem_count: anytype) callconv(.Inline) @TypeOf(_ecs_queue_new(ECS_VECTOR_T(T), elem_count)) {
+//     return _ecs_queue_new(ECS_VECTOR_T(T), elem_count);
+// }
+// pub fn ecs_queue_from_array(T: anytype, elem_count: anytype, array: anytype) callconv(.Inline) @TypeOf(_ecs_queue_from_array(ECS_VECTOR_T(T), elem_count, array)) {
+//     return _ecs_queue_from_array(ECS_VECTOR_T(T), elem_count, array);
+// }
+// pub fn ecs_queue_push(queue: anytype, T: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_queue_push(queue, ECS_VECTOR_T(T))))) {
+//     return (@import("std").meta.cast([*c]T, _ecs_queue_push(queue, ECS_VECTOR_T(T))));
+// }
+// pub fn ecs_queue_get(queue: anytype, T: anytype, index_1: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_queue_get(queue, ECS_VECTOR_T(T), index_1)))) {
+//     return (@import("std").meta.cast([*c]T, _ecs_queue_get(queue, ECS_VECTOR_T(T), index_1)));
+// }
+// pub fn ecs_queue_get_t(vector: anytype, size: anytype, alignment: anytype, index_1: anytype) callconv(.Inline) @TypeOf(_ecs_queue_get(vector, ECS_VECTOR_U(size, alignment), index_1)) {
+//     return _ecs_queue_get(vector, ECS_VECTOR_U(size, alignment), index_1);
+// }
+// pub fn ecs_queue_last(queue: anytype, T: anytype) callconv(.Inline) @TypeOf((@import("std").meta.cast([*c]T, _ecs_queue_last(queue, ECS_VECTOR_T(T))))) {
+//     return (@import("std").meta.cast([*c]T, _ecs_queue_last(queue, ECS_VECTOR_T(T))));
+// }
