@@ -112,7 +112,12 @@ pub const World = struct {
         std.debug.assert(@typeInfo(@TypeOf(ptr)) == .Pointer);
 
         const child = std.meta.Child(@TypeOf(ptr));
-        _ = Self.ecs_set_ptr_w_entity(self.world, Self.ecs_get_typeid(self.world, self.newComponent(child)), self.newComponent(child), @sizeOf(child), ptr);
+        const n = self.newComponent(child);
+        _ = Self.ecs_set_ptr_w_entity(self.world, Self.ecs_get_typeid(self.world, n), n, @sizeOf(child), ptr);
+    }
+
+    pub fn removeSingleton(self: *World, comptime T: type) void {
+        _ = Self.ecs_remove_type(self.world, self.newComponent(T), getType(self.*, T));
     }
 
     //TODO: this only works if its not the first component on an entity?
@@ -134,7 +139,12 @@ pub const World = struct {
         }
     }
 
-    pub fn getMut(self: *World, entity: Entity, comptime T: type) ?* T {
+    pub fn hasFlag (self: *World, entity: Entity, comptime T: type) bool {
+        return Self.ecs_has_type(self.world, entity, getType(self.*, T));
+
+    }
+
+    pub fn getMut(self: *World, entity: Entity, comptime T: type) ?*T {
         var is_added: bool = true;
         const ptr = Self.ecs_get_mut_w_entity(self.world, entity, self.newComponent(T), &is_added);
 
@@ -146,7 +156,6 @@ pub const World = struct {
     }
 
     pub fn getSingleton(self: *World, comptime T: type) ?*const T {
-        //const ptr = ecs_singleton_get(self.world, T);
         const ptr = self.get(Self.ecs_get_typeid(self.world, self.newComponent(T)), T);
 
         if (ptr) |p| {
@@ -156,9 +165,9 @@ pub const World = struct {
         }
     }
 
-    pub fn getSingletonMut (self: *World, comptime T: type ) ?*T {
+    pub fn getSingletonMut(self: *World, comptime T: type) ?*T {
         var is_added: bool = false;
-        const ptr  = Self.ecs_get_mut_w_entity(self.world, Self.ecs_get_typeid(self.world, self.newComponent(T)), self.newComponent(T), &is_added);
+        const ptr = Self.ecs_get_mut_w_entity(self.world, Self.ecs_get_typeid(self.world, self.newComponent(T)), self.newComponent(T), &is_added);
 
         if (ptr) |_| {
             return @ptrCast(*T, @alignCast(@alignOf(T), ptr));
@@ -166,10 +175,7 @@ pub const World = struct {
             return null;
         }
     }
-
-    
 };
-
 
 pub const ecs_iter_t = extern struct {
     world: ?*Self.ecs_world_t,
