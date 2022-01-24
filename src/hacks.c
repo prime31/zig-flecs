@@ -26,3 +26,9 @@ FLECS_API ecs_entity_t _ogNewType(ecs_world_t *world, ecs_entity_t entity, const
                                     .entity = entity,
                                     .ids_expr = expr});
 }
+
+// FLECS_API void _ogRemoveType(ecs_world_t *world, ecs_entity_t entity, ) {
+
+//     return ecs_remove_type(world, entity, ecs_type_from_str());
+
+// }

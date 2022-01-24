@@ -70,11 +70,14 @@ pub const World = struct {
     }
 
     pub fn getType(self: World, comptime T: type) Self.ecs_type_t {
-        return getTypeFromStr(self, @typeName(T));
+        //return getTypeFromStr(self, @typeName(T));
+        return Self.ecs_type_from_id(self.world, newComponent(self, T));
     }
 
     pub fn getTypeFromStr(self: World, expr: [*c]const u8) Self.ecs_type_t {
         return Self.ecs_type_from_str(self.world, expr);
+
+       
     }
 
     /// this operation will preallocate memory in the world for the specified number of entities
@@ -119,7 +122,8 @@ pub const World = struct {
     }
 
     pub fn removeSingleton(self: *World, comptime T: type) void {
-        _ = Self.ecs_remove_type(self.world, self.newComponent(T), getType(self.*, T));
+        const new_component = self.newComponent(T);
+        _ = Self.ecs_remove_id(self.world, new_component, new_component );
     }
 
     //TODO: this only works if its not the first component on an entity?
@@ -128,7 +132,9 @@ pub const World = struct {
     }
 
     pub fn remove(self: World, entity: Entity, comptime T: type) void {
-        _ = Self.ecs_remove_type(self.world, entity, getType(self, T));
+        _ = Self.ecs_remove_id(self.world, entity, newComponent(self, T));
+
+
     }
 
     pub fn get(self: *World, entity: Entity, comptime T: type) ?*const T {
@@ -141,8 +147,10 @@ pub const World = struct {
         }
     }
 
-    pub fn hasFlag(self: *World, entity: Entity, comptime T: type) bool {
-        return Self.ecs_has_type(self.world, entity, getType(self.*, T));
+    pub fn hasFlag(self: World, entity: Entity, comptime T: type) bool {
+        //return Self.ecs_has_type(self.world, entity, getType(self.*, T));
+
+        return Self.ecs_has_id(self.world, entity, newComponent(self, T));
     }
 
     pub fn getMut(self: *World, entity: Entity, comptime T: type) ?*T {
