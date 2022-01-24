@@ -10,9 +10,9 @@ pub fn main() !void {
 
     const e_pos = world.newComponent(Position);
     const e_vel = world.newComponent(Velocity);
-    const e_pos_vel = world.newType("Pos_Vel", "Position, Velocity");
+    _ = world.newType(0, "Position, Velocity");
 
-    world.newSystem("Move", .on_update, "Position, Velocity", move);
+    _ = world.newSystem("Move", flecs.EcsOnUpdate, "Position, Velocity", move);
 
     createEntities(&world, e_pos, e_vel);
     // createEntitiesBulk(world.world, e_pos_vel);
@@ -23,8 +23,8 @@ pub fn main() !void {
 }
 
 fn move(it: *flecs.ecs_iter_t) callconv(.C) void {
-    const positions = it.column(Position, 1);
-    const velocities = it.column(Velocity, 2);
+    const positions = it.term(Position, 1);
+    const velocities = it.term(Velocity, 2);
 
     var i: usize = 0;
     while (i < it.count) : (i += 1) {
@@ -42,13 +42,14 @@ fn createEntitiesBulk(world: *flecs.ecs_world_t, e_pos_vel: flecs.ecs_entity_t) 
     _ = flecs.ecs_bulk_new_w_type(world, flecs.ecs_type_from_entity(world, e_pos_vel), 1000000, null);
 
     var end = timer.lap();
-    std.debug.warn("create entities: \t{d}\n", .{@intToFloat(f64, end) / 1000000000});
+    std.log.debug("create entities: \t{d}\n", .{@intToFloat(f64, end) / 1000000000});
 }
 
 fn createEntities(world: *flecs.World, e_pos: flecs.ecs_entity_t, e_vel: flecs.ecs_entity_t) void {
+    _ = e_vel;
     var timer = std.time.Timer.start() catch unreachable;
 
-    const t = world.typeFromStr("Position, Velocity");
+    const t = world.getTypeFromStr("Position, Velocity");
     world.dim(1000000);
     world.dimType(t, 1000000);
 
@@ -61,7 +62,7 @@ fn createEntities(world: *flecs.World, e_pos: flecs.ecs_entity_t, e_vel: flecs.e
     world.set(0, &Velocity{ .x = 5, .y = 5 });
 
     var end = timer.lap();
-    std.debug.warn("create entities: \t{d}\n", .{@intToFloat(f64, end) / 1000000000});
+    std.log.debug("create entities: \t{d}\n", .{@intToFloat(f64, end) / 1000000000});
 }
 
 fn iterateEntities(world: flecs.World) void {
@@ -72,5 +73,5 @@ fn iterateEntities(world: flecs.World) void {
     world.progress(1);
 
     var end = timer.lap();
-    std.debug.warn("iterate entities: \t{d}\n", .{@intToFloat(f64, end) / 1000000000});
+    std.log.debug("iterate entities: \t{d}\n", .{@intToFloat(f64, end) / 1000000000});
 }

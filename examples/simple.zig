@@ -1,6 +1,5 @@
 const std = @import("std");
 const flecs = @import("flecs");
-// const c = @cImport(@cInclude("flecs.h"));
 
 pub const Velocity = struct { x: f32, y: f32 };
 pub const Position = struct { x: f32, y: f32 };
@@ -9,34 +8,52 @@ pub fn main() !void {
     var world = flecs.World.init();
     defer world.deinit();
 
+
     // the system below needs Position and Velocity to be defined before it can be created
-    const e_pos = world.newComponent(Position);
-    const e_vel = world.newComponent(Velocity);
+    var position = world.newComponent(Position);
+    var velocity = world.newComponent(Velocity);
 
-    world.newSystem("Move", .on_update, "Position, Velocity", move);
+    std.log.debug("ids: ", .{});
+    std.log.debug("pos: {d}, vel: {d}", .{ position, velocity });
 
-    const MyEntity = flecs.ecs_new_w_type(world.world, 0);
+    var moveSystem = world.newSystem("MoveSystem", flecs.EcsOnUpdate, "Position, Velocity", move);
 
-    world.setName(MyEntity, "MyEntityYo");
-    std.debug.print("{s}\n", .{world.getName(MyEntity)});
+    std.log.debug("movesystem: {d}", .{moveSystem});
 
-    world.set(MyEntity, &Position{ .x = 100, .y = 100 });
-    world.set(MyEntity, &Velocity{ .x = 5, .y = 5 });
+    const myEntity = world.new();
+
+    std.log.debug("entity: {d}", .{myEntity});
+
+    world.setName(myEntity, "MyEntityYo");
+    std.debug.print("{s}\n", .{world.getName(myEntity)});
+
+    world.set(myEntity, &Position{ .x = 100, .y = 100 });
+    world.set(myEntity, &Velocity{ .x = 5, .y = 5 });
+
+    if (world.get(myEntity, Position)) |pos| {
+        std.log.debug("posx: {d}, posy: {d}", .{ pos.x, pos.y });
+    }
+
+    if (world.get(myEntity, Velocity)) |vel| {
+        std.log.debug("velx: {d}, vely: {d}", .{ vel.x, vel.y });
+    }
 
     world.progress(0);
     world.progress(0);
     world.progress(0);
     world.progress(0);
+
 }
 
 fn move(it: *flecs.ecs_iter_t) callconv(.C) void {
-    const positions = it.column(Position, 1);
-    const velocities = it.column(Velocity, 2);
-    const world = flecs.World{ .world = it.world.? };
+    _ = it;
+    std.log.debug("run", .{});
+    const positions = it.term(Position, 1);
+    const velocities = it.term(Velocity, 2);
 
     var i: usize = 0;
     while (i < it.count) : (i += 1) {
-        std.debug.warn("p: {d}, v: {d} - {s}\n", .{ positions[i], velocities[i], world.getName(it.entities[i]) });
+        std.log.debug("p: {d}, v: {d} \n", .{ positions[i], velocities[i] });
         positions[i].x += velocities[i].x;
         positions[i].y += velocities[i].y;
     }

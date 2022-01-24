@@ -11,8 +11,8 @@ pub fn build(b: *std.build.Builder) anyerror!void {
     const target = b.standardTargetOptions(.{});
 
     const examples = [_][2][]const u8{
-        [_][]const u8{ "simple", "examples/simple.zig" },
         [_][]const u8{ "benchmark", "examples/benchmark.zig" },
+        [_][]const u8{ "simple", "examples/simple.zig" },
         [_][]const u8{ "generator", "examples/generator.zig" },
     };
 
@@ -27,13 +27,13 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         linkArtifact(b, exe, target, .exe_compiled, "");
 
         const run_cmd = exe.run();
-        const exe_step = b.step(name, b.fmt("run {}.zig", .{name}));
+        const exe_step = b.step(name, b.fmt("run {s}.zig", .{name}));
         exe_step.dependOn(&run_cmd.step);
 
         // first element in the list is added as "run" so "zig build run" works
         if (i == 0) {
             exe.setOutputDir("zig-cache/bin");
-            const run_exe_step = b.step("run", b.fmt("run {}.zig", .{name}));
+            const run_exe_step = b.step("run", b.fmt("run {s}.zig", .{name}));
             run_exe_step.dependOn(&run_cmd.step);
         }
     }
@@ -70,5 +70,6 @@ fn compileFlecs(b: *Builder, exe: *std.build.LibExeObjStep, target: std.zig.Cros
 
     const cflags = &[_][]const u8{ "-DFALSE=0", "-DTRUE=1" };
     exe.addCSourceFile(prefix_path ++ "flecs/flecs.c", cflags);
+    exe.addCSourceFile(prefix_path ++ "src/hacks.c", cflags);
 }
 

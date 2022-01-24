@@ -1,4 +1,5 @@
 pub usingnamespace @import("c.zig");
+pub usingnamespace @import("wrapper.zig");
 const std = @import("std");
 
 const Self = @This();
@@ -41,18 +42,20 @@ pub const World = struct {
         _ = Self.ecs_progress(self.world, delta_time);
     }
 
-    pub fn newComponent(self: *World, comptime T: type) Entity {
+    pub fn newComponent(self: World, comptime T: type) Entity {
         var handle = componentHandle(T);
         if (handle.* < std.math.maxInt(Entity)) {
             return handle.*;
         }
 
-        handle.* = Self.ecs_new_component(self.world, 0, @typeName(T), @sizeOf(T), @alignOf(T));
+        handle.* = Self.ogNewComponent(self, T);
         return handle.*;
     }
 
-    pub fn newType(self: World, id: [*c]const u8, components: [*c]const u8) Entity {
-        return Self.ecs_new_type(self.world, 0, id, components);
+    pub fn newType(self: World, entity: Entity, expr: [*c]const u8) Entity {
+        //return Self.ecs_new_type(self.world, 0, id, components);
+        return Self.ogNewType(self, entity, expr);
+
     }
     pub fn newQuery(self: World, signature: [*c]const u8) ?*Self.ecs_query_t {
         return Self.ecs_query_new(self.world, signature);
@@ -84,13 +87,12 @@ pub const World = struct {
         Self.ecs_dim_type(self.world, ecs_type, entity_count);
     }
 
-    pub fn newSystem(self: World, name: [*c]const u8, phase: Phase, signature: [*c]const u8, action: Self.ecs_iter_action_t) Entity {
-        return Self.ecs_new_system(self.world, 0, name, @enumToInt(phase), signature, action);
+    pub fn newSystem(self: World, name: [*c]const u8, phase: Self.ecs_entity_t, terms: [*c]const u8, action: Self.ecs_iter_action_t) Entity {
+        return Self.ogNewSystem(self, name, phase, terms, action);
     }
 
     pub fn setName(self: World, entity: Entity, name: [*c]const u8) void {
-        var ecs_name = Self.EcsName{ .value = name, .symbol = null, .alloc_value = null };
-        self.setPtr(entity, Self.FLECS__EEcsName, @sizeOf(Self.EcsName), &ecs_name);
+        _ = Self.ecs_set_name(self.world, entity, name);
     }
 
     pub fn getName(self: World, entity: Entity) [*c]const u8 {
@@ -139,9 +141,8 @@ pub const World = struct {
         }
     }
 
-    pub fn hasFlag (self: *World, entity: Entity, comptime T: type) bool {
+    pub fn hasFlag(self: *World, entity: Entity, comptime T: type) bool {
         return Self.ecs_has_type(self.world, entity, getType(self.*, T));
-
     }
 
     pub fn getMut(self: *World, entity: Entity, comptime T: type) ?*T {
@@ -181,15 +182,28 @@ pub const ecs_iter_t = extern struct {
     world: ?*Self.ecs_world_t,
     real_world: ?*Self.ecs_world_t,
     system: Self.ecs_entity_t,
-    kind: Self.ecs_query_iter_kind_t,
-    table: *Self.ecs_iter_table_t,
+    event: Self.ecs_entity_t,
+    event_id: Self.ecs_id_t,
+    self: Self.ecs_entity_t,
+    table: ?*Self.ecs_table_t,
+    data: ?*Self.ecs_data_t,
+    ids: [*c]Self.ecs_id_t,
+    types: [*c]Self.ecs_type_t,
+    columns: [*c]i32,
+    subjects: [*c]Self.ecs_entity_t,
+    sizes: [*c]Self.ecs_size_t,
+    ptrs: [*c]?*anyopaque,
+    references: [*c]Self.ecs_ref_t,
     query: ?*Self.ecs_query_t,
     table_count: i32,
     inactive_table_count: i32,
     column_count: i32,
+    term_index: i32,
     table_columns: ?*anyopaque,
     entities: [*c]Self.ecs_entity_t,
     param: ?*anyopaque,
+    ctx: ?*anyopaque,
+    binding_ctx: ?*anyopaque,
     delta_time: f32,
     delta_system_time: f32,
     world_time: f32,
@@ -197,71 +211,14 @@ pub const ecs_iter_t = extern struct {
     offset: i32,
     count: i32,
     total_count: i32,
-    triggered_by: [*c]Self.ecs_entities_t,
+    is_valid: bool,
+    triggered_by: [*c]Self.ecs_ids_t,
     interrupted_by: Self.ecs_entity_t,
-    iter: extern union {
-        parent: Self.ecs_scope_iter_t,
-        filter: Self.ecs_filter_iter_t,
-        query: Self.ecs_query_iter_t,
-        snapshot: Self.ecs_snapshot_iter_t,
-    },
+    iter: Self.union_unnamed_3,
+    cache: Self.ecs_iter_cache_t,
 
-    pub fn column(self: *Self.ecs_iter_t, comptime T: type, index: i32) [*]T {
-        var col = Self.ecs_column_w_size(self, @sizeOf(T), index);
+    pub fn term(self: *Self.ecs_iter_t, comptime T: type, index: i32) [*]T {
+        var col = Self.ecs_term_w_size(self, @sizeOf(T), index);
         return @ptrCast([*]T, @alignCast(@alignOf(T), col));
     }
 };
-
-// pub const ECS_HI_COMPONENT_ID = 256;
-
-// Built-in tag ids
-// pub const EcsModule = ECS_HI_COMPONENT_ID + 0;
-// pub const EcsPrefab = ECS_HI_COMPONENT_ID + 1;
-// pub const EcsHidden = ECS_HI_COMPONENT_ID + 2;
-// pub const EcsDisabled = ECS_HI_COMPONENT_ID + 3;
-// pub const EcsDisabledIntern = ECS_HI_COMPONENT_ID + 4;
-// pub const EcsInactive = ECS_HI_COMPONENT_ID + 5;
-// pub const EcsOnDemand = ECS_HI_COMPONENT_ID + 6;
-// pub const EcsMonitor = ECS_HI_COMPONENT_ID + 7;
-// pub const EcsPipeline = ECS_HI_COMPONENT_ID + 8;
-
-// Trigger tags
-// pub const EcsOnAdd = ECS_HI_COMPONENT_ID + 9;
-// pub const EcsOnRemove = ECS_HI_COMPONENT_ID + 10;
-
-// Set system tags
-// pub const EcsOnSet = ECS_HI_COMPONENT_ID + 11;
-// pub const EcsUnSet = ECS_HI_COMPONENT_ID + 12;
-
-// Builtin pipeline tags
-pub const Phase = enum(Self.ecs_entity_t) {
-    pre_frame = Self.ECS_HI_COMPONENT_ID + 13,
-    on_load = Self.ECS_HI_COMPONENT_ID + 14,
-    post_load = Self.ECS_HI_COMPONENT_ID + 15,
-    pre_update = Self.ECS_HI_COMPONENT_ID + 16,
-    on_update = Self.ECS_HI_COMPONENT_ID + 17,
-    on_validate = Self.ECS_HI_COMPONENT_ID + 18,
-    post_update = Self.ECS_HI_COMPONENT_ID + 19,
-    pre_store = Self.ECS_HI_COMPONENT_ID + 20,
-    on_store = Self.ECS_HI_COMPONENT_ID + 21,
-    post_frame = Self.ECS_HI_COMPONENT_ID + 22,
-};
-
-// pub const EcsPreFrame = ECS_HI_COMPONENT_ID + 13;
-// pub const EcsOnLoad = ECS_HI_COMPONENT_ID + 14;
-// pub const EcsPostLoad = ECS_HI_COMPONENT_ID + 15;
-// pub const EcsPreUpdate = ECS_HI_COMPONENT_ID + 16;
-// pub const EcsOnUpdate = ECS_HI_COMPONENT_ID + 17;
-// pub const EcsOnValidate = ECS_HI_COMPONENT_ID + 18;
-// pub const EcsPostUpdate = ECS_HI_COMPONENT_ID + 19;
-// pub const EcsPreStore = ECS_HI_COMPONENT_ID + 20;
-// pub const EcsOnStore = ECS_HI_COMPONENT_ID + 21;
-// pub const EcsPostFrame = ECS_HI_COMPONENT_ID + 22;
-
-// Builtin entity ids
-// pub const EcsFlecs = ECS_HI_COMPONENT_ID + 23;
-// pub const EcsFlecsCore = ECS_HI_COMPONENT_ID + 24;
-// pub const EcsWorld = ECS_HI_COMPONENT_ID + 25;
-// pub const EcsSingleton = (@import("std").meta.cast(ecs_entity_t, ECS_ENTITY_MASK)) - 1;
-
-// pub const EcsFirstUserEntityId = ECS_HI_COMPONENT_ID + 32;
