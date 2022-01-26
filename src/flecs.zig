@@ -128,7 +128,7 @@ pub const World = struct {
 
     //TODO: this only works if its not the first component on an entity?
     pub fn add(self: World, entity: Entity, comptime T: type) void {
-        _ = Self.ecs_add_type(self.world, entity, getType(self, T));
+        _ = Self.ecs_add_id(self.world, entity, self.newComponent(T));
     }
 
     pub fn remove(self: World, entity: Entity, comptime T: type) void {
@@ -148,8 +148,6 @@ pub const World = struct {
     }
 
     pub fn hasFlag(self: World, entity: Entity, comptime T: type) bool {
-        //return Self.ecs_has_type(self.world, entity, getType(self.*, T));
-
         return Self.ecs_has_id(self.world, entity, newComponent(self, T));
     }
 
@@ -228,5 +226,10 @@ pub const ecs_iter_t = extern struct {
     pub fn term(self: *Self.ecs_iter_t, comptime T: type, index: i32) [*]T {
         var col = Self.ecs_term_w_size(self, @sizeOf(T), index);
         return @ptrCast([*]T, @alignCast(@alignOf(T), col));
+    }
+
+    pub fn term_optional(self: *Self.ecs_iter_t, comptime T: type, index: i32) ?[*]T {
+        var col = Self.ecs_term_w_size(self, @sizeOf(T), index);
+        return @ptrCast(?[*]T, @alignCast(@alignOf(T), col));
     }
 };
