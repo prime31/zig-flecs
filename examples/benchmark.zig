@@ -9,12 +9,12 @@ pub fn main() !void {
     var world = flecs.World.init();
     defer world.deinit();
 
-    const e_pos = world.newComponent(Position);
-    const e_vel = world.newComponent(Velocity);
+    _ = world.newComponent(Position);
+    _ = world.newComponent(Velocity);
 
     world.newSystem("Move", .on_update, "Position, Velocity", move);
 
-    createEntities(&world, e_pos, e_vel);
+    createEntities(&world);
     iterateEntities(world);
 }
 
@@ -30,14 +30,13 @@ fn move(it: [*c]flecs.ecs_iter_t) callconv(.C) void {
     }
 }
 
-fn createEntities(world: *flecs.World, e_pos: flecs.ecs_entity_t, e_vel: flecs.ecs_entity_t) void {
-    _ = e_vel;
+fn createEntities(world: *flecs.World) void {
     var timer = std.time.Timer.start() catch unreachable;
 
     var i: usize = 0;
     while (i < total_entities) : (i += 1) {
         const e = world.newEntity();
-        world.setPtr(e, e_pos, @sizeOf(Position), &Position{ .x = 100, .y = 100 });
+        world.set(e, &Position{ .x = 100, .y = 100 });
         world.set(e, &Velocity{ .x = 5, .y = 5 });
     }
 

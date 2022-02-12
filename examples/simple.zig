@@ -21,14 +21,58 @@ pub fn main() !void {
 
     std.debug.print("{s}\n\n", .{world.getName(MyEntity)});
 
-    world.set(MyEntity, &Position{ .x = 100, .y = 100 });
+    world.set(MyEntity, &Position{ .x = 30, .y = 30 });
     world.set(MyEntity, &Velocity{ .x = 5, .y = 5 });
 
-    world.set(MyEntity2, &Position{ .x = 100, .y = 100 });
+    world.set(MyEntity2, &Position{ .x = 20, .y = 20 });
     world.set(MyEntity2, &Velocity{ .x = 5, .y = 5 });
 
+    std.debug.print("tick\n", .{});
     world.progress(0);
+    std.debug.print("tick\n", .{});
     world.progress(0);
+
+    std.debug.print("\n\nmanually iterate position with a termIter\n", .{});
+    var term = world.termInit(Position);
+    defer term.deinit();
+    var term_iter = term.iterator();
+    while (term_iter.next()) |pos| {
+        std.debug.print("pos: {d}, entity: {d}\n", .{ pos, term_iter.entity() });
+    }
+
+    term.each(each);
+
+    std.debug.print("\n\nmanually iterate with a filter\n", .{});
+    var filter = world.filterInit("Position, Velocity");
+    var it_filter = world.filterIter(&filter);
+    while (flecs.ecs_filter_next(&it_filter)) {
+        const positions = flecs.column(&it_filter, Position, 1);
+        const velocities = flecs.column(&it_filter, Velocity, 2);
+
+        var i: usize = 0;
+        while (i < it_filter.count) : (i += 1) {
+            std.debug.print("iter: {d}, pos: {d}, vel: {d}\n", .{ i, positions[i], velocities[i] });
+        }
+    }
+    world.filterDeinit(&filter);
+
+    std.debug.print("\n\nmanually iterate with a query\n", .{});
+    var query = world.queryInit("Position, Velocity");
+    var it = world.queryIter(query);
+    while (flecs.ecs_query_next(&it)) {
+        const positions = flecs.column(&it, Position, 1);
+        const velocities = flecs.column(&it, Velocity, 2);
+
+        var i: usize = 0;
+        while (i < it.count) : (i += 1) {
+            std.debug.print("iter: {d}, pos: {d}, vel: {d}\n", .{ i, positions[i], velocities[i] });
+        }
+    }
+    world.queryDeinit(query);
+}
+
+fn each(entity: flecs.Entity, pos: *Position) void {
+    std.debug.print("pos: {d}, entity: {d}\n", .{ pos, entity });
 }
 
 fn move(it: [*c]flecs.ecs_iter_t) callconv(.C) void {
@@ -38,8 +82,8 @@ fn move(it: [*c]flecs.ecs_iter_t) callconv(.C) void {
 
     var i: usize = 0;
     while (i < it.*.count) : (i += 1) {
-        std.debug.print("p: {d}, v: {d} - {s}\n", .{ positions[i], velocities[i], world.getName(it.*.entities[i]) });
         positions[i].x += velocities[i].x;
         positions[i].y += velocities[i].y;
+        std.debug.print("p: {d}, v: {d} - {s}\n", .{ positions[i], velocities[i], world.getName(it.*.entities[i]) });
     }
 }

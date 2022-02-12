@@ -16,8 +16,8 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         [_][]const u8{ "generator", "examples/generator.zig" },
     };
 
-    for (examples) |example, i| {
-        const name = if (i == 0) "ecs" else example[0];
+    for (examples) |example| {
+        const name = example[0];
         const source = example[1];
 
         var exe = b.addExecutable(name, source);
@@ -29,13 +29,6 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         const run_cmd = exe.run();
         const exe_step = b.step(name, b.fmt("run {s}.zig", .{name}));
         exe_step.dependOn(&run_cmd.step);
-
-        // first element in the list is added as "run" so "zig build run" works
-        if (i == 0) {
-            exe.setOutputDir("zig-cache/bin");
-            const run_exe_step = b.step("run", b.fmt("run {s}.zig", .{name}));
-            run_exe_step.dependOn(&run_cmd.step);
-        }
     }
 }
 
@@ -66,7 +59,7 @@ fn compileFlecs(_: *Builder, exe: *std.build.LibExeObjStep, _: std.zig.CrossTarg
     exe.linkLibC();
     exe.addIncludeDir(prefix_path ++ "flecs");
 
-    const cflags = &[_][]const u8{ "-DFALSE=0", "-DTRUE=1" };
+    const cflags = &[_][]const u8{  };
     exe.addCSourceFile(prefix_path ++ "flecs/flecs.c", cflags);
 }
 
