@@ -33,7 +33,7 @@ pub fn main() !void {
     world.progress(0);
 
     std.debug.print("\n\nmanually iterate position with a termIter\n", .{});
-    var term = world.termInit(Position);
+    var term = world.term(Position);
     defer term.deinit();
     var term_iter = term.iterator();
     while (term_iter.next()) |pos| {

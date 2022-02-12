@@ -1,6 +1,8 @@
 pub usingnamespace @import("c.zig");
 const flecs = @import("c.zig");
 
+pub const QueryBuilder = @import("query_builder.zig").QueryBuidler;
+
 // TODO: why does translate-c fail for cImport but succeeds when used directly?
 // const flecs = @cImport(@cInclude("flecs.h"));
 // pub usingnamespace flecs;
@@ -16,6 +18,7 @@ fn componentHandle(comptime T: type) *Entity {
         pub var handle: Entity = std.math.maxInt(u64);
     }.handle);
 }
+
 
 pub const World = struct {
     world: *flecs.ecs_world_t,
@@ -42,6 +45,14 @@ pub const World = struct {
 
     pub fn newEntityWithName(self: World, name: [*c]const u8) Entity {
         return flecs.ecs_set_name(self.world, 0, name);
+    }
+
+    pub fn newPrefab(self: World, name: [*c]const u8) Entity {
+        var desc = std.mem.zeroInit(flecs.ecs_entity_desc_t, .{
+            .name = name,
+            .add = [1]flecs.ecs_id_t {flecs.EcsPrefab} + [_]flecs.ecs_id_t {0} ** 31,
+        });
+        return flecs.ecs_entity_init(self.world, &desc);
     }
 
     pub fn newComponent(self: World, comptime T: type) Entity {
@@ -83,7 +94,7 @@ pub const World = struct {
         _ = flecs.ecs_system_init(self.world, &desc);
     }
 
-    pub fn termInit(self: World, comptime T: type) Term(T) {
+    pub fn term(self: World, comptime T: type) Term(T) {
         return Term(T).init(self);
     }
 
