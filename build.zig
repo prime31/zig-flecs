@@ -40,13 +40,13 @@ pub fn build(b: *std.build.Builder) anyerror!void {
 }
 
 /// prefix_path is used to add package paths. It should be the the same path used to include this build file
-pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std.build.Target, lib_type: LibType, comptime prefix_path: []const u8) void {
+pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std.zig.CrossTarget, lib_type: LibType, comptime prefix_path: []const u8) void {
     if (prefix_path.len > 0 and !std.mem.endsWith(u8, prefix_path, "/")) @panic("prefix-path must end with '/' if it is not empty");
 
     switch (lib_type) {
         .static => {
             const lib = b.addStaticLibrary("flecs", null);
-            lib.setBuildMode(builtin.Mode.ReleaseFast);
+            lib.setBuildMode(std.builtin.Mode.ReleaseFast);
             lib.setTarget(target);
 
             compileFlecs(b, lib, target, prefix_path);
@@ -62,7 +62,7 @@ pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std
     artifact.addPackagePath("flecs", prefix_path ++ "src/flecs.zig");
 }
 
-fn compileFlecs(b: *Builder, exe: *std.build.LibExeObjStep, target: std.build.Target, comptime prefix_path: []const u8) void {
+fn compileFlecs(_: *Builder, exe: *std.build.LibExeObjStep, _: std.zig.CrossTarget, comptime prefix_path: []const u8) void {
     exe.linkLibC();
     exe.addIncludeDir(prefix_path ++ "flecs");
 

@@ -1,6 +1,5 @@
 const std = @import("std");
 const flecs = @import("flecs");
-// const c = @cImport(@cInclude("flecs.h"));
 
 pub const Velocity = struct { x: f32, y: f32 };
 pub const Position = struct { x: f32, y: f32 };
@@ -10,8 +9,8 @@ pub fn main() !void {
     defer world.deinit();
 
     // the system below needs Position and Velocity to be defined before it can be created
-    const e_pos = world.newComponent(Position);
-    const e_vel = world.newComponent(Velocity);
+    _ = world.newComponent(Position);
+    _ = world.newComponent(Velocity);
 
     world.newSystem("Move", .on_update, "Position, Velocity", move);
 
@@ -29,14 +28,15 @@ pub fn main() !void {
     world.progress(0);
 }
 
-fn move(it: *flecs.ecs_iter_t) callconv(.C) void {
-    const positions = it.column(Position, 1);
-    const velocities = it.column(Velocity, 2);
-    const world = flecs.World{ .world = it.world.? };
+fn move(it: [*c]flecs.ecs_iter_t) callconv(.C) void {
+    const positions = flecs.column(it, Position, 1);
+    const velocities = flecs.column(it, Velocity, 2);
+    const world = flecs.World{ .world = it[0].world.? };
+    _ = world;
 
     var i: usize = 0;
-    while (i < it.count) : (i += 1) {
-        std.debug.warn("p: {d}, v: {d} - {s}\n", .{ positions[i], velocities[i], world.getName(it.entities[i]) });
+    while (i < it[0].count) : (i += 1) {
+        std.debug.print("p: {d}, v: {d} - {s}\n", .{ positions[i], velocities[i], world.getName(it[0].entities[i]) });
         positions[i].x += velocities[i].x;
         positions[i].y += velocities[i].y;
     }
