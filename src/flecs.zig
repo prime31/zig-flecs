@@ -44,6 +44,16 @@ pub const World = struct {
         _ = flecs.ecs_progress(self.world, delta_time);
     }
 
+    pub fn newEntity(self: World) Entity {
+        return flecs.ecs_new_w_type(self.world, 0);
+    }
+
+    pub fn newEntityWithName(self: World, name: [*c]const u8) Entity {
+        const entity = flecs.ecs_new_w_type(self.world, 0);
+        self.setName(entity, name);
+        return entity;
+    }
+
     pub fn newComponent(self: *World, comptime T: type) Entity {
         var handle = componentHandle(T);
         if (handle.* < std.math.maxInt(Entity)) {

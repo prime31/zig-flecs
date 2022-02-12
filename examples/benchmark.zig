@@ -23,8 +23,8 @@ fn move(it: [*c]flecs.ecs_iter_t) callconv(.C) void {
     const velocities = flecs.column(it, Velocity, 2);
 
     var i: usize = 0;
-    while (i < it[0].count) : (i += 1) {
-        // std.debug.print("p: {d}, v: {d} - {s}\n", .{ positions[i], velocities[i], flecs.ecs_get_name(it.world, it.entities[i]) });
+    while (i < it.*.count) : (i += 1) {
+        // std.debug.print("p: {d}, v: {d}\n", .{ positions[i], velocities[i] });
         positions[i].x += velocities[i].x;
         positions[i].y += velocities[i].y;
     }
@@ -34,17 +34,12 @@ fn createEntities(world: *flecs.World, e_pos: flecs.ecs_entity_t, e_vel: flecs.e
     _ = e_vel;
     var timer = std.time.Timer.start() catch unreachable;
 
-    const t = world.typeFromStr("Position, Velocity");
-    world.dim(total_entities);
-    world.dimType(t, total_entities);
-
     var i: usize = 0;
     while (i < total_entities) : (i += 1) {
-        world.setPtr(0, e_pos, @sizeOf(Position), &Position{ .x = 100, .y = 100 });
-        world.set(0, &Velocity{ .x = 5, .y = 5 });
+        const e = world.newEntity();
+        world.setPtr(e, e_pos, @sizeOf(Position), &Position{ .x = 100, .y = 100 });
+        world.set(e, &Velocity{ .x = 5, .y = 5 });
     }
-
-    world.set(0, &Velocity{ .x = 5, .y = 5 });
 
     var end = timer.lap();
     std.debug.print("create {d} entities: \t{d}\n", .{ total_entities, @intToFloat(f64, end) / 1000000000 });
