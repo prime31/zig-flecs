@@ -1,7 +1,7 @@
 pub usingnamespace @import("c.zig");
 const flecs = @import("c.zig");
 
-pub const QueryBuilder = @import("query_builder.zig").QueryBuidler;
+pub const QueryBuilder = @import("query_builder.zig").QueryBuilder;
 
 // TODO: why does translate-c fail for cImport but succeeds when used directly?
 // const flecs = @cImport(@cInclude("flecs.h"));
@@ -96,6 +96,15 @@ pub const World = struct {
 
     pub fn term(self: World, comptime T: type) Term(T) {
         return Term(T).init(self);
+    }
+
+    pub fn filterFromBuilder(self: World, builder: QueryBuilder) flecs.ecs_filter_t {
+        var desc = std.mem.zeroes(flecs.ecs_filter_desc_t);
+        std.mem.copy(flecs.ecs_term_t, &desc.terms, &builder.terms);
+
+        var filter: flecs.ecs_filter_t = undefined;
+        std.debug.assert(flecs.ecs_filter_init(self.world, &filter, &desc) == 0);
+        return filter;
     }
 
     pub fn filterInit(self: World, expr: [*c]const u8) flecs.ecs_filter_t {

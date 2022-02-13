@@ -40,21 +40,40 @@ pub fn main() !void {
         std.debug.print("pos: {d}, entity: {d}\n", .{ pos, term_iter.entity() });
     }
 
+    std.debug.print("\n\nmanually iterate position with a termIters each\n", .{});
     term.each(each);
 
-    std.debug.print("\n\nmanually iterate with a filter\n", .{});
-    var filter = world.filterInit("Position, Velocity");
-    var it_filter = world.filterIter(&filter);
-    while (flecs.ecs_filter_next(&it_filter)) {
-        const positions = flecs.column(&it_filter, Position, 1);
-        const velocities = flecs.column(&it_filter, Velocity, 2);
+    // std.debug.print("\n\nmanually iterate with a filter\n", .{});
+    // var filter = world.filterInit("Position, Velocity");
+    // var it_filter = world.filterIter(&filter);
+    // while (flecs.ecs_filter_next(&it_filter)) {
+    //     const positions = flecs.column(&it_filter, Position, 1);
+    //     const velocities = flecs.column(&it_filter, Velocity, 2);
+
+    //     var i: usize = 0;
+    //     while (i < it_filter.count) : (i += 1) {
+    //         std.debug.print("iter: {d}, pos: {d}, vel: {d}\n", .{ i, positions[i], velocities[i] });
+    //     }
+    // }
+    // world.filterDeinit(&filter);
+
+    std.debug.print("\n\nmanually iterate with a filter from a QueryBuilder\n", .{});
+    var builder = flecs.QueryBuilder.init(world);
+    _ = builder.with(Position).with(Velocity);
+
+    var filter2 = world.filterFromBuilder(builder);
+    var it_filter2 = world.filterIter(&filter2);
+    while (flecs.ecs_filter_next(&it_filter2)) {
+        const positions = flecs.column(&it_filter2, Position, 1);
+        const velocities = flecs.column(&it_filter2, Velocity, 2);
 
         var i: usize = 0;
-        while (i < it_filter.count) : (i += 1) {
+        while (i < it_filter2.count) : (i += 1) {
             std.debug.print("iter: {d}, pos: {d}, vel: {d}\n", .{ i, positions[i], velocities[i] });
         }
     }
-    world.filterDeinit(&filter);
+    world.filterDeinit(&filter2);
+
 
     std.debug.print("\n\nmanually iterate with a query\n", .{});
     var query = world.queryInit("Position, Velocity");
