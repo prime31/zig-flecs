@@ -4,6 +4,7 @@ const flecs = @import("flecs.zig");
 pub const QueryBuilder = struct {
     world: flecs.World,
     terms: [16]flecs.ecs_term_t = undefined, // zig compiler error [_]flecs.ecs_term_t {std.mem.zeroes(flecs.ecs_term_t)} ** 16,
+    expr: [*c]const u8 = null,
     terms_count: usize = 0,
 
     pub fn init(world: flecs.World) @This() {
@@ -66,6 +67,11 @@ pub const QueryBuilder = struct {
             .out => flecs.EcsOut,
             .inout => flecs.EcsInOut,
         };
+        return self;
+    }
+
+    pub fn expression(self: *@This(), expr: [*c]const u8) *@This() {
+        self.expr = expr;
         return self;
     }
 

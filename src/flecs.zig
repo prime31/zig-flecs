@@ -19,7 +19,6 @@ fn componentHandle(comptime T: type) *Entity {
     }.handle);
 }
 
-
 pub const World = struct {
     world: *flecs.ecs_world_t,
 
@@ -50,7 +49,7 @@ pub const World = struct {
     pub fn newPrefab(self: World, name: [*c]const u8) Entity {
         var desc = std.mem.zeroInit(flecs.ecs_entity_desc_t, .{
             .name = name,
-            .add = [1]flecs.ecs_id_t {flecs.EcsPrefab} + [_]flecs.ecs_id_t {0} ** 31,
+            .add = [1]flecs.ecs_id_t{flecs.EcsPrefab} + [_]flecs.ecs_id_t{0} ** 31,
         });
         return flecs.ecs_entity_init(self.world, &desc);
     }
@@ -92,48 +91,6 @@ pub const World = struct {
         desc.query.filter.expr = signature;
         desc.callback = action;
         _ = flecs.ecs_system_init(self.world, &desc);
-    }
-
-    pub fn term(self: World, comptime T: type) Term(T) {
-        return Term(T).init(self);
-    }
-
-    pub fn filterFromBuilder(self: World, builder: QueryBuilder, filter: *flecs.ecs_filter_t) void {
-        var desc = std.mem.zeroes(flecs.ecs_filter_desc_t);
-        std.mem.copy(flecs.ecs_term_t, &desc.terms, &builder.terms);
-
-        std.debug.assert(flecs.ecs_filter_init(self.world, filter, &desc) == 0);
-    }
-
-    pub fn filterInit(self: World, expr: [*c]const u8) flecs.ecs_filter_t {
-        var desc = std.mem.zeroes(flecs.ecs_filter_desc_t);
-        desc.expr = expr;
-
-        var filter: flecs.ecs_filter_t = undefined;
-        std.debug.assert(flecs.ecs_filter_init(self.world, &filter, &desc) == 0);
-        return filter;
-    }
-
-    pub fn filterIter(self: World, filter: *flecs.ecs_filter_t) flecs.ecs_iter_t {
-        return flecs.ecs_filter_iter(self.world, filter);
-    }
-
-    pub fn filterDeinit(_: World, filter: *flecs.ecs_filter_t) void {
-        flecs.ecs_filter_fini(filter);
-    }
-
-    pub fn queryInit(self: World, expr: [*c]const u8) *flecs.ecs_query_t {
-        var desc = std.mem.zeroes(flecs.ecs_query_desc_t);
-        desc.filter.expr = expr;
-        return flecs.ecs_query_init(self.world, &desc).?;
-    }
-
-    pub fn queryIter(self: World, query: *flecs.ecs_query_t) flecs.ecs_iter_t {
-        return flecs.ecs_query_iter(self.world, query);
-    }
-
-    pub fn queryDeinit(_: World, query: *flecs.ecs_query_t) void {
-        flecs.ecs_query_fini(query);
     }
 
     pub fn setName(self: World, entity: Entity, name: [*c]const u8) void {
@@ -194,18 +151,160 @@ pub fn Term(comptime T: type) type {
             return Iterator.init(flecs.ecs_term_iter(self.world.world, &self.term));
         }
 
-         pub fn each(self: *@This(), func: fn (Entity, *T) void) void {
+        pub fn each(self: *@This(), func: fn (Entity, *T) void) void {
             var iter = self.iterator();
             while (iter.next()) |e| {
-               func(iter.entity(), e);
+                func(iter.entity(), e);
             }
-         }
+        }
     };
 }
 
+pub const Filter = struct {
+    world: World,
+    filter: *flecs.ecs_filter_t = undefined,
 
-pub fn column(self: [*c]const flecs.ecs_iter_t, comptime T: type, index: i32) [*]T {
-    var col = flecs.ecs_term_w_size(self, @sizeOf(T), index);
+    const Iterator = struct {
+        iter: flecs.ecs_iter_t,
+        index: usize = 0,
+
+        pub fn init(iter: flecs.ecs_iter_t) @This() {
+            return .{ .iter = iter };
+        }
+
+        pub fn next(self: *@This()) ?void {
+            if (self.index >= self.iter.count) {
+                self.index = 0;
+                if (!flecs.ecs_filter_next(&self.iter)) return null;
+            }
+
+            self.index += 1;
+        }
+
+        pub fn entity(self: *@This()) Entity {
+            return self.iter.entities[self.index - 1];
+        }
+
+        pub fn get(self: @This(), comptime T: type, index: i32) *T {
+            return &column(&self.iter, T, index)[self.index - 1];
+        }
+    };
+
+    pub fn init(world: World, builder: *QueryBuilder) @This() {
+        var filter = @This(){ .world = world };
+        filter.filter = std.heap.c_allocator.create(flecs.ecs_filter_t) catch unreachable;
+
+        var desc = std.mem.zeroes(flecs.ecs_filter_desc_t);
+        std.mem.copy(flecs.ecs_term_t, &desc.terms, &builder.terms);
+        desc.expr = builder.expr;
+        std.debug.assert(flecs.ecs_filter_init(world.world, filter.filter, &desc) == 0);
+
+        return filter;
+    }
+
+    pub fn deinit(self: *@This()) void {
+        flecs.ecs_filter_fini(self.filter);
+        std.heap.c_allocator.destroy(self.filter);
+    }
+
+    pub fn iterator(self: *@This()) Iterator {
+        return Iterator.init(flecs.ecs_filter_iter(self.world.world, self.filter));
+    }
+
+    pub fn gIterator(self: *@This(), comptime Components: anytype) GenericIterator(Components) {
+        return GenericIterator(Components).init(self.world, flecs.ecs_filter_iter(self.world.world, self.filter));
+    }
+
+    pub fn each(self: *@This(), comptime func: anytype) void {
+        const Components = switch (@typeInfo(@TypeOf(func))) {
+            .BoundFn => |func_info| func_info.args[1].arg_type.?,
+            .Fn => |func_info| func_info.args[0].arg_type.?,
+            else => std.debug.assert("invalid func"),
+        };
+
+        var iter = self.gIterator(Components);
+        while (iter.next()) |comps| {
+            @call(.{ .modifier = .always_inline }, func, .{comps});
+        }
+    }
+};
+
+pub fn GenericIterator(comptime Components: anytype) type {
+    std.debug.assert(@typeInfo(Components) == .Struct);
+
+    return struct {
+        iter: flecs.ecs_iter_t,
+        index: usize = 0,
+
+        pub fn init(_: World, iter: flecs.ecs_iter_t) @This() {
+            if (@import("builtin").mode == .Debug) {
+                const component_info = @typeInfo(Components).Struct;
+                inline for (component_info.fields) |field, i| {
+                    const is_optional = @typeInfo(field.field_type) == .Optional;
+                    const is_readonly = @typeInfo(field.field_type) == .Struct;
+                    const child = if (is_readonly) field.field_type else std.meta.Child(field.field_type);
+                    const col_type = if (is_optional) std.meta.Child(child) else child;
+                    const type_entity = componentHandle(col_type).*;
+
+                    // ensure order matches for terms vs struct fields
+                    std.debug.assert(iter.terms[i].id == type_entity);
+
+                    // validate readonly (non-ptr types in the struct) matches up with the inout
+                    if (is_readonly) std.debug.assert(iter.terms[i].inout == flecs.EcsIn);
+                    if (iter.terms[i].inout == flecs.EcsIn) std.debug.assert(is_readonly);
+
+                    // validate optionals (?* types in the struct) mathces up with valid opers
+                    if (is_optional) std.debug.assert(iter.terms[i].oper == flecs.EcsOr or iter.terms[i].oper == flecs.EcsOptional);
+                    if (iter.terms[i].oper == flecs.EcsOr or iter.terms[i].oper == flecs.EcsOptional) std.debug.assert(is_optional);
+                }
+            }
+
+            return .{ .iter = iter };
+        }
+
+        pub fn next(self: *@This()) ?Components {
+            if (self.index >= self.iter.count) {
+                self.index = 0;
+                if (!flecs.ecs_filter_next(&self.iter)) return null;
+            }
+
+            var comps: Components = undefined;
+            inline for (@typeInfo(Components).Struct.fields) |field, i| {
+                const is_optional = @typeInfo(field.field_type) == .Optional;
+                const is_readonly = @typeInfo(field.field_type) == .Struct;
+                const child = if (is_readonly) field.field_type else std.meta.Child(field.field_type);
+                const col_type = if (is_optional) std.meta.Child(child) else child;
+
+                // TODO: handle readonly with ecs_term_is_readonly?
+                if (is_optional) @field(comps, field.name) = null;
+                const column_index = if (is_optional) flecs.ecs_iter_find_column(&self.iter, componentHandle(col_type).*) else i;
+                // const is_set = flecs.ecs_term_is_set(&self.iter, i); // Flecs bug?
+
+                // std.debug.print("---- col_type: {any}, optional: {any}, i: {d}, col_index: {d}, is_set: {d}\n", .{ col_type, is_optional, i, column_index, is_set });
+                if (columnOpt(&self.iter, col_type, column_index + 1, is_optional)) |col| {
+                    if (is_readonly) {
+                        @field(comps, field.name) = col[self.index];
+                    } else {
+                        @field(comps, field.name) = &col[self.index];
+                    }
+                }
+            }
+
+            self.index += 1;
+            return comps;
+        }
+    };
+}
+
+pub fn column(iter: [*c]const flecs.ecs_iter_t, comptime T: type, index: i32) [*]T {
+    var col = flecs.ecs_term_w_size(iter, @sizeOf(T), index);
+    return @ptrCast([*]T, @alignCast(@alignOf(T), col));
+}
+
+pub fn columnOpt(iter: [*c]const flecs.ecs_iter_t, comptime T: type, index: i32, is_optional: bool) ?[*]T {
+    if (index <= 0) return null;
+    var col = if (is_optional) flecs.ecs_iter_column_w_size(iter, @sizeOf(T), index - 1) else flecs.ecs_term_w_size(iter, @sizeOf(T), index);
+    if (col == null) return null;
     return @ptrCast([*]T, @alignCast(@alignOf(T), col));
 }
 
