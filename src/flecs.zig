@@ -98,13 +98,11 @@ pub const World = struct {
         return Term(T).init(self);
     }
 
-    pub fn filterFromBuilder(self: World, builder: QueryBuilder) flecs.ecs_filter_t {
+    pub fn filterFromBuilder(self: World, builder: QueryBuilder, filter: *flecs.ecs_filter_t) void {
         var desc = std.mem.zeroes(flecs.ecs_filter_desc_t);
         std.mem.copy(flecs.ecs_term_t, &desc.terms, &builder.terms);
 
-        var filter: flecs.ecs_filter_t = undefined;
-        std.debug.assert(flecs.ecs_filter_init(self.world, &filter, &desc) == 0);
-        return filter;
+        std.debug.assert(flecs.ecs_filter_init(self.world, filter, &desc) == 0);
     }
 
     pub fn filterInit(self: World, expr: [*c]const u8) flecs.ecs_filter_t {

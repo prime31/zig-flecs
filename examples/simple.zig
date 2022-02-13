@@ -21,11 +21,11 @@ pub fn main() !void {
 
     std.debug.print("{s}\n\n", .{world.getName(MyEntity)});
 
-    world.set(MyEntity, &Position{ .x = 30, .y = 30 });
-    world.set(MyEntity, &Velocity{ .x = 5, .y = 5 });
+    world.set(MyEntity, &Position{ .x = 0, .y = 0 });
+    world.set(MyEntity, &Velocity{ .x = 1, .y = 1 });
 
-    world.set(MyEntity2, &Position{ .x = 20, .y = 20 });
-    world.set(MyEntity2, &Velocity{ .x = 5, .y = 5 });
+    world.set(MyEntity2, &Position{ .x = 2, .y = 2 });
+    world.set(MyEntity2, &Velocity{ .x = 1, .y = 1 });
 
     std.debug.print("tick\n", .{});
     world.progress(0);
@@ -43,25 +43,28 @@ pub fn main() !void {
     std.debug.print("\n\nmanually iterate position with a termIters each\n", .{});
     term.each(each);
 
-    // std.debug.print("\n\nmanually iterate with a filter\n", .{});
-    // var filter = world.filterInit("Position, Velocity");
-    // var it_filter = world.filterIter(&filter);
-    // while (flecs.ecs_filter_next(&it_filter)) {
-    //     const positions = flecs.column(&it_filter, Position, 1);
-    //     const velocities = flecs.column(&it_filter, Velocity, 2);
+    std.debug.print("\n\nmanually iterate with a filter\n", .{});
+    var filter = world.filterInit("Position, Velocity");
+    var it_filter = world.filterIter(&filter);
+    while (flecs.ecs_filter_next(&it_filter)) {
+        const positions = flecs.column(&it_filter, Position, 1);
+        const velocities = flecs.column(&it_filter, Velocity, 2);
 
-    //     var i: usize = 0;
-    //     while (i < it_filter.count) : (i += 1) {
-    //         std.debug.print("iter: {d}, pos: {d}, vel: {d}\n", .{ i, positions[i], velocities[i] });
-    //     }
-    // }
-    // world.filterDeinit(&filter);
+        var i: usize = 0;
+        while (i < it_filter.count) : (i += 1) {
+            std.debug.print("iter: {d}, pos: {d}, vel: {d}\n", .{ i, positions[i], velocities[i] });
+        }
+    }
+    world.filterDeinit(&filter);
+
 
     std.debug.print("\n\nmanually iterate with a filter from a QueryBuilder\n", .{});
     var builder = flecs.QueryBuilder.init(world);
     _ = builder.with(Position).with(Velocity);
 
-    var filter2 = world.filterFromBuilder(builder);
+    var filter2: flecs.ecs_filter_t = undefined;
+    world.filterFromBuilder(builder, &filter2);
+
     var it_filter2 = world.filterIter(&filter2);
     while (flecs.ecs_filter_next(&it_filter2)) {
         const positions = flecs.column(&it_filter2, Position, 1);
