@@ -5,14 +5,15 @@ ARG VARIANT="hirsute"
 FROM mcr.microsoft.com/vscode/devcontainers/base:0-${VARIANT}
 
 # [Optional] Uncomment this section to install additional OS packages.
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends curl xz
+# RUN apk add curl xz
+
+# RUN git submodule update --init
+
+ARG ZIGVER="0.10.0-dev.717+90f2a8d9c"
+RUN cd ..
+RUN curl -o zig.tar.xz https://ziglang.org/builds/zig-linux-x86_64-0.10.0-dev.717+90f2a8d9c.tar.xz -O && \
+    mkdir zig && tar xf zig.tar.xz -C zig --strip-components 1 && \
+    rm zig.tar.xz
 
 RUN git submodule update --init
-
-ARG ZIGVER
-RUN mkdir -p /deps
-WORKDIR /deps
-RUN curl https://ziglang.org/deps/zig+llvm+lld+clang-$(uname -m)-linux-musl-$ZIGVER.tar.xz  -O && \
-    tar xf zig+llvm+lld+clang-$(uname -m)-linux-musl-$ZIGVER.tar.xz && \
-    mv zig+llvm+lld+clang-$(uname -m)-linux-musl-$ZIGVER/ local/
+RUN cd zig-flecs && ../zig/zig build
