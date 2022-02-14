@@ -9,9 +9,7 @@ pub fn main() !void {
     var world = flecs.World.init();
     defer world.deinit();
 
-    _ = world.newComponent(Position);
-    _ = world.newComponent(Velocity);
-
+    world.registerComponents(.{Position, Velocity});
     world.newSystem("Move", .on_update, "Position, Velocity", move);
 
     createEntities(&world);
@@ -49,5 +47,5 @@ fn iterateEntities(world: flecs.World) void {
     world.progress(0);
 
     var end = timer.lap();
-    std.debug.print("iterate entities: \t{d}\n", .{@intToFloat(f64, end) / 1000000000});
+    std.debug.print("iterate entities: \t\t{d}\n", .{@intToFloat(f64, end) / 1000000000});
 }
