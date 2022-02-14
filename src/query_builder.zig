@@ -73,7 +73,7 @@ pub const QueryBuilder = struct {
         return self;
     }
 
-    pub fn singleton(self: *@This(), comptime T: type, entity: flecs.Entity) *@This() {
+    pub fn singleton(self: *@This(), comptime T: type, entity: flecs.EntityId) *@This() {
         self.query.filter.terms[self.terms_count] = std.mem.zeroInit(flecs.ecs_term_t, .{ .id = self.world.newComponent(T) });
         self.query.filter.terms[self.terms_count].subj.entity = entity;
         self.terms_count += 1;
@@ -81,14 +81,14 @@ pub const QueryBuilder = struct {
     }
 
     /// queries/system only
-    pub fn orderBy(self: *@This(), comptime T: type, orderByFn: fn (flecs.Entity, ?*const anyopaque, flecs.Entity, ?*const anyopaque) callconv(.C) c_int) *@This() {
+    pub fn orderBy(self: *@This(), comptime T: type, orderByFn: fn (flecs.EntityId, ?*const anyopaque, flecs.EntityId, ?*const anyopaque) callconv(.C) c_int) *@This() {
         self.query.order_by_component = self.world.newComponent(T);
         self.query.order_by = orderByFn;
         return self;
     }
 
     /// queries/system only
-    pub fn orderByEntity(self: *@This(), orderByFn: fn (flecs.Entity, ?*const anyopaque, flecs.Entity, ?*const anyopaque) callconv(.C) c_int) *@This() {
+    pub fn orderByEntity(self: *@This(), orderByFn: fn (flecs.EntityId, ?*const anyopaque, flecs.EntityId, ?*const anyopaque) callconv(.C) c_int) *@This() {
         self.query.order_by = orderByFn;
         return self;
     }

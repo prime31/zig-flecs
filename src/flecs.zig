@@ -9,13 +9,13 @@ pub const QueryBuilder = @import("query_builder.zig").QueryBuilder;
 
 const std = @import("std");
 
-pub const Entity = flecs.ecs_entity_t;
+pub const EntityId = flecs.ecs_entity_t;
 
 /// registered component handle cache
-fn componentHandle(comptime T: type) *Entity {
+fn componentHandle(comptime T: type) *EntityId {
     _ = T;
     return &(struct {
-        pub var handle: Entity = std.math.maxInt(u64);
+        pub var handle: EntityId = std.math.maxInt(u64);
     }.handle);
 }
 
@@ -38,15 +38,15 @@ pub const World = struct {
         _ = flecs.ecs_progress(self.world, delta_time);
     }
 
-    pub fn newEntity(self: World) Entity {
+    pub fn newEntity(self: World) EntityId {
         return flecs.ecs_new_id(self.world);
     }
 
-    pub fn newEntityWithName(self: World, name: [*c]const u8) Entity {
+    pub fn newEntityWithName(self: World, name: [*c]const u8) EntityId {
         return flecs.ecs_set_name(self.world, 0, name);
     }
 
-    pub fn newPrefab(self: World, name: [*c]const u8) Entity {
+    pub fn newPrefab(self: World, name: [*c]const u8) EntityId {
         var desc = std.mem.zeroInit(flecs.ecs_entity_desc_t, .{
             .name = name,
             .add = [1]flecs.ecs_id_t{flecs.EcsPrefab} + [_]flecs.ecs_id_t{0} ** 31,
@@ -62,9 +62,9 @@ pub const World = struct {
         }
     }
 
-    pub fn newComponent(self: World, comptime T: type) Entity {
+    pub fn newComponent(self: World, comptime T: type) EntityId {
         var handle = componentHandle(T);
-        if (handle.* < std.math.maxInt(Entity)) {
+        if (handle.* < std.math.maxInt(EntityId)) {
             return handle.*;
         }
 
@@ -77,7 +77,7 @@ pub const World = struct {
         return handle.*;
     }
 
-    pub fn newType(self: World, components: [*c]const u8) Entity {
+    pub fn newType(self: World, components: [*c]const u8) EntityId {
         var desc = std.mem.zeroInit(flecs.struct_ecs_type_desc_t, .{ .ids_expr = components });
         return flecs.ecs_type_init(self.world, &desc);
     }
@@ -101,16 +101,16 @@ pub const World = struct {
         _ = flecs.ecs_system_init(self.world, &desc);
     }
 
-    pub fn setName(self: World, entity: Entity, name: [*c]const u8) void {
+    pub fn setName(self: World, entity: EntityId, name: [*c]const u8) void {
         _ = flecs.ecs_set_name(self.world, entity, name);
     }
 
-    pub fn getName(self: World, entity: Entity) [*c]const u8 {
+    pub fn getName(self: World, entity: EntityId) [*c]const u8 {
         return flecs.ecs_get_name(self.world, entity);
     }
 
     /// sets a component on entity. Can be either a pointer to a struct or a struct
-    pub fn set(self: *World, entity: Entity, ptr_or_struct: anytype) void {
+    pub fn set(self: *World, entity: EntityId, ptr_or_struct: anytype) void {
         std.debug.assert(@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer or @typeInfo(@TypeOf(ptr_or_struct)) == .Struct);
 
         const T = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) std.meta.Child(@TypeOf(ptr_or_struct)) else @TypeOf(ptr_or_struct);
@@ -143,7 +143,7 @@ pub fn Term(comptime T: type) type {
                 return &array[self.index - 1];
             }
 
-            pub fn entity(self: *@This()) Entity {
+            pub fn entity(self: *@This()) EntityId {
                 return self.iter.entities[self.index - 1];
             }
         };
@@ -161,7 +161,7 @@ pub fn Term(comptime T: type) type {
             return Iterator.init(flecs.ecs_term_iter(self.world.world, &self.term));
         }
 
-        pub fn each(self: *@This(), func: fn (Entity, *T) void) void {
+        pub fn each(self: *@This(), func: fn (EntityId, *T) void) void {
             var iter = self.iterator();
             while (iter.next()) |e| {
                 func(iter.entity(), e);
@@ -192,7 +192,7 @@ pub const Filter = struct {
             self.index += 1;
         }
 
-        pub fn entity(self: *@This()) Entity {
+        pub fn entity(self: *@This()) EntityId {
             return self.iter.entities[self.index - 1];
         }
 
@@ -267,8 +267,8 @@ pub const Filter = struct {
         return Iterator.init(flecs.ecs_filter_iter(self.world.world, self.filter));
     }
 
-    pub fn entityIterator(self: *@This(), comptime Components: anytype) EntityIterator(Components) {
-        return EntityIterator(Components).init(self.world, flecs.ecs_filter_iter(self.world.world, self.filter), flecs.ecs_filter_next);
+    pub fn entityIterator(self: *@This(), comptime Components: anytype) EntityIdIterator(Components) {
+        return EntityIdIterator(Components).init(self.world, flecs.ecs_filter_iter(self.world.world, self.filter), flecs.ecs_filter_next);
     }
 
     pub fn each(self: *@This(), comptime func: anytype) void {
@@ -298,7 +298,7 @@ pub const Query = struct {
     }
 };
 
-pub fn EntityIterator(comptime Components: anytype) type {
+pub fn EntityIdIterator(comptime Components: anytype) type {
     std.debug.assert(@typeInfo(Components) == .Struct);
 
     return struct {

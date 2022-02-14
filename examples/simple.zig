@@ -83,7 +83,7 @@ pub fn main() !void {
     filter.each(eachFilter);
 }
 
-fn orderBy(e1: flecs.Entity, c1: ?*const anyopaque, e2: flecs.Entity, c2: ?*const anyopaque) callconv(.C) c_int {
+fn orderBy(e1: flecs.EntityId, c1: ?*const anyopaque, e2: flecs.EntityId, c2: ?*const anyopaque) callconv(.C) c_int {
     const p1 = @ptrCast(*const Position, @alignCast(@alignOf(Position), c1));
     const p2 = @ptrCast(*const Position, @alignCast(@alignOf(Position), c2));
     _ = e1;
@@ -91,7 +91,7 @@ fn orderBy(e1: flecs.Entity, c1: ?*const anyopaque, e2: flecs.Entity, c2: ?*cons
     return if (p1.x < p2.x) 1 else -1;
 }
 
-fn eachTerm(entity: flecs.Entity, pos: *Position) void {
+fn eachTerm(entity: flecs.EntityId, pos: *Position) void {
     std.debug.print("pos: {d}, entity: {d}\n", .{ pos, entity });
 }
 
