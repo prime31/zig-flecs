@@ -25,7 +25,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         exe.setBuildMode(b.standardReleaseOptions());
 
         // for some reason exe_compiled + debug build results in "illegal instruction 4". Investigate at some point.
-        linkArtifact(b, exe, target, .exe_compiled, "");
+        linkArtifact(b, exe, target, .static, "");
 
         const run_cmd = exe.run();
         const exe_step = b.step(name, b.fmt("run {s}.zig", .{name}));
@@ -56,11 +56,21 @@ pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std
     artifact.addPackagePath("flecs", prefix_path ++ "src/flecs.zig");
 }
 
-fn compileFlecs(_: *Builder, exe: *std.build.LibExeObjStep, _: std.zig.CrossTarget, comptime prefix_path: []const u8) void {
+fn compileFlecs(builder: *Builder, exe: *std.build.LibExeObjStep, target: std.zig.CrossTarget, comptime prefix_path: []const u8) void {
+    var buildFlags = std.ArrayList([]const u8).init(builder.allocator);
     exe.linkLibC();
     exe.addIncludeDir(prefix_path ++ "flecs");
 
-    const cflags = &[_][]const u8{  };
-    exe.addCSourceFile(prefix_path ++ "flecs/flecs.c", cflags);
+    if(target.isWindows()) {
+        exe.linkSystemLibrary("Ws2_32");
+        buildFlags.append("-DFLECS_OS_API_IMPL") catch unreachable;
+        buildFlags.append("-DECS_TARGET_MSVC") catch unreachable;
+    }
+
+    if(exe.build_mode != std.builtin.Mode.Debug) {
+        buildFlags.append("-O2") catch unreachable;
+    }
+
+    exe.addCSourceFile(prefix_path ++ "flecs/flecs.c", buildFlags.items);
 }
 
