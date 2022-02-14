@@ -202,8 +202,9 @@ pub const Filter = struct {
             return &column(&self.iter, T, column_index + 1)[self.index - 1];
         }
 
+        /// gets a term that is not optional but is readonly
         pub fn getConst(self: @This(), comptime T: type) *const T {
-            // validate the term is actialy readonly in debug builds
+            // validate the term is actually readonly in debug builds
             if (@import("builtin").mode == .Debug) {
                 var comp_id = componentHandle(T).*;
                 var i: usize = 0;
@@ -221,6 +222,27 @@ pub const Filter = struct {
 
         /// gets a term that is optional. Returns null if it isnt found.
         pub fn getOpt(self: @This(), comptime T: type) ?*T {
+            const column_index = flecs.ecs_iter_find_column(&self.iter, componentHandle(T).*);
+            if (columnOpt(&self.iter, T, column_index + 1, true)) |col| {
+                return &col[self.index - 1];
+            }
+            return null;
+        }
+
+        /// gets a term that is optional and readonly. Returns null if it isnt found.
+        pub fn getConstOpt(self: @This(), comptime T: type) ?*const T {
+            // validate the term is actually readonly in debug builds
+            if (@import("builtin").mode == .Debug) {
+                var comp_id = componentHandle(T).*;
+                var i: usize = 0;
+                while (i < self.iter.term_count) : (i += 1) {
+                    if (self.iter.terms[i].id == comp_id) {
+                        std.debug.assert(flecs.ecs_term_is_readonly(&self.iter, @intCast(i32, i + 1)));
+                        break;
+                    }
+                }
+            }
+
             const column_index = flecs.ecs_iter_find_column(&self.iter, componentHandle(T).*);
             if (columnOpt(&self.iter, T, column_index + 1, true)) |col| {
                 return &col[self.index - 1];
@@ -292,7 +314,7 @@ pub fn EntityIterator(comptime Components: anytype) type {
                 const component_info = @typeInfo(Components).Struct;
                 inline for (component_info.fields) |field, i| {
                     const is_optional = @typeInfo(field.field_type) == .Optional;
-                    const is_readonly = @typeInfo(field.field_type) == .Pointer and @typeInfo(field.field_type).Pointer.is_const;
+                    const is_readonly = (@typeInfo(field.field_type) == .Pointer and @typeInfo(field.field_type).Pointer.is_const) or (@typeInfo(std.meta.Child(field.field_type)) == .Pointer and @typeInfo(std.meta.Child(field.field_type)).Pointer.is_const);
                     const child = std.meta.Child(field.field_type);
                     const col_type = if (is_optional) std.meta.Child(child) else child;
                     const type_entity = componentHandle(col_type).*;
