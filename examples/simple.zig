@@ -81,6 +81,9 @@ pub fn main() !void {
 
     std.debug.print("\n\niterate with a Filter each\n", .{});
     filter.each(eachFilter);
+
+    world.setSingleton(Enemy{ .id = 66 });
+    std.debug.print("---- s: {any}\n", .{world.getSingleton(Enemy)});
 }
 
 fn orderBy(e1: flecs.EntityId, c1: ?*const anyopaque, e2: flecs.EntityId, c2: ?*const anyopaque) callconv(.C) c_int {
