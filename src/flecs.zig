@@ -223,7 +223,7 @@ pub const Filter = struct {
         /// gets a term that is optional. Returns null if it isnt found.
         pub fn getOpt(self: @This(), comptime T: type) ?*T {
             const column_index = flecs.ecs_iter_find_column(&self.iter, componentHandle(T).*);
-            if (columnOpt(&self.iter, T, column_index + 1, true)) |col| {
+            if (columnOpt(&self.iter, T, column_index + 1)) |col| {
                 return &col[self.index - 1];
             }
             return null;
@@ -244,7 +244,7 @@ pub const Filter = struct {
             }
 
             const column_index = flecs.ecs_iter_find_column(&self.iter, componentHandle(T).*);
-            if (columnOpt(&self.iter, T, column_index + 1, true)) |col| {
+            if (columnOpt(&self.iter, T, column_index + 1)) |col| {
                 return &col[self.index - 1];
             }
             return null;
@@ -290,10 +290,7 @@ pub const Query = struct {
     query: *flecs.ecs_query_t,
 
     pub fn init(world: World, builder: *QueryBuilder) @This() {
-        return .{
-            .world = world,
-            .query = flecs.ecs_query_init(world.world, &builder.query).?
-        };
+        return .{ .world = world, .query = flecs.ecs_query_init(world.world, &builder.query).? };
     }
 
     pub fn deinit(self: *@This()) void {
@@ -307,9 +304,9 @@ pub fn EntityIterator(comptime Components: anytype) type {
     return struct {
         iter: flecs.ecs_iter_t,
         index: usize = 0,
-        nextFn: fn([*c]flecs.ecs_iter_t) callconv(.C) bool,
+        nextFn: fn ([*c]flecs.ecs_iter_t) callconv(.C) bool,
 
-        pub fn init(_: World, iter: flecs.ecs_iter_t, nextFn: fn([*c]flecs.ecs_iter_t) callconv(.C) bool) @This() {
+        pub fn init(_: World, iter: flecs.ecs_iter_t, nextFn: fn ([*c]flecs.ecs_iter_t) callconv(.C) bool) @This() {
             if (@import("builtin").mode == .Debug) {
                 const component_info = @typeInfo(Components).Struct;
                 inline for (component_info.fields) |field, i| {
@@ -350,10 +347,10 @@ pub fn EntityIterator(comptime Components: anytype) type {
                 // TODO: handle readonly with ecs_term_is_readonly? perhaps just for an assert?
                 if (is_optional) @field(comps, field.name) = null;
                 const column_index = if (is_optional) flecs.ecs_iter_find_column(&self.iter, componentHandle(col_type).*) else i;
-                // const is_set = flecs.ecs_term_is_set(&self.iter, i + 1); // Flecs bug?
 
+                // const is_set = flecs.ecs_term_is_set(&self.iter, i + 1); // Flecs bug?
                 // std.debug.print("---- col_type: {any}, optional: {any}, i: {d}, col_index: {d}, is_set: {d}\n", .{ col_type, is_optional, i, column_index, is_set });
-                if (columnOpt(&self.iter, col_type, column_index + 1, is_optional)) |col| {
+                if (columnOpt(&self.iter, col_type, column_index + 1)) |col| {
                     @field(comps, field.name) = &col[self.index];
                 }
             }
@@ -369,9 +366,19 @@ pub fn column(iter: [*c]const flecs.ecs_iter_t, comptime T: type, index: i32) [*
     return @ptrCast([*]T, @alignCast(@alignOf(T), col));
 }
 
-pub fn columnOpt(iter: [*c]const flecs.ecs_iter_t, comptime T: type, index: i32, is_optional: bool) ?[*]T {
+/// returns null in the case of column not being present. We need this because we cant check the column_index at runtime due to a zig
+/// bug thinking it is comptime known only.
+pub fn columnOpt(iter: [*c]const flecs.ecs_iter_t, comptime T: type, index: i32) ?[*]T {
     if (index <= 0) return null;
-    var col = if (is_optional) flecs.ecs_iter_column_w_size(iter, @sizeOf(T), index - 1) else flecs.ecs_term_w_size(iter, @sizeOf(T), index);
+    var col = flecs.ecs_term_w_size(iter, @sizeOf(T), index);
+    if (col == null) return null;
+    return @ptrCast([*]T, @alignCast(@alignOf(T), col));
+}
+
+/// used with ecs_iter_find_column to fetch data from terms not in the query
+pub fn columnNonQuery(iter: [*c]const flecs.ecs_iter_t, comptime T: type, index: i32) ?[*]T {
+    if (index <= 0) return null;
+    var col = flecs.ecs_iter_column_w_size(iter, @sizeOf(T), index - 1);
     if (col == null) return null;
     return @ptrCast([*]T, @alignCast(@alignOf(T), col));
 }
