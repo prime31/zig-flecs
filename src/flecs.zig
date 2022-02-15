@@ -12,7 +12,9 @@ pub const QueryBuilder = @import("query_builder.zig").QueryBuilder;
 pub const Term = @import("term.zig").Term;
 pub const Filter = @import("filter.zig").Filter;
 pub const Query = @import("query.zig").Query;
+
 pub const EntityIterator = @import("entity_iterator.zig").EntityIterator;
+pub const TableIterator = @import("table_iterator.zig").TableIterator;
 
 pub usingnamespace @import("utils.zig");
 

@@ -1,8 +1,9 @@
 const std = @import("std");
 const flecs = @import("flecs.zig");
 const utils = @import("utils.zig");
+const meta = @import("meta.zig");
 
-pub fn EntityIterator(comptime Components: anytype) type {
+pub fn EntityIterator(comptime Components: type) type {
     std.debug.assert(@typeInfo(Components) == .Struct);
 
     return struct {
@@ -10,14 +11,13 @@ pub fn EntityIterator(comptime Components: anytype) type {
         index: usize = 0,
         nextFn: fn ([*c]flecs.ecs_iter_t) callconv(.C) bool,
 
-        pub fn init(_: flecs.World, iter: flecs.ecs_iter_t, nextFn: fn ([*c]flecs.ecs_iter_t) callconv(.C) bool) @This() {
+        pub fn init(iter: flecs.ecs_iter_t, nextFn: fn ([*c]flecs.ecs_iter_t) callconv(.C) bool) @This() {
             if (@import("builtin").mode == .Debug) {
                 const component_info = @typeInfo(Components).Struct;
                 inline for (component_info.fields) |field, i| {
                     const is_optional = @typeInfo(field.field_type) == .Optional;
                     const is_readonly = (@typeInfo(field.field_type) == .Pointer and @typeInfo(field.field_type).Pointer.is_const) or (@typeInfo(std.meta.Child(field.field_type)) == .Pointer and @typeInfo(std.meta.Child(field.field_type)).Pointer.is_const);
-                    const child = std.meta.Child(field.field_type);
-                    const col_type = if (is_optional) std.meta.Child(child) else child;
+                    const col_type = meta.FinalChild(field.field_type);
                     const type_entity = utils.componentHandle(col_type).*;
 
                     // ensure order matches for terms vs struct fields

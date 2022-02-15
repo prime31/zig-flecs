@@ -99,8 +99,8 @@ pub const Filter = struct {
         return Iterator.init(flecs.ecs_filter_iter(self.world.world, self.filter));
     }
 
-    pub fn entityIterator(self: *@This(), comptime Components: anytype) flecs.EntityIterator(Components) {
-        return flecs.EntityIterator(Components).init(self.world, flecs.ecs_filter_iter(self.world.world, self.filter), flecs.ecs_filter_next);
+    pub fn entityIterator(self: *@This(), comptime Components: type) flecs.EntityIterator(Components) {
+        return flecs.EntityIterator(Components).init(flecs.ecs_filter_iter(self.world.world, self.filter), flecs.ecs_filter_next);
     }
 
     pub fn each(self: *@This(), comptime func: anytype) void {

@@ -38,7 +38,7 @@ pub const World = struct {
     pub fn newPrefab(self: World, name: [*c]const u8) flecs.EntityId {
         var desc = std.mem.zeroInit(flecs.ecs_entity_desc_t, .{
             .name = name,
-            .add = [1]flecs.ecs_id_t{flecs.EcsPrefab} + [_]flecs.ecs_id_t{0} ** 31,
+            .add = [1]flecs.ecs_id_t{flecs.EcsPrefab} ++ [_]flecs.ecs_id_t{0} ** 31,
         });
         return flecs.ecs_entity_init(self.world, &desc);
     }
