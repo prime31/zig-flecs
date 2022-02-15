@@ -26,7 +26,7 @@ var table_iter = filter.tableIterator(struct { pos: *Position, vel: *const Veloc
 //      enemy: ?[*]Enemy,
 // }
 
-// while loops through the tables. Each iteration the `iter` returned has the arrays from the filter
+// while loops through the tables. Each iteration the `iter` returned has the arrays from the struct passed to the filter
 while (table_iter.next()) |iter| {
     // use this world for any mutation. TODO: do filters have a stage? If so we need to put the correct world in the iter
     var world = table_iter.world;
@@ -36,7 +36,7 @@ while (table_iter.next()) |iter| {
     while (i < iter.count) : (i += 1) {
         iter.data.pos[i] += iter.data.vel[i];
         if (iter.data.acc) |acc| {
-            iter.data.pos[i] *= acc;
+            iter.data.pos[i] *= acc[i];
         }
     }
 }
