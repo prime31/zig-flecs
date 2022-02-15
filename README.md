@@ -1,5 +1,7 @@
 ## Flecs zig bindings
 
+Currently quite messy and in progress zigification of the Flecs API.
+
 #### TODO:
 - make a `Filter` struct and interator to match the `Term` one (iterator will need to take in an anonymous struct and do a bit of comptime magic)
 - make a `Query` struct and interator to match the `Filter` one

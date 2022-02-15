@@ -22,6 +22,7 @@ fn componentHandle(comptime T: type) *EntityId {
 
 pub const World = struct {
     world: *flecs.ecs_world_t,
+    enable_type_reflection: bool = false,
 
     pub fn init() World {
         return .{ .world = flecs.ecs_init().? };
@@ -36,8 +37,8 @@ pub const World = struct {
     }
 
     /// available at https://www.flecs.dev/explorer/
-    pub fn enableHttp(self: World) void {
-        _ = flecs.ecs_set_id(self.world, 0, flecs.FLECS__EEcsRest, @sizeOf(flecs.EcsRest), &std.mem.zeroes(flecs.EcsRest));
+    pub fn enableWebExplorer(self: World) void {
+        _ = flecs.ecs_set_id(self.world, flecs.FLECS__EEcsRest, flecs.FLECS__EEcsRest, @sizeOf(flecs.EcsRest), &std.mem.zeroes(flecs.EcsRest));
     }
 
     pub fn progress(self: World, delta_time: f32) void {
@@ -80,7 +81,7 @@ pub const World = struct {
             .alignment = @alignOf(T),
         });
         handle.* = flecs.ecs_component_init(self.world, &desc);
-        self.registerReflectionData(T, handle.*);
+        if (self.enable_type_reflection) self.registerReflectionData(T, handle.*);
         return handle.*;
     }
 
@@ -99,9 +100,42 @@ pub const World = struct {
 
                     // TODO: support nested structs
                     member.type = switch (field.field_type) {
+                        // Struct => self.newComponent(field.field_type),
+                        bool => flecs.FLECS__Eecs_bool_t,
                         f32 => flecs.FLECS__Eecs_f32_t,
+                        f64 => flecs.FLECS__Eecs_f64_t,
                         u8 => flecs.FLECS__Eecs_u8_t,
-                        else => unreachable,
+                        u16 => flecs.FLECS__Eecs_u16_t,
+                        u32 => flecs.FLECS__Eecs_u32_t,
+                        // u64 => flecs.FLECS__Eecs_u64_t, // causes duplidate due to EntityId
+                        EntityId => flecs.FLECS__Eecs_entity_t,
+                        i8 => flecs.FLECS__Eecs_i8_t,
+                        i16 => flecs.FLECS__Eecs_i16_t,
+                        i32 => flecs.FLECS__Eecs_i32_t,
+                        i64 => flecs.FLECS__Eecs_i64_t,
+                        usize => flecs.FLECS__Eecs_uptr_t,
+                        []const u8 => flecs.FLECS__Eecs_string_t,
+                        [*]const u8 => flecs.FLECS__Eecs_string_t,
+                        else => blk: {
+                            if (@typeInfo(field.field_type) == .Struct)
+                                break :blk self.newComponent(field.field_type);
+
+                            if (@typeInfo(field.field_type) == .Enum) {
+                                var enum_desc = std.mem.zeroes(flecs.ecs_enum_desc_t);
+                                enum_desc.entity.entity = componentHandle(T).*;
+
+                                inline for (@typeInfo(field.field_type).Enum.fields) |f, index| {
+                                    enum_desc.constants[index] = std.mem.zeroInit(flecs.ecs_enum_constant_t, .{
+                                        .name = &f.name,
+                                        .value = @intCast(i33, f.value),
+                                    });
+                                }
+
+                                break :blk flecs.ecs_enum_init(self.world, &enum_desc);
+                            }
+                            std.debug.print("unhandled field type: {any}, ti: {any}\n", .{field.field_type, @typeInfo(field.field_type)});
+                            unreachable;
+                        },
                     };
                     desc.members[i] = member;
                 }
@@ -157,14 +191,14 @@ pub const World = struct {
 
         const T = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) std.meta.Child(@TypeOf(ptr_or_struct)) else @TypeOf(ptr_or_struct);
         var component = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) ptr_or_struct else &ptr_or_struct;
-        _ = flecs.ecs_set_id(self.world, 0, self.newComponent(T), @sizeOf(T), component);
+        _ = flecs.ecs_set_id(self.world, self.newComponent(T), self.newComponent(T), @sizeOf(T), component);
     }
 
     // TODO: use ecs_get_mut_id optionally based on a bool perhaps?
     pub fn getSingleton(self: World, comptime T: type) ?* const T {
         std.debug.assert(@typeInfo(T) == .Struct);
         // TODO: figure out params for this without macros
-        var val = flecs.ecs_get_id(self.world, 0, self.newComponent(T));
+        var val = flecs.ecs_get_id(self.world, self.newComponent(T), self.newComponent(T));
         if (val == null) return null;
         return @ptrCast(*const T, @alignCast(@alignOf(T), val));
     }
