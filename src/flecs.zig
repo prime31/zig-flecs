@@ -186,6 +186,30 @@ pub const World = struct {
         _ = flecs.ecs_set_id(self.world, entity, self.newComponent(T), @sizeOf(T), component);
     }
 
+    /// removes a component from an Entity
+    pub fn remove(self: *World, entity: EntityId, comptime T: type) void {
+        flecs.ecs_remove_id(self.world, entity, self.newComponent(T));
+    }
+
+    /// removes all components from an Entity
+    pub fn clear(self: *World, entity: EntityId) void {
+        flecs.ecs_clear(self.world, entity);
+    }
+
+    pub fn delete(self: *World, entity: EntityId) void {
+        flecs.ecs_delete(self.world, entity);
+    }
+
+    /// deletes all entities with the component
+    pub fn deleteWith(self: *World, comptime T: type) void {
+        flecs.ecs_delete_with(self.world, self.newComponent(T));
+    }
+
+    /// remove all instances of the specified component
+    pub fn removeAll(self: *World, comptime T: type) void {
+        flecs.ecs_remove_all(self.world, self.newComponent(T));
+    }
+
     pub fn setSingleton(self: World, ptr_or_struct: anytype) void {
         std.debug.assert(@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer or @typeInfo(@TypeOf(ptr_or_struct)) == .Struct);
 
@@ -197,10 +221,22 @@ pub const World = struct {
     // TODO: use ecs_get_mut_id optionally based on a bool perhaps?
     pub fn getSingleton(self: World, comptime T: type) ?* const T {
         std.debug.assert(@typeInfo(T) == .Struct);
-        // TODO: figure out params for this without macros
         var val = flecs.ecs_get_id(self.world, self.newComponent(T), self.newComponent(T));
         if (val == null) return null;
         return @ptrCast(*const T, @alignCast(@alignOf(T), val));
+    }
+
+    pub fn getSingletonMut(self: World, comptime T: type) ?*T {
+        std.debug.assert(@typeInfo(T) == .Struct);
+        var is_added: bool = undefined;
+        var val = flecs.ecs_get_mut_id(self.world, self.newComponent(T), self.newComponent(T), &is_added);
+        if (val == null) return null;
+        return @ptrCast(*T, @alignCast(@alignOf(T), val));
+    }
+
+    pub fn removeSingleton(self: World, comptime T: type) void {
+        std.debug.assert(@typeInfo(T) == .Struct);
+        flecs.ecs_remove_id(self.world, self.newComponent(T), self.newComponent(T));
     }
 };
 
