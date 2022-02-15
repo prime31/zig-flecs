@@ -74,8 +74,8 @@ pub fn main() !void {
     }
 
     std.debug.print("\n\niterate with a Filter g_iter\n", .{});
-    var g_iter = filter.entityIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
-    while (g_iter.next()) |comps| {
+    var entity_iter = filter.entityIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+    while (entity_iter.next()) |comps| {
         std.debug.print("comps: {any}\n", .{comps});
     }
 
