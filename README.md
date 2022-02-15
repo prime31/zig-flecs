@@ -40,6 +40,19 @@ while (table_iter.next()) |iter| {
         }
     }
 }
+
+// an each variant might get ugly because the Type for the callback has to be:
+// TableIterator(struct { pos: *Position, vel: *const Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy })
+filter.tableIteratorEach(struct { pos: *Position, vel: *const Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+
+// which results in a pretty ugly mess
+fn each(iter: TableIterator(struct { pos: *Position, vel: *const Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy })) void {}
+
+// it can be cleaned up a bit but its still a bit unruly
+const TI = TableIterator(struct { pos: *Position, vel: *const Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+filter.tableIteratorEach(TI, each);
+
+fn each(iter: TI) void {}
 ```
 
 
