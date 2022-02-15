@@ -18,7 +18,7 @@ pub fn main() !void {
     world.setName(entity1, "MyEntityYo");
 
     const entity2 = world.newEntityWithName("MyEntity2");
-    std.debug.print("{s}\n\n", .{world.getName(entity1)});
+    std.debug.print("entity name: {s}\n", .{world.getName(entity1)});
 
     const entity3 = world.newEntityWithName("HasAccel");
     const entity4 = world.newEntityWithName("HasNoVel");
@@ -54,7 +54,7 @@ pub fn main() !void {
         std.debug.print("pos: {d}, vel: {d}, player: {d}\n", .{ filter_iter.getConst(Position), filter_iter.get(Velocity), filter_iter.getOpt(Player) });
     }
 
-    std.debug.print("\n\niterate with a Filter g_iter\n", .{});
+    std.debug.print("\n\niterate with a Filter entityIterator\n", .{});
     var entity_iter = filter.entityIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
     while (entity_iter.next()) |comps| {
         std.debug.print("comps: {any}\n", .{comps});
@@ -64,14 +64,15 @@ pub fn main() !void {
     filter.each(eachFilter);
 }
 
+fn eachFilter(e: struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy }) void {
+    std.debug.print("comps: {any}\n", .{e});
+}
+
+// only for queries/systems
 fn orderBy(e1: flecs.EntityId, c1: ?*const anyopaque, e2: flecs.EntityId, c2: ?*const anyopaque) callconv(.C) c_int {
     const p1 = @ptrCast(*const Position, @alignCast(@alignOf(Position), c1));
     const p2 = @ptrCast(*const Position, @alignCast(@alignOf(Position), c2));
     _ = e1;
     _ = e2;
     return if (p1.x < p2.x) 1 else -1;
-}
-
-fn eachFilter(e: struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy }) void {
-    std.debug.print("comps: {any}\n", .{e});
 }

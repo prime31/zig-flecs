@@ -15,7 +15,6 @@ pub const Query = @import("query.zig").Query;
 pub const EntityIterator = @import("entity_iterator.zig").EntityIterator;
 
 pub usingnamespace @import("utils.zig");
-const utils = @import("utils.zig");
 
 
 // Builtin pipeline tags
