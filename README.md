@@ -11,6 +11,38 @@ Currently quite messy and in progress zigification of the Flecs API.
 - figure out a good, clean way to handle Systems ergonomically. Start with a simple ecs_iter_t wrapper since that is always passed to systems
 
 
+#### TableIterator Musings and Potential API
+```zig
+var filter = ...
+
+var table_iter = filter.tableIterator(struct { pos: *Position, vel: *const Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+
+// inner iter.data is derived from the struct passed into the TableIterator
+// const Data = struct {
+//      pos: [*]Position,
+//      vel: [*]const Velocity,
+//      acc: ?[*]Acceleration,
+//      player: ?[*]Player,
+//      enemy: ?[*]Enemy,
+// }
+
+// while loops through the tables. Each iteration the `iter` returned has the arrays from the filter
+while (table_iter.next()) |iter| {
+    // use this world for any mutation. TODO: do filters have a stage? If so we need to put the correct world in the iter
+    var world = table_iter.world;
+
+    // inner loop loops through the entities in the table
+    var i: usize = 0;
+    while (i < iter.count) : (i += 1) {
+        iter.data.pos[i] += iter.data.vel[i];
+        if (iter.data.acc) |acc| {
+            iter.data.pos[i] *= acc;
+        }
+    }
+}
+```
+
+
 
 ### Terms
 Terms are used to iterate a single component type.
