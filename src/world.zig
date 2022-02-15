@@ -89,8 +89,12 @@ pub const World = struct {
                         u8 => flecs.FLECS__Eecs_u8_t,
                         u16 => flecs.FLECS__Eecs_u16_t,
                         u32 => flecs.FLECS__Eecs_u32_t,
-                        // u64 => flecs.FLECS__Eecs_u64_t, // causes duplidate due to flecs.EntityId
-                        flecs.EntityId => flecs.FLECS__Eecs_entity_t,
+                        flecs.EntityId => blk: {
+                            // bit of a hack, but if the field name has "entity" in it we consider it an Entity reference
+                            if (std.mem.indexOf(u8, field.name, "entity") != null)
+                                break :blk flecs.FLECS__Eecs_entity_t;
+                            break :blk flecs.FLECS__Eecs_u64_t;
+                        },
                         i8 => flecs.FLECS__Eecs_i8_t,
                         i16 => flecs.FLECS__Eecs_i16_t,
                         i32 => flecs.FLECS__Eecs_i32_t,

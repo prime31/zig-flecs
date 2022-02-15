@@ -1,13 +1,13 @@
-## Flecs zig bindings
+## Flecs Zig Bindings
 
 Currently quite messy and in progress zigification of the Flecs API.
 
 #### TODO:
-- make a `Filter` struct and interator to match the `Term` one (iterator will need to take in an anonymous struct and do a bit of comptime magic)
 - make a `Query` struct and interator to match the `Filter` one
-- make two ways to iterate for Filter/Query:
-    1. each: iterates each entity (currently almost ready for Filters)
-    2. iter: iterates each archetype and provides component arrays for each. Not sure the best way to handle this yet. Would need to pass into the method the relevant term arrays and some kind of iterator object to use for the loop and for optional lookups and access to the World. (https://github.com/SanderMertens/flecs/blob/master/docs/Queries.md#iter-c)
+- make three ways to iterate for Filter/Query:
+    1. iterator: iterates just the entities and requires manually fetching components (done)
+    2. entityIterator: iterates each entity (done)
+    3. tableIterator: iterates each archetype and provides component arrays for each. Not sure the best way to handle this yet. Would need to pass into the method the relevant term arrays and some kind of iterator object to use for the loop and for optional lookups and access to the World. (https://github.com/SanderMertens/flecs/blob/master/docs/Queries.md#iter-c)
 - figure out a good, clean way to handle Systems ergonomically. Start with a simple ecs_iter_t wrapper since that is always passed to systems
 
 
@@ -53,7 +53,8 @@ var filter_iter = filter.iterator();
 while (filter_iter.next()) |_| {
     // the appropriate get* method must be used and is validated in debug builds. `get` is for mutable components, `getConst` is for readonly components
     // and `getOpt` is for optional components and those added to the QueryBuilder with `either`
-    std.debug.print("pos: {d}, vel: {d}, player: {d}\n", .{ filter_iter.getConst(Position), filter_iter.get(Velocity), filter_iter.getOpt(Player) });
+    std.debug.print("pos: {d}, vel: {d}, player: {d}\n",
+        .{ filter_iter.getConst(Position), filter_iter.get(Velocity), filter_iter.getOpt(Player) });
 }
 
 // EntityIterator allows you to iterate all the entities regardless of which table they are in with a single iteration. Note that the struct passed in
@@ -64,7 +65,7 @@ while (entity_iter.next()) |comps| {
     std.debug.print("comps: {any}\n", .{comps});
 }
 
-// iterate with a function called for each entity that has the component. The same rules apply as above for the struct passed in.
+// iterate with a function called for each entity that mathces the filter. The same rules apply as above for the struct passed in.
 filter.each(eachFilter);
 
 fn eachFilter(e: struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy }) void {

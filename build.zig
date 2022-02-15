@@ -11,8 +11,10 @@ pub fn build(b: *std.build.Builder) anyerror!void {
     const target = b.standardTargetOptions(.{});
 
     const examples = [_][2][]const u8{
-        [_][]const u8{ "simple", "examples/simple.zig" },
         [_][]const u8{ "raw", "examples/raw.zig" },
+        [_][]const u8{ "term", "examples/term.zig" },
+        [_][]const u8{ "filter", "examples/filter.zig" },
+        [_][]const u8{ "systems", "examples/systems.zig" },
         [_][]const u8{ "benchmark", "examples/benchmark.zig" },
         [_][]const u8{ "generator", "examples/generator.zig" },
     };

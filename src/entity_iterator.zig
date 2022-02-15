@@ -2,7 +2,7 @@ const std = @import("std");
 const flecs = @import("flecs.zig");
 const utils = @import("utils.zig");
 
-pub fn EntityIdIterator(comptime Components: anytype) type {
+pub fn EntityIterator(comptime Components: anytype) type {
     std.debug.assert(@typeInfo(Components) == .Struct);
 
     return struct {
