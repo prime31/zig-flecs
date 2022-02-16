@@ -29,7 +29,7 @@ pub fn EntityIterator(comptime Components: type) type {
 
                 if (is_optional) @field(comps, field.name) = null;
                 const column_index = self.iter.terms[i].index;
-                var skip_term = if (is_optional) flecs.componentHandle(col_type).* != flecs.ecs_term_id(&self.iter, @intCast(usize, column_index + 1)) else false;
+                var skip_term = if (is_optional) meta.componentHandle(col_type).* != flecs.ecs_term_id(&self.iter, @intCast(usize, column_index + 1)) else false;
 
                 // note that an OR is actually a single term!
                 // const is_set = flecs.ecs_term_is_set(&self.iter, self.iter.terms[i].index + 1);

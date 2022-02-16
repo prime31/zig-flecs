@@ -1,14 +1,6 @@
 const std = @import("std");
 const flecs = @import("flecs.zig");
 
-/// registered component handle cache
-pub fn componentHandle(comptime T: type) *flecs.EntityId {
-    _ = T;
-    return &(struct {
-        pub var handle: flecs.EntityId = std.math.maxInt(u64);
-    }.handle);
-}
-
 pub fn column(iter: [*c]const flecs.ecs_iter_t, comptime T: type, index: i32) [*]T {
     var col = flecs.ecs_term_w_size(iter, @sizeOf(T), index);
     return @ptrCast([*]T, @alignCast(@alignOf(T), col));

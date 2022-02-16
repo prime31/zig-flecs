@@ -35,7 +35,7 @@ pub fn TableIterator(comptime Components: type) type {
 
                 if (is_optional) @field(iter.data, field.name) = null;
                 const column_index = self.iter.terms[i].index;
-                var skip_term = if (is_optional) flecs.componentHandle(col_type).* != flecs.ecs_term_id(&self.iter, @intCast(usize, column_index + 1)) else false;
+                var skip_term = if (is_optional) meta.componentHandle(col_type).* != flecs.ecs_term_id(&self.iter, @intCast(usize, column_index + 1)) else false;
 
                 // note that an OR is actually a single term!
                 // std.debug.print("---- col_type: {any}, optional: {any}, i: {d}, col_index: {d}\n", .{ col_type, is_optional, i, column_index });

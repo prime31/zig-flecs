@@ -1,6 +1,7 @@
 const std = @import("std");
 const flecs = @import("flecs.zig");
 const utils = @import("utils.zig");
+const meta = @import("meta.zig");
 
 pub const Filter = struct {
     world: flecs.World,
@@ -26,12 +27,12 @@ pub const Filter = struct {
         }
 
         pub fn entity(self: *@This()) flecs.Entity {
-            return flecs.Entity.init(flecs.World{ .world = self.iter.world}, self.iter.entities[self.index - 1]);
+            return flecs.Entity.init(flecs.World{ .world = self.iter.world }, self.iter.entities[self.index - 1]);
         }
 
         /// gets the index into the terms array of this type
         fn getTermIndex(self: @This(), comptime T: type) usize {
-            const comp_id = utils.componentHandle(T).*;
+            const comp_id = meta.componentHandle(T).*;
             var i: usize = 0;
             while (i < self.iter.term_count) : (i += 1) {
                 if (self.iter.terms[i].id == comp_id) return i;
@@ -52,7 +53,7 @@ pub const Filter = struct {
             const column_index = self.iter.terms[index].index;
             std.debug.assert(flecs.ecs_term_is_readonly(&self.iter, @intCast(i32, index + 1)));
 
-            // const column_index = flecs.ecs_iter_find_column(&self.iter, utils.componentHandle(T).*);
+            // const column_index = flecs.ecs_iter_find_column(&self.iter, meta.componentHandle(T).*);
             return &utils.column(&self.iter, T, column_index + 1)[self.index - 1];
         }
 
@@ -60,7 +61,7 @@ pub const Filter = struct {
         pub fn getOpt(self: @This(), comptime T: type) ?*T {
             const index = self.getTermIndex(T);
             const column_index = self.iter.terms[index].index;
-            var skip_term = flecs.componentHandle(T).* != flecs.ecs_term_id(&self.iter, @intCast(usize, column_index + 1));
+            var skip_term = meta.componentHandle(T).* != flecs.ecs_term_id(&self.iter, @intCast(usize, column_index + 1));
             if (skip_term) return null;
 
             if (utils.columnOpt(&self.iter, T, column_index + 1)) |col| {
@@ -75,7 +76,7 @@ pub const Filter = struct {
             std.debug.assert(flecs.ecs_term_is_readonly(&self.iter, @intCast(i32, index + 1)));
 
             const column_index = self.iter.terms[index].index;
-            var skip_term = flecs.componentHandle(T).* != flecs.ecs_term_id(&self.iter, @intCast(usize, column_index + 1));
+            var skip_term = meta.componentHandle(T).* != flecs.ecs_term_id(&self.iter, @intCast(usize, column_index + 1));
             if (skip_term) return null;
 
             if (utils.columnOpt(&self.iter, T, column_index + 1)) |col| {
@@ -88,7 +89,7 @@ pub const Filter = struct {
     pub fn init(world: flecs.World, builder: *flecs.QueryBuilder) @This() {
         var filter = @This(){ .world = world };
         filter.filter = std.heap.c_allocator.create(flecs.ecs_filter_t) catch unreachable;
-        std.debug.assert(flecs.ecs_filter_init(world.world, filter.filter, &builder.query.filter) == 0);
+        std.debug.assert(flecs.ecs_filter_init(world.world, filter.filter, &builder.desc.query.filter) == 0);
         return filter;
     }
 
@@ -110,15 +111,39 @@ pub const Filter = struct {
     }
 
     pub fn each(self: *@This(), comptime func: anytype) void {
-        const Components = switch (@typeInfo(@TypeOf(func))) {
-            .BoundFn => |func_info| func_info.args[1].arg_type.?,
-            .Fn => |func_info| func_info.args[0].arg_type.?,
+        comptime var arg_count = switch (@typeInfo(@TypeOf(func))) {
+            .BoundFn => |func_info| func_info.args.len,
+            .Fn => |func_info| func_info.args.len,
             else => std.debug.assert("invalid func"),
         };
 
+        if (arg_count == 1) {
+            const Components = switch (@typeInfo(@TypeOf(func))) {
+                .BoundFn => |func_info| func_info.args[1].arg_type.?,
+                .Fn => |func_info| func_info.args[0].arg_type.?,
+                else => std.debug.assert("invalid func"),
+            };
+
+            var iter = self.entityIterator(Components);
+            while (iter.next()) |comps| {
+                @call(.{ .modifier = .always_inline }, func, .{comps});
+            }
+        } else {
+            const Components = std.meta.ArgsTuple(@TypeOf(func));
+
+            var iter = self.entityIterator(Components);
+            while (iter.next()) |comps| {
+                @call(.{ .modifier = .always_inline }, func, meta.fieldsTuple(Components, comps));
+            }
+        }
+    }
+
+    pub fn each2(self: *@This(), comptime func: anytype) void {
+        const Components = std.meta.ArgsTuple(@TypeOf(func));
+
         var iter = self.entityIterator(Components);
         while (iter.next()) |comps| {
-            @call(.{ .modifier = .always_inline }, func, .{comps});
+            @call(.{ .modifier = .always_inline }, func, meta.fieldsTuple(Components, comps));
         }
     }
 };

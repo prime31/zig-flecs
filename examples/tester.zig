@@ -11,9 +11,6 @@ pub fn main() !void {
     var world = flecs.World.init();
     defer world.deinit();
 
-    // bulk register required components since we use expressions for the systems
-    world.registerComponents(.{ Position, Velocity, Acceleration, Player, Enemy });
-
     const entity1 = world.newEntityWithName("MyEntityYo");
     const entity2 = world.newEntityWithName("MyEntity2");
     const entity3 = world.newEntityWithName("HasAccel");
@@ -61,8 +58,17 @@ pub fn main() !void {
             std.debug.print("i: {d}, pos: {d}, vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ i, it.data.pos[i], it.data.vel[i], accel, player, enemy });
         }
     }
+
+    std.debug.print("\n\niterate with a Filter each with a single struct of components\n", .{});
+    filter.each(eachFilter);
+    std.debug.print("\n\niterate with a Filter each with a param per component\n", .{});
+    filter.each(eachFilterSeperateParams);
 }
 
 fn eachFilter(e: struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy }) void {
     std.debug.print("comps: {any}\n", .{e});
+}
+
+fn eachFilterSeperateParams(pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy) void {
+    std.debug.print("pos: {d}, vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ pos, vel, acc, player, enemy });
 }

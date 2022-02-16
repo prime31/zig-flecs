@@ -11,7 +11,11 @@ Currently quite messy and in progress zigification of the Flecs API.
 - figure out a good, clean way to handle Systems ergonomically. Start with a simple ecs_iter_t wrapper since that is always passed to systems
 
 
-#### TableIterator Musings and API
+### Random Info
+Reflection metadata is enabled by default. To disable it in your root zig file add `pub const disable_reflection = true;`
+
+
+### TableIterator Musings and API
 ```zig
 var filter = ...
 
@@ -93,11 +97,19 @@ while (entity_iter.next()) |comps| {
     std.debug.print("comps: {any}\n", .{comps});
 }
 
-// iterate with a function called for each entity that mathces the filter. The same rules apply as above for the struct passed in.
+// iterate with a function called for each entity that matches the filter. The same rules apply as above for the struct passed in.
 filter.each(eachFilter);
+
+// iterate with a function called for each entity that matches the filter. The same rules apply as above for the struct passed in, with the only
+// difference being each component is a separate parameter.
+filter.each(eachFilterSeperateParams);
 
 fn eachFilter(e: struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy }) void {
     std.debug.print("comps: {any}\n", .{e});
+}
+
+fn eachFilterSeperateParams(pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy) void {
+    std.debug.print("pos: {d}, vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ pos, vel, acc, player, enemy });
 }
 ```
 
