@@ -100,9 +100,15 @@ pub const QueryBuilder = struct {
         return self;
     }
 
-    /// queries/system only
+    /// systems only. This system callback will be called at least once for each table that matches the query
     pub fn callback(self: *@This(), cb: fn ([*c]flecs.ecs_iter_t) callconv(.C) void) *@This() {
         self.callback = cb;
+        return self;
+    }
+
+    /// systems only. This system callback will only be called once. The iterator should then be iterated with ecs_iter_next.
+    pub fn run(self: *@This(), cb: fn ([*c]flecs.ecs_iter_t) callconv(.C) void) *@This() {
+        self.desc.run = cb;
         return self;
     }
 };
