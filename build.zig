@@ -25,7 +25,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         exe.setBuildMode(b.standardReleaseOptions());
 
         // for some reason exe_compiled + debug build results in "illegal instruction 4". Investigate at some point.
-        linkArtifact(b, exe, target, .static, "");
+        linkArtifact(b, exe, target, .exe_compiled, "");
 
         const run_cmd = exe.run();
         const exe_step = b.step(name, b.fmt("run {s}.zig", .{name}));
@@ -62,6 +62,7 @@ fn compileFlecs(builder: *Builder, exe: *std.build.LibExeObjStep, target: std.zi
     exe.addIncludeDir(prefix_path ++ "flecs");
 
     if(target.isWindows()) {
+        exe.target.abi = std.Target.Abi.msvc;
         exe.linkSystemLibrary("Ws2_32");
         buildFlags.append("-DFLECS_OS_API_IMPL") catch unreachable;
         buildFlags.append("-DECS_TARGET_MSVC") catch unreachable;
