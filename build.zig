@@ -61,9 +61,9 @@ pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std
 
 fn compileFlecs(_: *Builder, exe: *std.build.LibExeObjStep, _: std.zig.CrossTarget, comptime prefix_path: []const u8) void {
     exe.linkLibC();
-    exe.addIncludeDir(prefix_path ++ "flecs");
+    exe.addIncludeDir(prefix_path ++ "src/c");
 
     const cflags = &[_][]const u8{  };
-    exe.addCSourceFile(prefix_path ++ "flecs/flecs.c", cflags);
+    exe.addCSourceFile(prefix_path ++ "src/c/flecs.c", cflags);
 }
 
