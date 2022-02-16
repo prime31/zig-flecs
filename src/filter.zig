@@ -103,6 +103,10 @@ pub const Filter = struct {
         return flecs.EntityIterator(Components).init(flecs.ecs_filter_iter(self.world.world, self.filter), flecs.ecs_filter_next);
     }
 
+    pub fn tableIterator(self: *@This(), comptime Components: type) flecs.TableIterator(Components) {
+        return flecs.TableIterator(Components).init(flecs.ecs_filter_iter(self.world.world, self.filter), flecs.ecs_filter_next);
+    }
+
     pub fn each(self: *@This(), comptime func: anytype) void {
         const Components = switch (@typeInfo(@TypeOf(func))) {
             .BoundFn => |func_info| func_info.args[1].arg_type.?,
