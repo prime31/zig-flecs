@@ -19,20 +19,20 @@ pub fn main() !void {
     const entity3 = world.newEntityWithName("HasAccel");
     const entity4 = world.newEntityWithName("HasNoVel");
 
-    world.set(entity1, Position{ .x = 0, .y = 0 });
-    world.set(entity1, Velocity{ .x = 1.1, .y = 1.1 });
-    world.set(entity1, Enemy{ .id = 66 });
+    entity1.set(Position{ .x = 0, .y = 0 });
+    entity1.set(Velocity{ .x = 1.1, .y = 1.1 });
+    entity1.set(Enemy{ .id = 66 });
 
-    world.set(entity2, Position{ .x = 2, .y = 2 });
-    world.set(entity2, Velocity{ .x = 1.2, .y = 1.2 });
-    world.set(entity2, Player{ .id = 3 });
+    entity2.set(Position{ .x = 2, .y = 2 });
+    entity2.set(Velocity{ .x = 1.2, .y = 1.2 });
+    entity2.set(Player{ .id = 3 });
 
-    world.set(entity3, Position{ .x = 3, .y = 3 });
-    world.set(entity3, Velocity{ .x = 1.2, .y = 1.2 });
-    world.set(entity3, Acceleration{ .x = 1.2, .y = 1.2 });
+    entity3.set(Position{ .x = 3, .y = 3 });
+    entity3.set(Velocity{ .x = 1.2, .y = 1.2 });
+    entity3.set(Player{ .id = 4 });
 
-    world.set(entity4, Position{ .x = 4, .y = 4 });
-    world.set(entity4, Acceleration{ .x = 1.2, .y = 1.2 });
+    entity4.set(Position{ .x = 4, .y = 4 });
+    entity4.set(Acceleration{ .x = 1.2, .y = 1.2 });
 
     var builder = flecs.QueryBuilder.init(world)
         .withReadonly(Position)
@@ -49,15 +49,16 @@ pub fn main() !void {
         std.debug.print("comps: {any}\n", .{comps});
     }
 
-    // std.debug.print("\n\niterate with a Filter each\n", .{});
-    // filter.each(eachFilter);
 
     std.debug.print("\n\niterate with a Filter tableIterator\n", .{});
     var table_iter = filter.tableIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
     while (table_iter.next()) |it| {
         var i: usize = 0;
         while (i < it.count) : (i += 1) {
-            std.debug.print("iter: {d}, pos: {d}, vel: {d}\n", .{ i, it.data.pos[i], it.data.pos[i] });
+            const accel = if (it.data.acc) |acc| acc[i] else null;
+            const player = if (it.data.player) |play| play[i] else null;
+            const enemy = if (it.data.enemy) |en| en[i] else null;
+            std.debug.print("i: {d}, pos: {d}, vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ i, it.data.pos[i], it.data.vel[i], accel, player, enemy });
         }
     }
 }

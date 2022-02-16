@@ -1,7 +1,7 @@
 const std = @import("std");
 const flecs = @import("flecs");
 
-const total_entities: i32 = 1_000_000;
+const total_entities: i32 = 100_000;
 pub const Velocity = struct { x: f32, y: f32, z: f64 = 0 };
 pub const Position = struct { x: f32, y: f32 };
 
@@ -34,8 +34,8 @@ fn createEntities(world: *flecs.World) void {
     var i: usize = 0;
     while (i < total_entities) : (i += 1) {
         const e = world.newEntity();
-        world.set(e, &Position{ .x = 100, .y = 100 });
-        world.set(e, &Velocity{ .x = 5, .y = 5 });
+        e.set(&Position{ .x = 100, .y = 100 });
+        e.set(&Velocity{ .x = 5, .y = 5 });
     }
 
     var end = timer.lap();

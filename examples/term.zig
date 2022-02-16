@@ -14,10 +14,10 @@ pub fn main() !void {
     const entity3 = world.newEntityWithName("Entity3");
     const entity4 = world.newEntityWithName("Entity4");
 
-    world.set(entity1, Position{ .x = 0, .y = 0 });
-    world.set(entity2, Position{ .x = 2, .y = 2 });
-    world.set(entity3, Position{ .x = 3, .y = 3 });
-    world.set(entity4, Position{ .x = 4, .y = 4 });
+    entity1.set(Position{ .x = 0, .y = 0 });
+    entity2.set(Position{ .x = 2, .y = 2 });
+    entity3.set(Position{ .x = 3, .y = 3 });
+    entity4.set(Position{ .x = 4, .y = 4 });
 
     std.debug.print("\n\niterate Position with a Term\n", .{});
     var term = flecs.Term(Position).init(world);
@@ -25,13 +25,13 @@ pub fn main() !void {
 
     var iter = term.iterator();
     while (iter.next()) |pos| {
-        std.debug.print("pos: {d}, entity: {d}, name: {s}\n", .{ pos, iter.entity(), world.getName(iter.entity()) });
+        std.debug.print("pos: {d}, entity: {d}, name: {s}\n", .{ pos, iter.entity(), iter.entity().getName() });
     }
 
     std.debug.print("\n\niterate Position with a Term each\n", .{});
     term.each(eachTerm);
 }
 
-fn eachTerm(entity: flecs.EntityId, pos: *Position) void {
+fn eachTerm(entity: flecs.Entity, pos: *Position) void {
     std.debug.print("pos: {d}, entity: {d}\n", .{ pos, entity });
 }

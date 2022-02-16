@@ -7,17 +7,16 @@ Currently quite messy and in progress zigification of the Flecs API.
 - make three ways to iterate for Filter/Query:
     1. iterator: iterates just the entities and requires manually fetching components (done)
     2. entityIterator: iterates each entity (done)
-    3. tableIterator: iterates each archetype and provides component arrays for each. Not sure the best way to handle this yet. Would need to pass into the method the relevant term arrays and some kind of iterator object to use for the loop and for optional lookups and access to the World. (https://github.com/SanderMertens/flecs/blob/master/docs/Queries.md#iter-c)
+    3. tableIterator: iterates each archetype and provides component arrays for each (done)
 - figure out a good, clean way to handle Systems ergonomically. Start with a simple ecs_iter_t wrapper since that is always passed to systems
 
 
-#### TableIterator Musings and Potential API
+#### TableIterator Musings and API
 ```zig
 var filter = ...
-var table_iter = filter.tableIterator(struct { pos: *Position, vel: *const Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
 
-// inner iter.data is derived from the struct passed into the TableIterator
-// const Data = struct {
+// inner iter.data is derived from the struct passed into the TableIterator with the types converted to arrays from the table
+// const Columns = struct {
 //      pos: [*]Position,
 //      vel: [*]const Velocity,
 //      acc: ?[*]Acceleration,
@@ -25,33 +24,18 @@ var table_iter = filter.tableIterator(struct { pos: *Position, vel: *const Veloc
 //      enemy: ?[*]Enemy,
 // }
 
-// while loops through the tables. Each iteration the `iter` returned has the arrays from the struct passed to the filter
-while (table_iter.next()) |iter| {
-    // use this world for any mutation. TODO: do filters have a stage? If so we need to put the correct world in the iter
-    var world = table_iter.world;
-
+// while loops through the tables. Each iteration the `it` returned has the arrays from the `Columns` struct
+var table_iter = filter.tableIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+while (table_iter.next()) |it| {
     // inner loop loops through the entities in the table
     var i: usize = 0;
-    while (i < iter.count) : (i += 1) {
-        iter.data.pos[i] += iter.data.vel[i];
-        if (iter.data.acc) |acc| {
-            iter.data.pos[i] *= acc[i];
-        }
+    while (i < it.count) : (i += 1) {
+        const accel = if (it.data.acc) |acc| acc[i] else null;
+        const player = if (it.data.player) |play| play[i] else null;
+        const enemy = if (it.data.enemy) |en| en[i] else null;
+        std.debug.print("i: {d}, pos: {d}, vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ i, it.data.pos[i], it.data.vel[i], accel, player, enemy });
     }
 }
-
-// an each variant might get ugly because the Type for the callback has to be:
-// TableIterator(struct { pos: *Position, vel: *const Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy })
-filter.tableIteratorEach(struct { pos: *Position, vel: *const Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy }, each);
-
-// which results in a pretty ugly mess
-fn each(iter: TableIterator(struct { pos: *Position, vel: *const Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy })) void {}
-
-// it can be cleaned up a bit but its still a bit unruly
-const TI = TableIterator(struct { pos: *Position, vel: *const Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
-filter.tableIteratorEach(TI, each);
-
-fn each(iter: TI) void {}
 ```
 
 
@@ -96,7 +80,7 @@ defer filter.deinit();
 var filter_iter = filter.iterator();
 while (filter_iter.next()) |_| {
     // the appropriate get* method must be used and is validated in debug builds. `get` is for mutable components, `getConst` is for readonly components
-    // and `getOpt` is for optional components and those added to the QueryBuilder with `either`
+    // and `getOpt/getOptConst` are for optional components and those added to the QueryBuilder with `either`
     std.debug.print("pos: {d}, vel: {d}, player: {d}\n",
         .{ filter_iter.getConst(Position), filter_iter.get(Velocity), filter_iter.getOpt(Player) });
 }

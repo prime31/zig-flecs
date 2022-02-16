@@ -7,6 +7,7 @@ const std = @import("std");
 // pub usingnamespace flecs;
 
 pub const EntityId = flecs.ecs_entity_t;
+pub const Entity = @import("entity.zig").Entity;
 pub const World = @import("world.zig").World;
 pub const QueryBuilder = @import("query_builder.zig").QueryBuilder;
 pub const Term = @import("term.zig").Term;

@@ -26,13 +26,13 @@ pub fn Term(comptime T: type) type {
                 return &array[self.index - 1];
             }
 
-            pub fn entity(self: *@This()) flecs.EntityId {
-                return self.iter.entities[self.index - 1];
+            pub fn entity(self: *@This()) flecs.Entity {
+                return flecs.Entity.init(flecs.World{ .world = self.iter.world.? }, self.iter.entities[self.index - 1]);
             }
         };
 
         pub fn init(world: flecs.World) @This() {
-            var term = std.mem.zeroInit(flecs.ecs_term_t, .{ .id = world.newComponent(T) });
+            var term = std.mem.zeroInit(flecs.ecs_term_t, .{ .id = world.componentId(T) });
             return .{ .world = world, .term = term };
         }
 
@@ -44,10 +44,10 @@ pub fn Term(comptime T: type) type {
             return Iterator.init(flecs.ecs_term_iter(self.world.world, &self.term));
         }
 
-        pub fn each(self: *@This(), func: fn (flecs.EntityId, *T) void) void {
+        pub fn each(self: *@This(), func: fn (flecs.Entity, *T) void) void {
             var iter = self.iterator();
-            while (iter.next()) |e| {
-                func(iter.entity(), e);
+            while (iter.next()) |comp| {
+                func(iter.entity(), comp);
             }
         }
     };

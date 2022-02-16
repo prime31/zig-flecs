@@ -1,6 +1,7 @@
 const std = @import("std");
 const flecs = @import("flecs.zig");
 const utils = @import("utils.zig");
+const Entity = flecs.Entity;
 
 pub const World = struct {
     world: *flecs.ecs_world_t,
@@ -27,12 +28,12 @@ pub const World = struct {
         _ = flecs.ecs_progress(self.world, delta_time);
     }
 
-    pub fn newEntity(self: World) flecs.EntityId {
-        return flecs.ecs_new_id(self.world);
+    pub fn newEntity(self: World) Entity {
+        return Entity.init(self, flecs.ecs_new_id(self.world));
     }
 
-    pub fn newEntityWithName(self: World, name: [*c]const u8) flecs.EntityId {
-        return flecs.ecs_set_name(self.world, 0, name);
+    pub fn newEntityWithName(self: World, name: [*c]const u8) Entity {
+        return Entity.init(self, flecs.ecs_set_name(self.world, 0, name));
     }
 
     pub fn newPrefab(self: World, name: [*c]const u8) flecs.EntityId {
@@ -47,11 +48,12 @@ pub const World = struct {
     pub fn registerComponents(self: World, types: anytype) void {
         std.debug.assert(@typeInfo(@TypeOf(types)) == .Struct);
         inline for (types) |t| {
-            _ = self.newComponent(t);
+            _ = self.componentId(t);
         }
     }
 
-    pub fn newComponent(self: World, comptime T: type) flecs.EntityId {
+    /// gets the EntityId for T creating it if it doesn't already exist
+    pub fn componentId(self: World, comptime T: type) flecs.EntityId {
         var handle = flecs.componentHandle(T);
         if (handle.* < std.math.maxInt(flecs.EntityId)) {
             return handle.*;
@@ -82,7 +84,7 @@ pub const World = struct {
 
                     // TODO: support nested structs
                     member.type = switch (field.field_type) {
-                        // Struct => self.newComponent(field.field_type),
+                        // Struct => self.componentId(field.field_type),
                         bool => flecs.FLECS__Eecs_bool_t,
                         f32 => flecs.FLECS__Eecs_f32_t,
                         f64 => flecs.FLECS__Eecs_f64_t,
@@ -104,7 +106,7 @@ pub const World = struct {
                         [*]const u8 => flecs.FLECS__Eecs_string_t,
                         else => blk: {
                             if (@typeInfo(field.field_type) == .Struct)
-                                break :blk self.newComponent(field.field_type);
+                                break :blk self.componentId(field.field_type);
 
                             if (@typeInfo(field.field_type) == .Enum) {
                                 var enum_desc = std.mem.zeroes(flecs.ecs_enum_desc_t);
@@ -169,12 +171,12 @@ pub const World = struct {
 
         const T = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) std.meta.Child(@TypeOf(ptr_or_struct)) else @TypeOf(ptr_or_struct);
         var component = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) ptr_or_struct else &ptr_or_struct;
-        _ = flecs.ecs_set_id(self.world, entity, self.newComponent(T), @sizeOf(T), component);
+        _ = flecs.ecs_set_id(self.world, entity, self.componentId(T), @sizeOf(T), component);
     }
 
     /// removes a component from an Entity
     pub fn remove(self: *World, entity: flecs.EntityId, comptime T: type) void {
-        flecs.ecs_remove_id(self.world, entity, self.newComponent(T));
+        flecs.ecs_remove_id(self.world, entity, self.componentId(T));
     }
 
     /// removes all components from an Entity
@@ -182,18 +184,19 @@ pub const World = struct {
         flecs.ecs_clear(self.world, entity);
     }
 
+    /// removes the entity from the world
     pub fn delete(self: *World, entity: flecs.EntityId) void {
         flecs.ecs_delete(self.world, entity);
     }
 
     /// deletes all entities with the component
     pub fn deleteWith(self: *World, comptime T: type) void {
-        flecs.ecs_delete_with(self.world, self.newComponent(T));
+        flecs.ecs_delete_with(self.world, self.componentId(T));
     }
 
     /// remove all instances of the specified component
     pub fn removeAll(self: *World, comptime T: type) void {
-        flecs.ecs_remove_all(self.world, self.newComponent(T));
+        flecs.ecs_remove_all(self.world, self.componentId(T));
     }
 
     pub fn setSingleton(self: World, ptr_or_struct: anytype) void {
@@ -201,13 +204,13 @@ pub const World = struct {
 
         const T = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) std.meta.Child(@TypeOf(ptr_or_struct)) else @TypeOf(ptr_or_struct);
         var component = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) ptr_or_struct else &ptr_or_struct;
-        _ = flecs.ecs_set_id(self.world, self.newComponent(T), self.newComponent(T), @sizeOf(T), component);
+        _ = flecs.ecs_set_id(self.world, self.componentId(T), self.componentId(T), @sizeOf(T), component);
     }
 
     // TODO: use ecs_get_mut_id optionally based on a bool perhaps?
     pub fn getSingleton(self: World, comptime T: type) ?* const T {
         std.debug.assert(@typeInfo(T) == .Struct);
-        var val = flecs.ecs_get_id(self.world, self.newComponent(T), self.newComponent(T));
+        var val = flecs.ecs_get_id(self.world, self.componentId(T), self.componentId(T));
         if (val == null) return null;
         return @ptrCast(*const T, @alignCast(@alignOf(T), val));
     }
@@ -215,13 +218,13 @@ pub const World = struct {
     pub fn getSingletonMut(self: World, comptime T: type) ?*T {
         std.debug.assert(@typeInfo(T) == .Struct);
         var is_added: bool = undefined;
-        var val = flecs.ecs_get_mut_id(self.world, self.newComponent(T), self.newComponent(T), &is_added);
+        var val = flecs.ecs_get_mut_id(self.world, self.componentId(T), self.componentId(T), &is_added);
         if (val == null) return null;
         return @ptrCast(*T, @alignCast(@alignOf(T), val));
     }
 
     pub fn removeSingleton(self: World, comptime T: type) void {
         std.debug.assert(@typeInfo(T) == .Struct);
-        flecs.ecs_remove_id(self.world, self.newComponent(T), self.newComponent(T));
+        flecs.ecs_remove_id(self.world, self.componentId(T), self.componentId(T));
     }
 };

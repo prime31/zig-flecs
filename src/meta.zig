@@ -1,4 +1,5 @@
 const std = @import("std");
+const flecs = @import("flecs.zig");
 
 /// given a pointer or optional pointer returns the element type
 pub fn FinalChild(comptime T: type) type {
@@ -84,4 +85,27 @@ pub fn TableIteratorData(comptime Components: type) type {
         .decls = &[_]std.builtin.TypeInfo.Declaration{},
         .is_tuple = false,
     } });
+}
+
+pub fn validateIterator(comptime Components: type, iter: flecs.ecs_iter_t) void {
+    if (@import("builtin").mode == .Debug) {
+        const component_info = @typeInfo(Components).Struct;
+        inline for (component_info.fields) |field, i| {
+            const is_optional = @typeInfo(field.field_type) == .Optional;
+            const is_readonly = (@typeInfo(field.field_type) == .Pointer and @typeInfo(field.field_type).Pointer.is_const) or (@typeInfo(std.meta.Child(field.field_type)) == .Pointer and @typeInfo(std.meta.Child(field.field_type)).Pointer.is_const);
+            const col_type = FinalChild(field.field_type);
+            const type_entity = flecs.componentHandle(col_type).*;
+
+            // ensure order matches for terms vs struct fields
+            std.debug.assert(iter.terms[i].id == type_entity);
+
+            // validate readonly (non-ptr types in the struct) matches up with the inout
+            if (is_readonly) std.debug.assert(iter.terms[i].inout == flecs.EcsIn);
+            if (iter.terms[i].inout == flecs.EcsIn) std.debug.assert(is_readonly);
+
+            // validate optionals (?* types in the struct) mathces up with valid opers
+            if (is_optional) std.debug.assert(iter.terms[i].oper == flecs.EcsOr or iter.terms[i].oper == flecs.EcsOptional);
+            if (iter.terms[i].oper == flecs.EcsOr or iter.terms[i].oper == flecs.EcsOptional) std.debug.assert(is_optional);
+        }
+    }
 }

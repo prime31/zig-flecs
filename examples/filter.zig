@@ -15,29 +15,29 @@ pub fn main() !void {
     world.registerComponents(.{ Position, Velocity, Acceleration, Player, Enemy });
 
     const entity1 = world.newEntity();
-    world.setName(entity1, "MyEntityYo");
+    entity1.setName("MyEntityYo");
 
     const entity2 = world.newEntityWithName("MyEntity2");
-    std.debug.print("entity name: {s}\n", .{world.getName(entity1)});
+    std.debug.print("entity name: {s}\n", .{entity1.getName()});
 
     const entity3 = world.newEntityWithName("HasAccel");
     const entity4 = world.newEntityWithName("HasNoVel");
 
-    world.set(entity1, Position{ .x = 0, .y = 0 });
-    world.set(entity1, Velocity{ .x = 1.1, .y = 1.1 });
-    world.set(entity1, Enemy{ .id = 66 });
-    world.set(entity1, Acceleration{ .x = 1.2, .y = 1.2 });
+    entity1.set(Position{ .x = 0, .y = 0 });
+    entity1.set(Velocity{ .x = 1.1, .y = 1.1 });
+    entity1.set(Enemy{ .id = 66 });
+    entity1.set(Acceleration{ .x = 1.2, .y = 1.2 });
 
-    world.set(entity2, Position{ .x = 2, .y = 2 });
-    world.set(entity2, Velocity{ .x = 1.2, .y = 1.2 });
-    world.set(entity2, Player{ .id = 3 });
+    entity2.set(Position{ .x = 2, .y = 2 });
+    entity2.set(Velocity{ .x = 1.2, .y = 1.2 });
+    entity2.set(Player{ .id = 3 });
 
-    world.set(entity3, Position{ .x = 3, .y = 3 });
-    world.set(entity3, Velocity{ .x = 1.2, .y = 1.2 });
-    world.set(entity3, Acceleration{ .x = 1.2, .y = 1.2 });
+    entity3.set(Position{ .x = 3, .y = 3 });
+    entity3.set(Velocity{ .x = 1.2, .y = 1.2 });
+    entity3.set(Acceleration{ .x = 1.2, .y = 1.2 });
 
-    world.set(entity4, Position{ .x = 4, .y = 4 });
-    world.set(entity4, Acceleration{ .x = 1.2, .y = 1.2 });
+    entity4.set(Position{ .x = 4, .y = 4 });
+    entity4.set(Acceleration{ .x = 1.2, .y = 1.2 });
 
     std.debug.print("\n\niterate with a Filter\n", .{});
     var builder = flecs.QueryBuilder.init(world)
