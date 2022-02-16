@@ -16,20 +16,20 @@ pub const QueryBuilder = struct {
 
     /// adds an InOut (read/write) component to the query
     pub fn with(self: *@This(), comptime T: type) *@This() {
-        self.query.filter.terms[self.terms_count].id = self.world.newComponent(T);
+        self.query.filter.terms[self.terms_count].id = self.world.componentId(T);
         self.terms_count += 1;
         return self;
     }
 
     pub fn withReadonly(self: *@This(), comptime T: type) *@This() {
-        self.query.filter.terms[self.terms_count].id = self.world.newComponent(T);
+        self.query.filter.terms[self.terms_count].id = self.world.componentId(T);
         self.query.filter.terms[self.terms_count].inout = flecs.EcsIn;
         self.terms_count += 1;
         return self;
     }
 
     pub fn withWriteonly(self: *@This(), comptime T: type) *@This() {
-        self.query.filter.terms[self.terms_count].id = self.world.newComponent(T);
+        self.query.filter.terms[self.terms_count].id = self.world.componentId(T);
         self.query.filter.terms[self.terms_count].inout = flecs.EcsOut;
         self.terms_count += 1;
         return self;
@@ -37,7 +37,7 @@ pub const QueryBuilder = struct {
 
     pub fn without(self: *@This(), comptime T: type) *@This() {
         self.query.filter.terms[self.terms_count] = std.mem.zeroInit(flecs.ecs_term_t, .{
-            .id = self.world.newComponent(T),
+            .id = self.world.componentId(T),
             .oper = flecs.EcsNot,
         });
         self.terms_count += 1;
@@ -46,7 +46,7 @@ pub const QueryBuilder = struct {
 
     pub fn optional(self: *@This(), comptime T: type) *@This() {
         self.query.filter.terms[self.terms_count] = std.mem.zeroInit(flecs.ecs_term_t, .{
-            .id = self.world.newComponent(T),
+            .id = self.world.componentId(T),
             .oper = flecs.EcsOptional,
         });
         self.terms_count += 1;
@@ -55,12 +55,12 @@ pub const QueryBuilder = struct {
 
     pub fn either(self: *@This(), comptime T1: type, comptime T2: type) *@This() {
         self.query.filter.terms[self.terms_count] = std.mem.zeroInit(flecs.ecs_term_t, .{
-            .id = self.world.newComponent(T1),
+            .id = self.world.componentId(T1),
             .oper = flecs.EcsOr,
         });
         self.terms_count += 1;
         self.query.filter.terms[self.terms_count] = std.mem.zeroInit(flecs.ecs_term_t, .{
-            .id = self.world.newComponent(T2),
+            .id = self.world.componentId(T2),
             .oper = flecs.EcsOr,
         });
         self.terms_count += 1;
@@ -73,22 +73,22 @@ pub const QueryBuilder = struct {
         return self;
     }
 
-    pub fn singleton(self: *@This(), comptime T: type, entity: flecs.Entity) *@This() {
-        self.query.filter.terms[self.terms_count] = std.mem.zeroInit(flecs.ecs_term_t, .{ .id = self.world.newComponent(T) });
+    pub fn singleton(self: *@This(), comptime T: type, entity: flecs.EntityId) *@This() {
+        self.query.filter.terms[self.terms_count] = std.mem.zeroInit(flecs.ecs_term_t, .{ .id = self.world.componentId(T) });
         self.query.filter.terms[self.terms_count].subj.entity = entity;
         self.terms_count += 1;
         return self;
     }
 
     /// queries/system only
-    pub fn orderBy(self: *@This(), comptime T: type, orderByFn: fn (flecs.Entity, ?*const anyopaque, flecs.Entity, ?*const anyopaque) callconv(.C) c_int) *@This() {
-        self.query.order_by_component = self.world.newComponent(T);
+    pub fn orderBy(self: *@This(), comptime T: type, orderByFn: fn (flecs.EntityId, ?*const anyopaque, flecs.EntityId, ?*const anyopaque) callconv(.C) c_int) *@This() {
+        self.query.order_by_component = self.world.componentId(T);
         self.query.order_by = orderByFn;
         return self;
     }
 
     /// queries/system only
-    pub fn orderByEntity(self: *@This(), orderByFn: fn (flecs.Entity, ?*const anyopaque, flecs.Entity, ?*const anyopaque) callconv(.C) c_int) *@This() {
+    pub fn orderByEntity(self: *@This(), orderByFn: fn (flecs.EntityId, ?*const anyopaque, flecs.EntityId, ?*const anyopaque) callconv(.C) c_int) *@This() {
         self.query.order_by = orderByFn;
         return self;
     }

@@ -1,7 +1,7 @@
 const std = @import("std");
 const flecs = @import("flecs");
 
-const total_entities: i32 = 1_000_000;
+const total_entities: i32 = 100_000;
 pub const Velocity = struct { x: f32, y: f32, z: f64 = 0 };
 pub const Position = struct { x: f32, y: f32 };
 
@@ -9,9 +9,7 @@ pub fn main() !void {
     var world = flecs.World.init();
     defer world.deinit();
 
-    _ = world.newComponent(Position);
-    _ = world.newComponent(Velocity);
-
+    world.registerComponents(.{Position, Velocity});
     world.newSystem("Move", .on_update, "Position, Velocity", move);
 
     createEntities(&world);
@@ -36,8 +34,8 @@ fn createEntities(world: *flecs.World) void {
     var i: usize = 0;
     while (i < total_entities) : (i += 1) {
         const e = world.newEntity();
-        world.set(e, &Position{ .x = 100, .y = 100 });
-        world.set(e, &Velocity{ .x = 5, .y = 5 });
+        e.set(&Position{ .x = 100, .y = 100 });
+        e.set(&Velocity{ .x = 5, .y = 5 });
     }
 
     var end = timer.lap();
@@ -49,5 +47,5 @@ fn iterateEntities(world: flecs.World) void {
     world.progress(0);
 
     var end = timer.lap();
-    std.debug.print("iterate entities: \t{d}\n", .{@intToFloat(f64, end) / 1000000000});
+    std.debug.print("iterate entities: \t\t{d}\n", .{@intToFloat(f64, end) / 1000000000});
 }
