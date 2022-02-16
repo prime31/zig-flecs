@@ -11,31 +11,29 @@ pub fn build(b: *std.build.Builder) anyerror!void {
     const target = b.standardTargetOptions(.{});
 
     const examples = [_][2][]const u8{
+        [_][]const u8{ "raw", "examples/raw.zig" },
+        [_][]const u8{ "tester", "examples/tester.zig" },
+        [_][]const u8{ "terms", "examples/terms.zig" },
+        [_][]const u8{ "filters", "examples/filters.zig" },
+        [_][]const u8{ "systems", "examples/systems.zig" },
         [_][]const u8{ "benchmark", "examples/benchmark.zig" },
         [_][]const u8{ "simple", "examples/simple.zig" },
         [_][]const u8{ "generator", "examples/generator.zig" },
     };
 
-    for (examples) |example, i| {
-        const name = if (i == 0) "ecs" else example[0];
+    for (examples) |example| {
+        const name = example[0];
         const source = example[1];
 
         var exe = b.addExecutable(name, source);
         exe.setBuildMode(b.standardReleaseOptions());
 
         // for some reason exe_compiled + debug build results in "illegal instruction 4". Investigate at some point.
-        linkArtifact(b, exe, target, .exe_compiled, "");
+        linkArtifact(b, exe, target, if (target.isWindows()) .static else .exe_compiled, "");
 
         const run_cmd = exe.run();
         const exe_step = b.step(name, b.fmt("run {s}.zig", .{name}));
         exe_step.dependOn(&run_cmd.step);
-
-        // first element in the list is added as "run" so "zig build run" works
-        if (i == 0) {
-            exe.setOutputDir("zig-cache/bin");
-            const run_exe_step = b.step("run", b.fmt("run {s}.zig", .{name}));
-            run_exe_step.dependOn(&run_cmd.step);
-        }
     }
 }
 
@@ -49,6 +47,7 @@ pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std
             lib.setBuildMode(std.builtin.Mode.ReleaseFast);
             lib.setTarget(target);
 
+            if (target.isWindows()) artifact.target.abi = std.Target.Abi.msvc;
             compileFlecs(b, lib, target, prefix_path);
             lib.install();
 
@@ -63,13 +62,23 @@ pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std
 }
 
 fn compileFlecs(b: *Builder, exe: *std.build.LibExeObjStep, target: std.zig.CrossTarget, comptime prefix_path: []const u8) void {
-    _ = b;
-    _ = target;
     exe.linkLibC();
-    exe.addIncludeDir(prefix_path ++ "flecs");
+    exe.addIncludeDir(prefix_path ++ "src/c");
 
-    const cflags = &[_][]const u8{ "-DFALSE=0", "-DTRUE=1" };
-    exe.addCSourceFile(prefix_path ++ "flecs/flecs.c", cflags);
-    exe.addCSourceFile(prefix_path ++ "src/hacks.c", cflags);
+    var buildFlags = std.ArrayList([]const u8).init(b.allocator);
+    if (target.isWindows()) {
+        exe.target.abi = std.Target.Abi.msvc;
+        exe.linkSystemLibrary("Ws2_32");
+
+        buildFlags.append("-DFLECS_OS_API_IMPL") catch unreachable;
+        buildFlags.append("-DECS_TARGET_MSVC") catch unreachable;
+
+        if (exe.build_mode != std.builtin.Mode.Debug) {
+            buildFlags.append("-O2") catch unreachable;
+        } else {
+            buildFlags.append("-g") catch unreachable;
+        }
+    }
+
+    exe.addCSourceFile(prefix_path ++ "src/c/flecs.c", buildFlags.items);
 }
-
