@@ -14,8 +14,7 @@ pub fn column(iter: [*c]const flecs.ecs_iter_t, comptime T: type, index: i32) [*
     return @ptrCast([*]T, @alignCast(@alignOf(T), col));
 }
 
-/// returns null in the case of column not being present. We need this because we cant check the column_index at runtime due to a zig
-/// bug thinking it is comptime known only.
+/// returns null in the case of column not being present or an invalid index
 pub fn columnOpt(iter: [*c]const flecs.ecs_iter_t, comptime T: type, index: i32) ?[*]T {
     if (index <= 0) return null;
     var col = flecs.ecs_term_w_size(iter, @sizeOf(T), index);

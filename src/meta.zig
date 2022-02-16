@@ -61,7 +61,7 @@ pub fn PointerToMany(comptime T: type) type {
 
 /// given a query struct, returns a type with the exact same fields except the fields are made pointer-to-many.
 /// constness and optionality are retained.
-fn TableIteratorData(comptime Components: type) type {
+pub fn TableIteratorData(comptime Components: type) type {
     const src_fields = std.meta.fields(Components);
     const StructField = std.builtin.TypeInfo.StructField;
     var fields: [src_fields.len]StructField = undefined;

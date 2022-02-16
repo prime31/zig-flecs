@@ -12,6 +12,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
 
     const examples = [_][2][]const u8{
         [_][]const u8{ "raw", "examples/raw.zig" },
+        [_][]const u8{ "tester", "examples/tester.zig" },
         [_][]const u8{ "term", "examples/term.zig" },
         [_][]const u8{ "filter", "examples/filter.zig" },
         [_][]const u8{ "systems", "examples/systems.zig" },

@@ -14,7 +14,6 @@ Currently quite messy and in progress zigification of the Flecs API.
 #### TableIterator Musings and Potential API
 ```zig
 var filter = ...
-
 var table_iter = filter.tableIterator(struct { pos: *Position, vel: *const Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
 
 // inner iter.data is derived from the struct passed into the TableIterator
@@ -43,7 +42,7 @@ while (table_iter.next()) |iter| {
 
 // an each variant might get ugly because the Type for the callback has to be:
 // TableIterator(struct { pos: *Position, vel: *const Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy })
-filter.tableIteratorEach(struct { pos: *Position, vel: *const Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+filter.tableIteratorEach(struct { pos: *Position, vel: *const Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy }, each);
 
 // which results in a pretty ugly mess
 fn each(iter: TableIterator(struct { pos: *Position, vel: *const Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy })) void {}
