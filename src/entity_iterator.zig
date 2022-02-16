@@ -25,13 +25,13 @@ pub fn EntityIterator(comptime Components: type) type {
             inline for (@typeInfo(Components).Struct.fields) |field, i| {
                 const is_optional = @typeInfo(field.field_type) == .Optional;
                 const col_type = meta.FinalChild(field.field_type);
+                if (meta.isConst(field.field_type)) std.debug.assert(flecs.ecs_term_is_readonly(&self.iter, i + 1));
 
-                // TODO: handle readonly with ecs_term_is_readonly? perhaps just for an assert?
                 if (is_optional) @field(comps, field.name) = null;
                 const column_index = self.iter.terms[i].index;
                 var skip_term = if (is_optional) flecs.componentHandle(col_type).* != flecs.ecs_term_id(&self.iter, @intCast(usize, column_index + 1)) else false;
 
-                // note that an OR is actually a single term so ecs_term_is_set will always be true
+                // note that an OR is actually a single term!
                 // const is_set = flecs.ecs_term_is_set(&self.iter, self.iter.terms[i].index + 1);
                 // std.debug.print("---- col_type: {any}, optional: {any}, i: {d}, col_index: {d}, term.index: {d}, type_id: {d}, skip_term: {d}\n", .{ col_type, is_optional, i, column_index, self.iter.terms[i].index, utils.componentHandle(col_type).*, skip_term });
                 if (!skip_term) {

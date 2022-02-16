@@ -109,3 +109,19 @@ pub fn validateIterator(comptime Components: type, iter: flecs.ecs_iter_t) void 
         }
     }
 }
+
+/// checks a Pointer or Optional for constness. Any other types passed in will error.
+pub fn isConst(comptime T: type) bool {
+    switch (@typeInfo(T)) {
+        .Pointer => |ptr| return ptr.is_const,
+        .Optional => |opt| {
+            switch (@typeInfo(opt.child)) {
+                .Pointer => |ptr| return ptr.is_const,
+                else => {},
+            }
+        },
+        else => {},
+    }
+
+    @compileError("Invalid type passed to isConst: " ++ @typeName(T));
+}
