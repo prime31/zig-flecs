@@ -17,9 +17,9 @@
             ],
         },
         {
-            "label": "Build and Run Project",
+            "label": "Build and Run Benchmark",
             "type": "shell",
-            "command": "zig build run",
+            "command": "zig build benchmark",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -32,9 +32,9 @@
             }
         },
         {
-            "label": "Build and Run Project (release-fast)",
+            "label": "Build and Run Filters",
             "type": "shell",
-            "command": "zig build run -Drelease-fast",
+            "command": "zig build filters",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -47,9 +47,84 @@
             }
         },
         {
-            "label": "Build and Run Project (release-small)",
+            "label": "Build and Run Generator",
             "type": "shell",
-            "command": "zig build run -Drelease-small",
+            "command": "zig build generator",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "clear": true
+            }
+        },
+        {
+            "label": "Build and Run Raw",
+            "type": "shell",
+            "command": "zig build raw",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "clear": true
+            }
+        },
+        {
+            "label": "Build and Run Systems",
+            "type": "shell",
+            "command": "zig build systems",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "clear": true
+            }
+        },
+        {
+            "label": "Build and Run Systems",
+            "type": "shell",
+            "command": "zig build systems",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "clear": true
+            }
+        },
+        {
+            "label": "Build and Run Terms",
+            "type": "shell",
+            "command": "zig build terms",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "clear": true
+            }
+        },
+        {
+            "label": "Build and Run Tester",
+            "type": "shell",
+            "command": "zig build tester",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -76,35 +151,6 @@
                 "clear": true
             }
         },
-        {
-            "label": "Build and Run Current File",
-            "type": "shell",
-            "command": "zig run ${file}",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "presentation": {
-                "clear": true
-            },
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "Build and Run Tests in Current File",
-            "type": "shell",
-            "command": "zig test ${file}",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "presentation": {
-                "clear": true
-            },
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
+        
     ]
 }
