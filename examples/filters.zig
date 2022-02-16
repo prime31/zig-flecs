@@ -23,7 +23,7 @@ pub fn main() !void {
     const entity3 = world.newEntityWithName("HasAccel");
     const entity4 = world.newEntityWithName("HasNoVel");
 
-    entity1.set(Position{ .x = 0, .y = 0 });
+    entity1.set(Position{ .x = 1, .y = 1 });
     entity1.set(Velocity{ .x = 1.1, .y = 1.1 });
     entity1.set(Enemy{ .id = 66 });
     entity1.set(Acceleration{ .x = 1.2, .y = 1.2 });
@@ -52,7 +52,7 @@ pub fn main() !void {
 
     var filter_iter = filter.iterator();
     while (filter_iter.next()) |_| {
-        std.debug.print("pos: {d}, vel: {d}, player: {d}\n", .{ filter_iter.getConst(Position), filter_iter.get(Velocity), filter_iter.getOpt(Player) });
+        std.debug.print("pos: {d}, vel: {d}, accel: {d}, player: {d}\n", .{ filter_iter.getConst(Position), filter_iter.get(Velocity), filter_iter.getOpt(Acceleration), filter_iter.getOpt(Player) });
     }
 
     std.debug.print("\n\niterate with a Filter entityIterator\n", .{});
