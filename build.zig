@@ -28,7 +28,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         exe.setBuildMode(b.standardReleaseOptions());
 
         // for some reason exe_compiled + debug build results in "illegal instruction 4". Investigate at some point.
-        linkArtifact(b, exe, target, .exe_compiled, "");
+        linkArtifact(b, exe, target, if (target.isWindows()) .static else .exe_compiled, "");
 
         const run_cmd = exe.run();
         const exe_step = b.step(name, b.fmt("run {s}.zig", .{name}));
@@ -46,6 +46,7 @@ pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std
             lib.setBuildMode(std.builtin.Mode.ReleaseFast);
             lib.setTarget(target);
 
+            if (target.isWindows()) artifact.target.abi = std.Target.Abi.msvc;
             compileFlecs(b, lib, target, prefix_path);
             lib.install();
 
@@ -59,11 +60,24 @@ pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std
     artifact.addPackagePath("flecs", prefix_path ++ "src/flecs.zig");
 }
 
-fn compileFlecs(_: *Builder, exe: *std.build.LibExeObjStep, _: std.zig.CrossTarget, comptime prefix_path: []const u8) void {
+fn compileFlecs(b: *Builder, exe: *std.build.LibExeObjStep, target: std.zig.CrossTarget, comptime prefix_path: []const u8) void {
     exe.linkLibC();
     exe.addIncludeDir(prefix_path ++ "src/c");
 
-    const cflags = &[_][]const u8{  };
-    exe.addCSourceFile(prefix_path ++ "src/c/flecs.c", cflags);
-}
+    var buildFlags = std.ArrayList([]const u8).init(b.allocator);
+    if (target.isWindows()) {
+        exe.target.abi = std.Target.Abi.msvc;
+        exe.linkSystemLibrary("Ws2_32");
 
+        buildFlags.append("-DFLECS_OS_API_IMPL") catch unreachable;
+        buildFlags.append("-DECS_TARGET_MSVC") catch unreachable;
+
+        if (exe.build_mode != std.builtin.Mode.Debug) {
+            buildFlags.append("-O2") catch unreachable;
+        } else {
+            buildFlags.append("-g") catch unreachable;
+        }
+    }
+
+    exe.addCSourceFile(prefix_path ++ "src/c/flecs.c", buildFlags.items);
+}
