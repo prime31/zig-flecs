@@ -28,13 +28,17 @@ pub fn TableIterator(comptime Components: type) type {
             if (!self.nextFn(&self.iter)) return null;
 
             var iter: InnerIterator = .{ .count = self.iter.count };
+            var index: usize = 0;
             inline for (@typeInfo(Components).Struct.fields) |field, i| {
+                // skip filters since they arent returned when we iterate
+                while (self.iter.terms[index].inout == flecs.EcsInOutFilter) : (index += 1) {}
+
                 const is_optional = @typeInfo(field.field_type) == .Optional;
                 const col_type = meta.FinalChild(field.field_type);
                 if (meta.isConst(field.field_type)) std.debug.assert(flecs.ecs_term_is_readonly(&self.iter, i + 1));
 
                 if (is_optional) @field(iter.data, field.name) = null;
-                const column_index = self.iter.terms[i].index;
+                const column_index = self.iter.terms[index].index;
                 var skip_term = if (is_optional) meta.componentHandle(col_type).* != flecs.ecs_term_id(&self.iter, @intCast(usize, column_index + 1)) else false;
 
                 // note that an OR is actually a single term!
@@ -44,6 +48,7 @@ pub fn TableIterator(comptime Components: type) type {
                         @field(iter.data, field.name) = col;
                     }
                 }
+                index += 1;
             }
 
             return iter;

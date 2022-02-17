@@ -32,7 +32,7 @@ pub fn main() !void {
     entity4.set(Acceleration{ .x = 1.2, .y = 1.2 });
 
     var builder = flecs.QueryBuilder.init(world)
-        .withReadonly(Position)
+        .withFilter(Position)
         .with(Velocity)
         .optional(Acceleration)
         .either(Player, Enemy);
@@ -41,21 +41,21 @@ pub fn main() !void {
     defer filter.deinit();
 
     std.debug.print("\n\niterate with a Filter entityIterator\n", .{});
-    var entity_iter = filter.entityIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+    var entity_iter = filter.entityIterator(struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
     while (entity_iter.next()) |comps| {
         std.debug.print("comps: {any}\n", .{comps});
     }
 
 
     std.debug.print("\n\niterate with a Filter tableIterator\n", .{});
-    var table_iter = filter.tableIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+    var table_iter = filter.tableIterator(struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
     while (table_iter.next()) |it| {
         var i: usize = 0;
         while (i < it.count) : (i += 1) {
             const accel = if (it.data.acc) |acc| acc[i] else null;
             const player = if (it.data.player) |play| play[i] else null;
             const enemy = if (it.data.enemy) |en| en[i] else null;
-            std.debug.print("i: {d}, pos: {d}, vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ i, it.data.pos[i], it.data.vel[i], accel, player, enemy });
+            std.debug.print("i: {d}, vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ i, it.data.vel[i], accel, player, enemy });
         }
     }
 
@@ -65,10 +65,10 @@ pub fn main() !void {
     filter.each(eachFilterSeperateParams);
 }
 
-fn eachFilter(e: struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy }) void {
+fn eachFilter(e: struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy }) void {
     std.debug.print("comps: {any}\n", .{e});
 }
 
-fn eachFilterSeperateParams(pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy) void {
-    std.debug.print("pos: {d}, vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ pos, vel, acc, player, enemy });
+fn eachFilterSeperateParams(vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy) void {
+    std.debug.print("vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ vel, acc, player, enemy });
 }

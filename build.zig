@@ -12,7 +12,6 @@ pub fn build(b: *std.build.Builder) anyerror!void {
 
     const examples = [_][2][]const u8{
         [_][]const u8{ "raw", "examples/raw.zig" },
-        [_][]const u8{ "tester", "examples/tester.zig" },
         [_][]const u8{ "terms", "examples/terms.zig" },
         [_][]const u8{ "filters", "examples/filters.zig" },
         [_][]const u8{ "queries", "examples/queries.zig" },
@@ -20,6 +19,8 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         [_][]const u8{ "benchmark", "examples/benchmark.zig" },
         [_][]const u8{ "simple", "examples/simple.zig" },
         [_][]const u8{ "generator", "examples/generator.zig" },
+        [_][]const u8{ "tester", "examples/tester.zig" },
+        [_][]const u8{ "query_maker", "examples/query_maker.zig" },
     };
 
     for (examples) |example| {
