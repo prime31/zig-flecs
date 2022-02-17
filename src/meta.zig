@@ -2,7 +2,7 @@ const std = @import("std");
 const flecs = @import("flecs.zig");
 const meta = @import("meta.zig");
 
-/// registered component handle cache
+/// registered component handle cache. Stores the EntityId for the type.
 pub fn componentHandle(comptime T: type) *flecs.EntityId {
     _ = T;
     return &(struct {
@@ -96,7 +96,6 @@ pub fn TableIteratorData(comptime Components: type) type {
     const src_fields = std.meta.fields(Components);
     const StructField = std.builtin.TypeInfo.StructField;
     var fields: [src_fields.len]StructField = undefined;
-    _ = fields;
 
     for (src_fields) |field, i| {
         const T = FinalChild(field.field_type);
@@ -118,7 +117,8 @@ pub fn TableIteratorData(comptime Components: type) type {
 }
 
 /// returns a tuple consisting of the field values of value
-pub fn fieldsTuple(comptime T: type, value: T) FieldsTupleType(T) {
+pub fn fieldsTuple(value: anytype) FieldsTupleType(@TypeOf(value)) {
+    const T = @TypeOf(value);
     std.debug.assert(@typeInfo(T) == .Struct);
     const ti = @typeInfo(T).Struct;
     const FieldsTuple = FieldsTupleType(T);
@@ -165,7 +165,7 @@ pub fn validateIterator(comptime Components: type, iter: flecs.ecs_iter_t) void 
             if (is_readonly) std.debug.assert(iter.terms[index].inout == flecs.EcsIn);
             if (iter.terms[index].inout == flecs.EcsIn) std.debug.assert(is_readonly);
 
-            // validate optionals (?* types in the struct) mathces up with valid opers
+            // validate that optionals (?* types in the struct) matche up with valid opers
             if (is_optional) std.debug.assert(iter.terms[index].oper == flecs.EcsOr or iter.terms[index].oper == flecs.EcsOptional);
             if (iter.terms[index].oper == flecs.EcsOr or iter.terms[index].oper == flecs.EcsOptional) std.debug.assert(is_optional);
             index += 1;

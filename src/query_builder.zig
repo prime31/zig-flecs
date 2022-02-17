@@ -96,11 +96,11 @@ pub const QueryBuilder = struct {
     }
 
     pub fn buildFilter(self: *@This()) flecs.Filter {
-        return flecs.Filter.init(self.world, self);
+        return flecs.Filter.init(self.world, &self.desc.query.filter);
     }
 
     pub fn buildQuery(self: *@This()) flecs.Query {
-        return flecs.Query.init(self.world, self);
+        return flecs.Query.init(self.world, &self.desc.query);
     }
 
     /// queries/system only
