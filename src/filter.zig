@@ -102,14 +102,18 @@ pub const Filter = struct {
         return Iterator.init(flecs.ecs_filter_iter(self.world.world, self.filter));
     }
 
+    /// gets an iterator that each iteration provides the components for an entity regardless of how may tables are being iterated
     pub fn entityIterator(self: *@This(), comptime Components: type) flecs.EntityIterator(Components) {
         return flecs.EntityIterator(Components).init(flecs.ecs_filter_iter(self.world.world, self.filter), flecs.ecs_filter_next);
     }
 
+    /// gets an iterator that let you iterate the tables and then it provides an inner iterator to interate entities
     pub fn tableIterator(self: *@This(), comptime Components: type) flecs.TableIterator(Components) {
         return flecs.TableIterator(Components).init(flecs.ecs_filter_iter(self.world.world, self.filter), flecs.ecs_filter_next);
     }
 
+    /// allows either a function that takes 1 parameter (a struct with fields that match the components in the query) or multiple paramters
+    /// (each param should match the components in the query in order)
     pub fn each(self: *@This(), comptime func: anytype) void {
         comptime var arg_count = switch (@typeInfo(@TypeOf(func))) {
             .BoundFn => |func_info| func_info.args.len,
@@ -135,15 +139,6 @@ pub const Filter = struct {
             while (iter.next()) |comps| {
                 @call(.{ .modifier = .always_inline }, func, meta.fieldsTuple(Components, comps));
             }
-        }
-    }
-
-    pub fn each2(self: *@This(), comptime func: anytype) void {
-        const Components = std.meta.ArgsTuple(@TypeOf(func));
-
-        var iter = self.entityIterator(Components);
-        while (iter.next()) |comps| {
-            @call(.{ .modifier = .always_inline }, func, meta.fieldsTuple(Components, comps));
         }
     }
 };

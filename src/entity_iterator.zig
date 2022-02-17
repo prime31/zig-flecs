@@ -33,7 +33,8 @@ pub fn EntityIterator(comptime Components: type) type {
 
                 // note that an OR is actually a single term!
                 // const is_set = flecs.ecs_term_is_set(&self.iter, self.iter.terms[i].index + 1);
-                // std.debug.print("---- col_type: {any}, optional: {any}, i: {d}, col_index: {d}, term.index: {d}, type_id: {d}, skip_term: {d}\n", .{ col_type, is_optional, i, column_index, self.iter.terms[i].index, utils.componentHandle(col_type).*, skip_term });
+                // const term_id = flecs.ecs_term_id(&self.iter, @intCast(usize, column_index + 1));
+                // std.debug.print("---- col_type: {any}, optional: {any}, i: {d}, col_index: {d}, term.index: {d}, type_id: {d}, skip_term: {d}, term_id: {d}\n", .{ col_type, is_optional, i, column_index, self.iter.terms[i].index, meta.componentHandle(col_type).*, skip_term, term_id });
                 if (!skip_term) {
                     if (flecs.columnOpt(&self.iter, col_type, column_index + 1)) |col| {
                         @field(comps, field.name) = &col[self.index];

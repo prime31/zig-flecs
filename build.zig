@@ -15,6 +15,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         [_][]const u8{ "tester", "examples/tester.zig" },
         [_][]const u8{ "terms", "examples/terms.zig" },
         [_][]const u8{ "filters", "examples/filters.zig" },
+        [_][]const u8{ "queries", "examples/queries.zig" },
         [_][]const u8{ "systems", "examples/systems.zig" },
         [_][]const u8{ "benchmark", "examples/benchmark.zig" },
         [_][]const u8{ "generator", "examples/generator.zig" },
