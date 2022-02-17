@@ -15,6 +15,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         [_][]const u8{ "tester", "examples/tester.zig" },
         [_][]const u8{ "terms", "examples/terms.zig" },
         [_][]const u8{ "filters", "examples/filters.zig" },
+        [_][]const u8{ "queries", "examples/queries.zig" },
         [_][]const u8{ "systems", "examples/systems.zig" },
         [_][]const u8{ "benchmark", "examples/benchmark.zig" },
         [_][]const u8{ "simple", "examples/simple.zig" },
@@ -34,6 +35,13 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         const run_cmd = exe.run();
         const exe_step = b.step(name, b.fmt("run {s}.zig", .{name}));
         exe_step.dependOn(&run_cmd.step);
+    }
+
+    // only mac and linux get the update_flecs command
+    if (target.isWindows()) {
+        var exe = b.addSystemCommand(&[_][]const u8{ "zsh", "update_flecs.sh" });
+        const exe_step = b.step("update_flecs", b.fmt("updates Flecs.h/c and runs translate-c", .{}));
+        exe_step.dependOn(&exe.step);
     }
 }
 

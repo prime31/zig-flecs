@@ -23,6 +23,7 @@ pub fn EntityIterator(comptime Components: type) type {
 
             var comps: Components = undefined;
             inline for (@typeInfo(Components).Struct.fields) |field, i| {
+                // TODO: Here and TableIterator handle `self.iter.terms[i].inout == flecs.EcsInOutFilter`. We can have less fields then terms because filters wont be present
                 const is_optional = @typeInfo(field.field_type) == .Optional;
                 const col_type = meta.FinalChild(field.field_type);
                 if (meta.isConst(field.field_type)) std.debug.assert(flecs.ecs_term_is_readonly(&self.iter, i + 1));
@@ -33,7 +34,8 @@ pub fn EntityIterator(comptime Components: type) type {
 
                 // note that an OR is actually a single term!
                 // const is_set = flecs.ecs_term_is_set(&self.iter, self.iter.terms[i].index + 1);
-                // std.debug.print("---- col_type: {any}, optional: {any}, i: {d}, col_index: {d}, term.index: {d}, type_id: {d}, skip_term: {d}\n", .{ col_type, is_optional, i, column_index, self.iter.terms[i].index, utils.componentHandle(col_type).*, skip_term });
+                // const term_id = flecs.ecs_term_id(&self.iter, @intCast(usize, column_index + 1));
+                // std.debug.print("---- col_type: {any}, optional: {any}, i: {d}, col_index: {d}, term.index: {d}, type_id: {d}, skip_term: {d}, term_id: {d}\n", .{ col_type, is_optional, i, column_index, self.iter.terms[i].index, meta.componentHandle(col_type).*, skip_term, term_id });
                 if (!skip_term) {
                     if (flecs.columnOpt(&self.iter, col_type, column_index + 1)) |col| {
                         @field(comps, field.name) = &col[self.index];
