@@ -117,6 +117,54 @@ fn eachFilterSeperateParams(pos: *const Position, vel: *Velocity, acc: ?*Acceler
 ### Queries
 A query is like a filter in that it is a list of terms that is matched with entities. The difference with a filter is that queries cache their results, which makes them more expensive to create, but cheaper to iterate.
 
+```zig
+// QueryBuilder is used to define what you want to filter for
+var builder = flecs.QueryBuilder.init(world)
+    .withReadonly(Position)
+    .with(Velocity)
+    .optional(Acceleration)
+    .either(Player, Enemy)
+    .orderBy(Position, orderBy);
 
-### Systems
+var query = builder.buildQuery();
+defer query.deinit();
+
+std.debug.print("\n\niterate with a Query entityIterator\n", .{});
+var entity_iter = query.entityIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+while (entity_iter.next()) |comps| {
+    std.debug.print("comps: {any}\n", .{comps});
+}
+
+std.debug.print("\n\niterate with a Query tableIterator\n", .{});
+var table_iter = query.tableIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+while (table_iter.next()) |it| {
+    var i: usize = 0;
+    while (i < it.count) : (i += 1) {
+        const accel = if (it.data.acc) |acc| acc[i] else null;
+        const player = if (it.data.player) |play| play[i] else null;
+        const enemy = if (it.data.enemy) |en| en[i] else null;
+        std.debug.print("i: {d}, pos: {d}, vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ i, it.data.pos[i], it.data.vel[i], accel, player, enemy });
+    }
+}
+
+std.debug.print("\n\niterate with a Query each\n", .{});
+query.each(eachQuery);
+
+std.debug.print("\n\niterate with a Query each\n", .{});
+query.each(eachQuerySeperateParams);
+
+fn eachQuery(e: struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy }) void {
+    std.debug.print("comps: {any}\n", .{e});
+}
+
+fn eachQuerySeperateParams(pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy) void {
+    std.debug.print("pos: {d}, vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ pos, vel, acc, player, enemy });
+}
+```
+
+
+### Systems (zigifed wrapper coming soon)
 A system is a query combined with a callback. Systems can be either ran manually or ran as part of an ECS-managed main loop.
+
+
+### Observers/Triggers (coming soon)
