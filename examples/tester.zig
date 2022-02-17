@@ -59,16 +59,16 @@ pub fn main() !void {
         }
     }
 
-    // std.debug.print("\n\niterate with a Filter each with a single struct of components\n", .{});
-    // filter.each(eachFilter);
-    // std.debug.print("\n\niterate with a Filter each with a param per component\n", .{});
-    // filter.each(eachFilterSeperateParams);
+    std.debug.print("\n\niterate with a Filter each with a single struct of components\n", .{});
+    filter.each(eachFilter);
+    std.debug.print("\n\niterate with a Filter each with a param per component\n", .{});
+    filter.each(eachFilterSeperateParams);
 }
 
-fn eachFilter(e: struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy }) void {
+fn eachFilter(e: struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy }) void {
     std.debug.print("comps: {any}\n", .{e});
 }
 
-fn eachFilterSeperateParams(pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy) void {
-    std.debug.print("pos: {d}, vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ pos, vel, acc, player, enemy });
+fn eachFilterSeperateParams(vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy) void {
+    std.debug.print("vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ vel, acc, player, enemy });
 }
