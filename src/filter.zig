@@ -137,7 +137,7 @@ pub const Filter = struct {
 
             var iter = self.entityIterator(Components);
             while (iter.next()) |comps| {
-                @call(.{ .modifier = .always_inline }, Function, meta.fieldsTuple(Components, comps));
+                @call(.{ .modifier = .always_inline }, Function, meta.fieldsTuple(comps));
             }
         }
     }
