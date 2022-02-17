@@ -34,6 +34,13 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         const exe_step = b.step(name, b.fmt("run {s}.zig", .{name}));
         exe_step.dependOn(&run_cmd.step);
     }
+
+    // only mac and linux get the update_flecs command
+    if (target.isWindows()) {
+        var exe = b.addSystemCommand(&[_][]const u8{ "zsh", "update_flecs.sh" });
+        const exe_step = b.step("update_flecs", b.fmt("updates Flecs.h/c and runs translate-c", .{}));
+        exe_step.dependOn(&exe.step);
+    }
 }
 
 /// prefix_path is used to add package paths. It should be the the same path used to include this build file
