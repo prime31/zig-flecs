@@ -23,6 +23,7 @@ pub fn EntityIterator(comptime Components: type) type {
 
             var comps: Components = undefined;
             inline for (@typeInfo(Components).Struct.fields) |field, i| {
+                // TODO: Here and TableIterator handle `self.iter.terms[i].inout == flecs.EcsInOutFilter`. We can have less fields then terms because filters wont be present
                 const is_optional = @typeInfo(field.field_type) == .Optional;
                 const col_type = meta.FinalChild(field.field_type);
                 if (meta.isConst(field.field_type)) std.debug.assert(flecs.ecs_term_is_readonly(&self.iter, i + 1));

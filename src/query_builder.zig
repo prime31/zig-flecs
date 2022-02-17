@@ -34,6 +34,14 @@ pub const QueryBuilder = struct {
         return self;
     }
 
+    /// the term will be used for the query but it is neither read nor written
+    pub fn withFilter(self: *@This(), comptime T: type) *@This() {
+        self.desc.query.filter.terms[self.terms_count].id = self.world.componentId(T);
+        self.desc.query.filter.terms[self.terms_count].inout = flecs.EcsInOutFilter;
+        self.terms_count += 1;
+        return self;
+    }
+
     pub fn without(self: *@This(), comptime T: type) *@This() {
         self.desc.filter.terms[self.terms_count] = std.mem.zeroInit(flecs.ecs_term_t, .{
             .id = self.world.componentId(T),
@@ -63,6 +71,14 @@ pub const QueryBuilder = struct {
             .oper = flecs.EcsOr,
         });
         self.terms_count += 1;
+        return self;
+    }
+
+    /// the query will need to match `T1 || T2` but it will not return data for either column
+    pub fn eitherAsFilter(self: *@This(), comptime T1: type, comptime T2: type) *@This() {
+        _ = self.either(T1, T2);
+        self.desc.query.filter.terms[self.terms_count - 1].inout = flecs.EcsInOutFilter;
+        self.desc.query.filter.terms[self.terms_count - 2].inout = flecs.EcsInOutFilter;
         return self;
     }
 
