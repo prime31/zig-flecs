@@ -51,7 +51,7 @@ pub fn main() !void {
         std.debug.print("comps: {any}\n", .{comps});
     }
 
-    std.debug.print("\n\niterate with a Filter tableIterator\n", .{});
+    std.debug.print("\n\niterate with a Query tableIterator\n", .{});
     var table_iter = query.tableIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
     while (table_iter.next()) |it| {
         var i: usize = 0;
