@@ -154,7 +154,6 @@ pub fn validateIterator(comptime Components: type, iter: flecs.ecs_iter_t) void 
             while (iter.terms[index].inout == flecs.EcsInOutFilter) : (index += 1) {}
 
             const is_optional = @typeInfo(field.field_type) == .Optional;
-            const is_readonly = (@typeInfo(field.field_type) == .Pointer and @typeInfo(field.field_type).Pointer.is_const) or (@typeInfo(std.meta.Child(field.field_type)) == .Pointer and @typeInfo(std.meta.Child(field.field_type)).Pointer.is_const);
             const col_type = FinalChild(field.field_type);
             const type_entity = meta.componentHandle(col_type).*;
 
@@ -162,8 +161,9 @@ pub fn validateIterator(comptime Components: type, iter: flecs.ecs_iter_t) void 
             std.debug.assert(iter.terms[index].id == type_entity);
 
             // validate readonly (non-ptr types in the struct) matches up with the inout
-            if (is_readonly) std.debug.assert(iter.terms[index].inout == flecs.EcsIn);
-            if (iter.terms[index].inout == flecs.EcsIn) std.debug.assert(is_readonly);
+            const is_const = isConst(field.field_type);
+            if (is_const) std.debug.assert(iter.terms[index].inout == flecs.EcsIn);
+            if (iter.terms[index].inout == flecs.EcsIn) std.debug.assert(is_const);
 
             // validate that optionals (?* types in the struct) matche up with valid opers
             if (is_optional) std.debug.assert(iter.terms[index].oper == flecs.EcsOr or iter.terms[index].oper == flecs.EcsOptional);
