@@ -137,6 +137,21 @@
             }
         },
         {
+            "label": "Build and Run Queries",
+            "type": "shell",
+            "command": "zig build queries",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "clear": true
+            }
+        },
+        {
             "label": "Test Project",
             "type": "shell",
             "command": "zig build test",
