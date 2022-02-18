@@ -82,6 +82,16 @@ pub const World = struct {
         _ = flecs.ecs_system_init(self.world, &desc);
     }
 
+    pub fn newRunSystem(self: World, name: [*c]const u8, phase: flecs.Phase, signature: [*c]const u8, action: flecs.ecs_iter_action_t) void {
+        var desc = std.mem.zeroes(flecs.ecs_system_desc_t);
+        desc.entity.name = name;
+        desc.entity.add[0] = @enumToInt(phase);
+        desc.query.filter.expr = signature;
+        desc.callback = action;
+        desc.run = action;
+        _ = flecs.ecs_system_init(self.world, &desc);
+    }
+
     pub fn setName(self: World, entity: flecs.EntityId, name: [*c]const u8) void {
         _ = flecs.ecs_set_name(self.world, entity, name);
     }

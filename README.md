@@ -15,7 +15,7 @@ Currently quite messy and in progress zigification of the Flecs API.
 Reflection metadata is enabled by default. To disable it in your root zig file add `pub const disable_reflection = true;`
 
 
-### TableIterator Musings and API
+### Iterator Musings and API
 ```zig
 var filter = ...
 
@@ -89,10 +89,10 @@ while (filter_iter.next()) |_| {
         .{ filter_iter.getConst(Position), filter_iter.get(Velocity), filter_iter.getOpt(Player) });
 }
 
-// EntityIterator allows you to iterate all the entities regardless of which table they are in with a single iteration. Note that the struct passed in
+// Iterator allows you to iterate all the entities regardless of which table they are in with a single iteration. Note that the struct passed in
 // is validated in debug builds. The parameters must be in the same order as they were added to the QueryBuilder. Optionals should be marked as such with
 // a `?*` and readonly components must be `*const`.
-var entity_iter = filter.entityIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+var entity_iter = filter.terator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
 while (entity_iter.next()) |comps| {
     std.debug.print("comps: {any}\n", .{comps});
 }
@@ -129,13 +129,13 @@ var builder = flecs.QueryBuilder.init(world)
 var query = builder.buildQuery();
 defer query.deinit();
 
-std.debug.print("\n\niterate with a Query entityIterator\n", .{});
-var entity_iter = query.entityIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+std.debug.print("\n\niterate a Query with an Iterator\n", .{});
+var entity_iter = query.Iterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
 while (entity_iter.next()) |comps| {
     std.debug.print("comps: {any}\n", .{comps});
 }
 
-std.debug.print("\n\niterate with a Query tableIterator\n", .{});
+std.debug.print("\n\niterate a Query with a TableIterator\n", .{});
 var table_iter = query.tableIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
 while (table_iter.next()) |it| {
     var i: usize = 0;

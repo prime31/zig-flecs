@@ -14,7 +14,7 @@ pub const Term = @import("term.zig").Term;
 pub const Filter = @import("filter.zig").Filter;
 pub const Query = @import("query.zig").Query;
 
-pub const EntityIterator = @import("entity_iterator.zig").EntityIterator;
+pub const Iterator = @import("iterator.zig").Iterator;
 pub const TableIterator = @import("table_iterator.zig").TableIterator;
 
 pub usingnamespace @import("utils.zig");

@@ -7,9 +7,11 @@ pub const Filter = struct {
     world: flecs.World,
     filter: *flecs.ecs_filter_t = undefined,
 
+    var temp_iter_storage: flecs.ecs_iter_t = undefined;
+
     /// filter iterator that lets you fetch components via get/getOpt
     /// TODO: is this thing necessary? Seems the other iterators are more then capable compared to this thing.
-    const Iterator = struct {
+    const FilterIterator = struct {
         iter: flecs.ecs_iter_t,
         index: usize = 0,
 
@@ -87,8 +89,10 @@ pub const Filter = struct {
     };
 
     pub fn init(world: flecs.World, desc: *flecs.ecs_filter_desc_t) @This() {
-        var filter = @This(){ .world = world };
-        filter.filter = std.heap.c_allocator.create(flecs.ecs_filter_t) catch unreachable;
+        var filter = @This(){
+            .world = world,
+            .filter = std.heap.c_allocator.create(flecs.ecs_filter_t) catch unreachable,
+        };
         std.debug.assert(flecs.ecs_filter_init(world.world, filter.filter, desc) == 0);
         return filter;
     }
@@ -98,13 +102,8 @@ pub const Filter = struct {
         std.heap.c_allocator.destroy(self.filter);
     }
 
-    pub fn iterator(self: *@This()) Iterator {
-        return Iterator.init(flecs.ecs_filter_iter(self.world.world, self.filter));
-    }
-
-    /// gets an iterator that each iteration provides the components for an entity regardless of how may tables are being iterated
-    pub fn entityIterator(self: *@This(), comptime Components: type) flecs.EntityIterator(Components) {
-        return flecs.EntityIterator(Components).init(self.tableIterator(Components));
+    pub fn filterIterator(self: *@This()) FilterIterator {
+        return FilterIterator.init(flecs.ecs_filter_iter(self.world.world, self.filter));
     }
 
     /// gets an iterator that let you iterate the tables and then it provides an inner iterator to interate entities
@@ -112,30 +111,30 @@ pub const Filter = struct {
         return flecs.TableIterator(Components).init(flecs.ecs_filter_iter(self.world.world, self.filter), flecs.ecs_filter_next);
     }
 
+    /// gets an iterator that iterates all matched entities from all tables in one iteration. Do not create more than one at a time!
+    pub fn iterator(self: *@This(), comptime Components: type) flecs.Iterator(Components) {
+        temp_iter_storage = flecs.ecs_filter_iter(self.world.world, self.filter);
+        return flecs.Iterator(Components).init(&temp_iter_storage, flecs.ecs_filter_next);
+    }
+
     /// allows either a function that takes 1 parameter (a struct with fields that match the components in the query) or multiple paramters
     /// (each param should match the components in the query in order)
     pub fn each(self: *@This(), comptime function: anytype) void {
-        comptime var arg_count = switch (@typeInfo(@TypeOf(function))) {
-            .BoundFn => |func_info| func_info.args.len,
-            .Fn => |func_info| func_info.args.len,
-            else => std.debug.assert("invalid Function"),
-        };
+        // dont allow BoundFn
+        std.debug.assert(@typeInfo(@TypeOf(function)) == .Fn);
+        comptime var arg_count = meta.argCount(function);
 
         if (arg_count == 1) {
-            const Components = switch (@typeInfo(@TypeOf(function))) {
-                .BoundFn => |func_info| func_info.args[1].arg_type.?,
-                .Fn => |func_info| func_info.args[0].arg_type.?,
-                else => std.debug.assert("invalid Function"),
-            };
+            const Components = @typeInfo(@TypeOf(function)).Fn.args[0].arg_type.?;
 
-            var iter = self.entityIterator(Components);
+            var iter = self.iterator(Components);
             while (iter.next()) |comps| {
                 @call(.{ .modifier = .always_inline }, function, .{comps});
             }
         } else {
             const Components = std.meta.ArgsTuple(@TypeOf(function));
 
-            var iter = self.entityIterator(Components);
+            var iter = self.iterator(Components);
             while (iter.next()) |comps| {
                 @call(.{ .modifier = .always_inline }, function, meta.fieldsTuple(comps));
             }

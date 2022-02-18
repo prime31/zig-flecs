@@ -40,14 +40,7 @@ pub fn main() !void {
     var filter = builder.buildFilter();
     defer filter.deinit();
 
-    std.debug.print("\n\niterate with a Filter entityIterator\n", .{});
-    var entity_iter = filter.entityIterator(struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
-    while (entity_iter.next()) |comps| {
-        std.debug.print("comps: {any}\n", .{comps});
-    }
-
-
-    std.debug.print("\n\niterate with a Filter tableIterator\n", .{});
+    std.debug.print("\n\niterate the Filter with a TableIterator\n", .{});
     var table_iter = filter.tableIterator(struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
     while (table_iter.next()) |it| {
         var i: usize = 0;

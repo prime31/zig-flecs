@@ -12,7 +12,7 @@ pub fn main() !void {
     // bulk register required components since we use expressions for the systems
     world.registerComponents(.{ Position, Velocity, Acceleration });
 
-    world.newSystem("Move", .on_update, "Position, Velocity", move);
+    world.newRunSystem("Move", .on_update, "Position, Velocity", move);
     world.newSystem("Accel", .on_update, "Position, Velocity, Acceleration", accel);
 
     const entity1 = world.newEntity();
@@ -50,16 +50,12 @@ pub fn main() !void {
     }));
 }
 
-fn move(it: [*c]flecs.ecs_iter_t) callconv(.C) void {
-    const positions = flecs.column(it, Position, 1);
-    const velocities = flecs.column(it, Velocity, 2);
-    const world = flecs.World{ .world = it.*.world.? };
+const ComponentData = struct { pos: *Position, vel: *Velocity };
 
-    var i: usize = 0;
-    while (i < it.*.count) : (i += 1) {
-        positions[i].x += velocities[i].x;
-        positions[i].y += velocities[i].y;
-        std.debug.print("p: {d}, v: {d} - {s}\n", .{ positions[i], velocities[i], world.getName(it.*.entities[i]) });
+fn move(it: [*c]flecs.ecs_iter_t) callconv(.C) void {
+    var iter = flecs.Iterator(ComponentData).init(it, flecs.ecs_iter_next);
+    while (iter.next()) |e| {
+        std.debug.print("p: {d}, v: {d} - {s}\n", .{ e.pos, e.vel, iter.entity().getName() });
     }
 }
 
