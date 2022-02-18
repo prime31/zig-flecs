@@ -49,19 +49,13 @@ pub fn main() !void {
     var filter = builder.buildFilter();
     defer filter.deinit();
 
-    std.debug.print("\n\niterate with a Filter\n", .{});
-    var filter_iter = filter.iterator();
+    std.debug.print("\n\niterate with a FilterIterator\n", .{});
+    var filter_iter = filter.filterIterator();
     while (filter_iter.next()) |_| {
         std.debug.print("pos: {d}, vel: {d}, accel: {d}, player: {d}\n", .{ filter_iter.getConst(Position), filter_iter.get(Velocity), filter_iter.getOpt(Acceleration), filter_iter.getOpt(Player) });
     }
 
-    std.debug.print("\n\niterate with a Filter entityIterator\n", .{});
-    var entity_iter = filter.entityIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
-    while (entity_iter.next()) |comps| {
-        std.debug.print("comps: {any}\n", .{comps});
-    }
-
-    std.debug.print("\n\niterate with a Filter tableIterator\n", .{});
+    std.debug.print("\n\niterate with a TableIterator\n", .{});
     var table_iter = filter.tableIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
     while (table_iter.next()) |it| {
         var i: usize = 0;
@@ -73,7 +67,13 @@ pub fn main() !void {
         }
     }
 
-    std.debug.print("\n\niterate with a Filter each\n", .{});
+    std.debug.print("\n\niterate with an Iterator\n", .{});
+    var super_iter = filter.iterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+    while (super_iter.next()) |comps| {
+        std.debug.print("comps: {any}\n", .{comps});
+    }
+
+    std.debug.print("\n\niterate with an each function\n", .{});
     filter.each(eachFilter);
 }
 

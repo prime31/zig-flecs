@@ -90,6 +90,15 @@ pub fn PointerToMany(comptime T: type) type {
     return InnerType;
 }
 
+/// gets the number of arguments in the function
+pub fn argCount(comptime function: anytype) usize {
+    return switch (@typeInfo(@TypeOf(function))) {
+        .BoundFn => |func_info| func_info.args.len,
+        .Fn => |func_info| func_info.args.len,
+        else => std.debug.assert("invalid function"),
+    };
+}
+
 /// given a query struct, returns a type with the exact same fields except the fields are made pointer-to-many.
 /// constness and optionality are retained.
 pub fn TableIteratorData(comptime Components: type) type {
@@ -145,7 +154,7 @@ pub fn FieldsTupleType(comptime T: type) type {
     });
 }
 
-pub fn validateIterator(comptime Components: type, iter: flecs.ecs_iter_t) void {
+pub fn validateIterator(comptime Components: type, iter: *const flecs.ecs_iter_t) void {
     if (@import("builtin").mode == .Debug) {
         var index: usize = 0;
         const component_info = @typeInfo(Components).Struct;

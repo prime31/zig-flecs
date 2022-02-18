@@ -8,16 +8,16 @@ pub fn TableIterator(comptime Components: type) type {
     const Columns = meta.TableIteratorData(Components);
 
     return struct {
-    pub const InnerIterator = struct {
-        data: Columns = undefined,
-        count: i32,
-    };
+        pub const InnerIterator = struct {
+            data: Columns = undefined,
+            count: i32,
+        };
 
         iter: flecs.ecs_iter_t,
         nextFn: fn ([*c]flecs.ecs_iter_t) callconv(.C) bool,
 
         pub fn init(iter: flecs.ecs_iter_t, nextFn: fn ([*c]flecs.ecs_iter_t) callconv(.C) bool) @This() {
-            meta.validateIterator(Components, iter);
+            meta.validateIterator(Components, &iter);
             return .{
                 .iter = iter,
                 .nextFn = nextFn,

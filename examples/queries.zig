@@ -45,8 +45,8 @@ pub fn main() !void {
     var query = builder.buildQuery();
     defer query.deinit();
 
-    std.debug.print("\n\niterate with a Query entityIterator\n", .{});
-    var entity_iter = query.entityIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+    std.debug.print("\n\niterate with an Iterator\n", .{});
+    var entity_iter = query.iterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
     while (entity_iter.next()) |comps| {
         std.debug.print("comps: {any}\n", .{comps});
     }
