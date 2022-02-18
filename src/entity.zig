@@ -3,10 +3,10 @@ const flecs = @import("flecs.zig");
 const meta = @import("meta.zig");
 
 pub const Entity = struct {
-    world: *flecs.ecs_world_t,
+    world: *flecs.c.ecs_world_t,
     id: flecs.EntityId,
 
-    pub fn init(world: *flecs.ecs_world_t, id: flecs.EntityId) Entity {
+    pub fn init(world: *flecs.c.ecs_world_t, id: flecs.EntityId) Entity {
         return .{
             .world = world,
             .id = id,
@@ -20,11 +20,11 @@ pub const Entity = struct {
     }
 
     pub fn setName(self: Entity, name: [*c]const u8) void {
-        _ = flecs.ecs_set_name(self.world, self.id, name);
+        _ = flecs.c.ecs_set_name(self.world, self.id, name);
     }
 
     pub fn getName(self: Entity) [*c]const u8 {
-        return flecs.ecs_get_name(self.world, self.id);
+        return flecs.c.ecs_get_name(self.world, self.id);
     }
 
     /// sets a component on entity. Can be either a pointer to a struct or a struct
@@ -33,30 +33,30 @@ pub const Entity = struct {
 
         const T = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) std.meta.Child(@TypeOf(ptr_or_struct)) else @TypeOf(ptr_or_struct);
         var component = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) ptr_or_struct else &ptr_or_struct;
-        _ = flecs.ecs_set_id(self.world, self.id, meta.componentId(self.world, T), @sizeOf(T), component);
+        _ = flecs.c.ecs_set_id(self.world, self.id, meta.componentId(self.world, T), @sizeOf(T), component);
     }
 
     /// removes a component from an Entity
     pub fn remove(self: Entity, comptime T: type) void {
-        flecs.ecs_remove_id(self.world, self.id, meta.componentId(T));
+        flecs.c.ecs_remove_id(self.world, self.id, meta.componentId(T));
     }
 
     /// removes all components from an Entity
     pub fn clear(self: Entity) void {
-        flecs.ecs_clear(self.world, self.id);
+        flecs.c.ecs_clear(self.world, self.id);
     }
 
     /// removes the entity from the world. Do not use this Entity after calling this!
     pub fn delete(self: Entity) void {
-        flecs.ecs_delete(self.world, self.id);
+        flecs.c.ecs_delete(self.world, self.id);
         self.id = 0;
     }
 
     /// prints a json representation of an Entity. Note that world.enable_type_reflection should be true to
     /// get component values as well.
     pub fn printJsonRepresentation(self: Entity) void {
-        var str = flecs.ecs_entity_to_json(self.world, self.id, null);
+        var str = flecs.c.ecs_entity_to_json(self.world, self.id, null);
         std.debug.print("{s}\n", .{str});
-        flecs.ecs_os_api.free_.?(str);
+        flecs.c.ecs_os_api.free_.?(str);
     }
 };

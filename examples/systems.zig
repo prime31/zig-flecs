@@ -42,7 +42,7 @@ pub fn main() !void {
     world.progress(0);
 
     // open the web explorer at https://www.flecs.dev/explorer/?remote=true
-    _ = flecs.ecs_app_run(world.world, &std.mem.zeroInit(flecs.ecs_app_desc_t, .{
+    _ = flecs.c.ecs_app_run(world.world, &std.mem.zeroInit(flecs.c.ecs_app_desc_t, .{
         .target_fps = 1,
         .delta_time = 1,
         .threads = 4,
@@ -52,14 +52,14 @@ pub fn main() !void {
 
 const ComponentData = struct { pos: *Position, vel: *Velocity };
 
-fn move(it: [*c]flecs.ecs_iter_t) callconv(.C) void {
-    var iter = flecs.Iterator(ComponentData).init(it, flecs.ecs_iter_next);
+fn move(it: [*c]flecs.c.ecs_iter_t) callconv(.C) void {
+    var iter = flecs.Iterator(ComponentData).init(it, flecs.c.ecs_iter_next);
     while (iter.next()) |e| {
         std.debug.print("p: {d}, v: {d} - {s}\n", .{ e.pos, e.vel, iter.entity().getName() });
     }
 }
 
-fn accel(it: [*c]flecs.ecs_iter_t) callconv(.C) void {
+fn accel(it: [*c]flecs.c.ecs_iter_t) callconv(.C) void {
     const positions = flecs.column(it, Position, 1);
     const velocities = flecs.column(it, Velocity, 2);
     const accels = flecs.column(it, Acceleration, 3);

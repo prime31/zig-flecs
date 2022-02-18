@@ -22,12 +22,16 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         [_][]const u8{ "query_maker", "examples/query_maker.zig" },
     };
 
+    const examples_step = b.step("all_examples", "build all examples");
+    b.default_step.dependOn(examples_step);
+
     for (examples) |example| {
         const name = example[0];
         const source = example[1];
 
         var exe = b.addExecutable(name, source);
         exe.setBuildMode(b.standardReleaseOptions());
+        examples_step.dependOn(&exe.step);
 
         // for some reason exe_compiled + debug build results in "illegal instruction 4". Investigate at some point.
         linkArtifact(b, exe, target, if (target.isWindows()) .static else .exe_compiled, "");

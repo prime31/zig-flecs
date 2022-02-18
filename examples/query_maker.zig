@@ -19,7 +19,7 @@ pub fn createQuery(comptime terms: anytype) struct { terms: []TermInfo } {
 }
 
 pub fn createFilter(world: flecs.World, comptime terms: anytype) flecs.Filter {
-    var desc = std.mem.zeroes(flecs.ecs_filter_desc_t);
+    var desc = std.mem.zeroes(flecs.c.ecs_filter_desc_t);
 
     var term_count: usize = 0;
     inline for (terms) |t| {
@@ -43,24 +43,24 @@ pub fn createFilter(world: flecs.World, comptime terms: anytype) flecs.Filter {
 const TermInfo = struct {
     term_type: type = undefined,
     or_term_type: ?type = null,
-    inout: flecs.ecs_inout_kind_t = flecs.EcsInOutDefault,
-    oper: flecs.ecs_oper_kind_t = flecs.EcsAnd,
+    inout: flecs.c.ecs_inout_kind_t = flecs.c.EcsInOutDefault,
+    oper: flecs.c.ecs_oper_kind_t = flecs.c.EcsAnd,
 
     pub fn format(comptime value: TermInfo, comptime fmt: []const u8, options: std.fmt.FormatOptions, writer: anytype) !void {
         _ = options;
         _ = fmt;
         const inout = switch (value.inout) {
-            flecs.EcsAnd => "And",
-            flecs.EcsOr => "Or",
-            flecs.EcsNot => "Not",
-            flecs.EcsOptional => "Optional",
+            flecs.c.EcsAnd => "And",
+            flecs.c.EcsOr => "Or",
+            flecs.c.EcsNot => "Not",
+            flecs.c.EcsOptional => "Optional",
             else => unreachable,
         };
         const oper = switch (value.oper) {
-            flecs.EcsInOutDefault => "InOutDefault",
-            flecs.EcsInOutFilter => "Filter",
-            flecs.EcsIn => "In",
-            flecs.EcsOut => "Out",
+            flecs.c.EcsInOutDefault => "InOutDefault",
+            flecs.c.EcsInOutFilter => "Filter",
+            flecs.c.EcsIn => "In",
+            flecs.c.EcsOut => "Out",
             else => unreachable,
         };
         try std.fmt.format(writer, "TermInfo{{ type = {d}, or_type = {d}, inout: {s}, oper: {s} }}", .{ value.term_type, value.or_term_type, inout, oper });
@@ -99,7 +99,7 @@ pub fn extractTermInfo(comptime T: type) TermInfo {
         term_info.or_term_type = fields[1].field_type;
 
         if (term_info.oper != 0) @compileError("Bad oper in query. Previous modifier already set oper. " ++ @typeName(T));
-        term_info.oper = flecs.EcsOr;
+        term_info.oper = flecs.c.EcsOr;
     }
 
     std.debug.assert(!@hasDecl(t, "term_type") and !@hasDecl(t, "term_type1"));
@@ -111,35 +111,35 @@ pub fn extractTermInfo(comptime T: type) TermInfo {
 
 pub fn Readonly(comptime T: type) type {
     return struct {
-        pub const inout = flecs.EcsIn;
+        pub const inout = flecs.c.EcsIn;
         term_type: T,
     };
 }
 
 pub fn Writeonly(comptime T: type) type {
     return struct {
-        pub const inout = flecs.EcsOut;
+        pub const inout = flecs.c.EcsOut;
         term_type: T,
     };
 }
 
 pub fn Filter(comptime T: type) type {
     return struct {
-        pub const inout = flecs.EcsInOutFilter;
+        pub const inout = flecs.c.EcsInOutFilter;
         term_type: T,
     };
 }
 
 pub fn Optional(comptime T: type) type {
     return struct {
-        pub const oper = flecs.EcsOptional;
+        pub const oper = flecs.c.EcsOptional;
         term_type: T,
     };
 }
 
 pub fn Not(comptime T: type) type {
     return struct {
-        pub const oper = flecs.EcsNot;
+        pub const oper = flecs.c.EcsNot;
         term_type: T,
     };
 }

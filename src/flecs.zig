@@ -1,4 +1,4 @@
-pub usingnamespace @import("c.zig");
+pub const c = @import("c.zig");
 const flecs = @import("c.zig");
 const std = @import("std");
 

@@ -16,7 +16,7 @@ pub fn main() !void {
     iterateEntities(world);
 }
 
-fn move(it: [*c]flecs.ecs_iter_t) callconv(.C) void {
+fn move(it: [*c]flecs.c.ecs_iter_t) callconv(.C) void {
     const positions = flecs.column(it, Position, 1);
     const velocities = flecs.column(it, Velocity, 2);
 
