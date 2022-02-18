@@ -170,6 +170,43 @@ const EntityEachCallbackType = struct {
     pub const inouts = .{ Filter(Or(Player, Enemy)) };
 };
 
+pub fn Delegate(comptime Event: type) type {
+    return struct {
+        const Self = @This();
+
+        ctx_ptr_address: usize = 0,
+        callback: union(enum) {
+            free: fn (Event) void,
+            bound: fn (usize, Event) void,
+        },
+
+        /// sets a bound function as the Delegate callback
+        pub fn initBound(ctx: anytype, comptime fn_name: []const u8) Self {
+            std.debug.assert(@typeInfo(@TypeOf(ctx)) == .Pointer);
+            std.debug.assert(@ptrToInt(ctx) != 0);
+
+            const T = @TypeOf(ctx);
+            return Self{
+                .ctx_ptr_address = @ptrToInt(ctx),
+                .callback = .{
+                    .bound = struct {
+                        fn cb(self: usize, param: Event) void {
+                            @call(.{ .modifier = .always_inline }, @field(@intToPtr(T, self), fn_name), .{param});
+                        }
+                    }.cb,
+                },
+            };
+        }
+
+        pub fn initFree(func: fn (Event) void) Self {
+            return Self{
+                .callback = .{ .free = func },
+            };
+        }
+    };
+}
+const PositionDelegate = Delegate(Position);
+
 // alternative idea: if the callback type has arrays provide a TableIterator. If it is single item pointers provide an EntityIterator
 const TableEachCallbackType = struct {
     vel: [*]const Velocity, // In + And
@@ -182,7 +219,12 @@ const TableEachCallbackType = struct {
 
 //createFilter(world, EachCallbackType, .{ Or(Player, Enemy), Not(Position) });
 
+fn fart(_: Position) void {}
+
 pub fn main() !void {
+    var d = PositionDelegate.initFree(fart);
+    std.debug.print("shit: {s}, {s}\n", .{ @typeName(PositionDelegate), @typeName(@TypeOf(d)) });
+
     var world = flecs.World.init();
     defer world.deinit();
 
