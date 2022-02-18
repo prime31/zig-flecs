@@ -151,7 +151,36 @@ pub fn Or(comptime T1: type, comptime T2: type) type {
     };
 }
 
+// this tuple matches what the QueryBuilder does below so we can swap it to test
 const same_as_builder = .{ Filter(Position), Velocity, Optional(Acceleration), Or(Player, Enemy) };
+
+
+// other way with structs hand-written. this allows you to define your `each` struct which acts as the base to generate the ecs_filter_desc_t.
+// additinal data is sent to create* with modifiers on the types (NOT, OR, etc) or the type modifiers can be included with the struct.
+const EntityEachCallbackType = struct {
+    vel: *const Velocity, // In + And
+    acc: ?*Acceleration, // needs metadata. could be Or or Optional
+    player: ?*Player,
+    enemy: ?*Enemy,
+
+    // and, or, not, optional
+    pub const ors = .{ Or(Player, Enemy) };
+
+    // in (readonly), out (writeonly, filter)
+    pub const inouts = .{ Filter(Or(Player, Enemy)) };
+};
+
+// alternative idea: if the callback type has arrays provide a TableIterator. If it is single item pointers provide an EntityIterator
+const TableEachCallbackType = struct {
+    vel: [*]const Velocity, // In + And
+    acc: ?[*]Acceleration, // needs metadata. could be Or or Optional
+    player: ?[*]Player,
+    enemy: ?[*]Enemy,
+
+    pub const ors = .{ Or(Player, Enemy) };
+};
+
+//createFilter(world, EachCallbackType, .{ Or(Player, Enemy), Not(Position) });
 
 pub fn main() !void {
     var world = flecs.World.init();

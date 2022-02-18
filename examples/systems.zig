@@ -7,7 +7,6 @@ pub const Acceleration = struct { x: f32, y: f32 };
 
 pub fn main() !void {
     var world = flecs.World.init();
-    world.enable_type_reflection = true;
     defer world.deinit();
 
     // bulk register required components since we use expressions for the systems
@@ -42,7 +41,7 @@ pub fn main() !void {
     std.debug.print("tick\n", .{});
     world.progress(0);
 
-    // open the web explorer at https://www.flecs.dev/explorer/
+    // open the web explorer at https://www.flecs.dev/explorer/?remote=true
     _ = flecs.ecs_app_run(world.world, &std.mem.zeroInit(flecs.ecs_app_desc_t, .{
         .target_fps = 1,
         .delta_time = 1,

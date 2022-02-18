@@ -7,12 +7,12 @@ pub fn TableIterator(comptime Components: type) type {
 
     const Columns = meta.TableIteratorData(Components);
 
-    const InnerIterator = struct {
+    return struct {
+    pub const InnerIterator = struct {
         data: Columns = undefined,
         count: i32,
     };
 
-    return struct {
         iter: flecs.ecs_iter_t,
         nextFn: fn ([*c]flecs.ecs_iter_t) callconv(.C) bool,
 

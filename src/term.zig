@@ -27,7 +27,7 @@ pub fn Term(comptime T: type) type {
             }
 
             pub fn entity(self: *@This()) flecs.Entity {
-                return flecs.Entity.init(flecs.World{ .world = self.iter.world.? }, self.iter.entities[self.index - 1]);
+                return flecs.Entity.init(self.iter.world.?, self.iter.entities[self.index - 1]);
             }
         };
 
@@ -44,10 +44,10 @@ pub fn Term(comptime T: type) type {
             return Iterator.init(flecs.ecs_term_iter(self.world.world, &self.term));
         }
 
-        pub fn each(self: *@This(), func: fn (flecs.Entity, *T) void) void {
+        pub fn each(self: *@This(), functin: fn (flecs.Entity, *T) void) void {
             var iter = self.iterator();
             while (iter.next()) |comp| {
-                func(iter.entity(), comp);
+                functin(iter.entity(), comp);
             }
         }
     };

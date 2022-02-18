@@ -104,7 +104,7 @@ pub const Filter = struct {
 
     /// gets an iterator that each iteration provides the components for an entity regardless of how may tables are being iterated
     pub fn entityIterator(self: *@This(), comptime Components: type) flecs.EntityIterator(Components) {
-        return flecs.EntityIterator(Components).init(flecs.ecs_filter_iter(self.world.world, self.filter), flecs.ecs_filter_next);
+        return flecs.EntityIterator(Components).init(self.tableIterator(Components));
     }
 
     /// gets an iterator that let you iterate the tables and then it provides an inner iterator to interate entities
@@ -114,15 +114,15 @@ pub const Filter = struct {
 
     /// allows either a function that takes 1 parameter (a struct with fields that match the components in the query) or multiple paramters
     /// (each param should match the components in the query in order)
-    pub fn each(self: *@This(), comptime Function: anytype) void {
-        comptime var arg_count = switch (@typeInfo(@TypeOf(Function))) {
+    pub fn each(self: *@This(), comptime function: anytype) void {
+        comptime var arg_count = switch (@typeInfo(@TypeOf(function))) {
             .BoundFn => |func_info| func_info.args.len,
             .Fn => |func_info| func_info.args.len,
             else => std.debug.assert("invalid Function"),
         };
 
         if (arg_count == 1) {
-            const Components = switch (@typeInfo(@TypeOf(Function))) {
+            const Components = switch (@typeInfo(@TypeOf(function))) {
                 .BoundFn => |func_info| func_info.args[1].arg_type.?,
                 .Fn => |func_info| func_info.args[0].arg_type.?,
                 else => std.debug.assert("invalid Function"),
@@ -130,14 +130,14 @@ pub const Filter = struct {
 
             var iter = self.entityIterator(Components);
             while (iter.next()) |comps| {
-                @call(.{ .modifier = .always_inline }, Function, .{comps});
+                @call(.{ .modifier = .always_inline }, function, .{comps});
             }
         } else {
-            const Components = std.meta.ArgsTuple(@TypeOf(Function));
+            const Components = std.meta.ArgsTuple(@TypeOf(function));
 
             var iter = self.entityIterator(Components);
             while (iter.next()) |comps| {
-                @call(.{ .modifier = .always_inline }, Function, meta.fieldsTuple(Components, comps));
+                @call(.{ .modifier = .always_inline }, function, meta.fieldsTuple(comps));
             }
         }
     }

@@ -19,7 +19,8 @@ pub const World = struct {
         flecs.ecs_set_target_fps(self.world, fps);
     }
 
-    /// available at https://www.flecs.dev/explorer/
+    /// available at: https://www.flecs.dev/explorer/?remote=true
+    /// test if running: http://localhost:27750/entity/flecs
     pub fn enableWebExplorer(self: World) void {
         _ = flecs.ecs_set_id(self.world, flecs.FLECS__EEcsRest, flecs.FLECS__EEcsRest, @sizeOf(flecs.EcsRest), &std.mem.zeroes(flecs.EcsRest));
     }
