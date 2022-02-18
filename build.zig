@@ -17,6 +17,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         [_][]const u8{ "queries", "examples/queries.zig" },
         [_][]const u8{ "systems", "examples/systems.zig" },
         [_][]const u8{ "benchmark", "examples/benchmark.zig" },
+
         [_][]const u8{ "generator", "examples/generator.zig" },
         [_][]const u8{ "tester", "examples/tester.zig" },
         [_][]const u8{ "query_maker", "examples/query_maker.zig" },
@@ -30,8 +31,11 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         const source = example[1];
 
         var exe = b.addExecutable(name, source);
-        exe.setBuildMode(b.standardReleaseOptions());
-        examples_step.dependOn(&exe.step);
+
+        if (!std.mem.eql(u8, name, "generator")) {
+            exe.setBuildMode(b.standardReleaseOptions());
+            examples_step.dependOn(&exe.step);
+        }
 
         // for some reason exe_compiled + debug build results in "illegal instruction 4". Investigate at some point.
         linkArtifact(b, exe, target, if (target.isWindows()) .static else .exe_compiled, "");
