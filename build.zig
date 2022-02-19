@@ -31,10 +31,12 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         const source = example[1];
 
         var exe = b.addExecutable(name, source);
+        exe.setOutputDir("zig-cache/bin");
 
         if (!std.mem.eql(u8, name, "generator")) {
             exe.setBuildMode(b.standardReleaseOptions());
             examples_step.dependOn(&exe.step);
+            exe.install();
         }
 
         // for some reason exe_compiled + debug build results in "illegal instruction 4". Investigate at some point.

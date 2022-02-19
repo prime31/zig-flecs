@@ -5,9 +5,18 @@
             "name": "lldb Debug ecs binary",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/zig-cache/bin/ecs",
+            "program": "${workspaceFolder}/zig-cache/bin/query_maker",
             "args": [],
             "preLaunchTask": "Build Project",
-        }
+        },
+        {
+            "type": "gdb",
+            "request": "launch",
+            "name": "GDB Launch Program",
+            "target": "${workspaceFolder}/zig-cache/bin/query_maker",
+            "cwd": "${workspaceFolder}/zig-cache/bin/",
+            "valuesFormatting": "parseText",
+            "preLaunchTask": "Build Project",
+    },
     ]
 }
