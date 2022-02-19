@@ -6,6 +6,7 @@ pub const Position = struct { x: f32, y: f32 };
 pub const Acceleration = struct { x: f32, y: f32 };
 pub const Player = struct { id: u8 = 0 };
 pub const Enemy = struct { id: u64 = 0 };
+pub const PopTart = struct { id: u64 = 0 };
 
 pub fn createQuery(comptime terms: anytype) struct { terms: []TermInfo } {
     var term_infos: [terms.len]TermInfo = undefined;
@@ -116,6 +117,13 @@ pub fn Readonly(comptime T: type) type {
     };
 }
 
+pub fn Optional(comptime T: type) type {
+    return struct {
+        pub const oper = flecs.c.EcsOptional;
+        term_type: T,
+    };
+}
+
 pub fn Writeonly(comptime T: type) type {
     return struct {
         pub const inout = flecs.c.EcsOut;
@@ -130,13 +138,6 @@ pub fn Filter(comptime T: type) type {
     };
 }
 
-pub fn Optional(comptime T: type) type {
-    return struct {
-        pub const oper = flecs.c.EcsOptional;
-        term_type: T,
-    };
-}
-
 pub fn Not(comptime T: type) type {
     return struct {
         pub const oper = flecs.c.EcsNot;
@@ -144,6 +145,7 @@ pub fn Not(comptime T: type) type {
     };
 }
 
+// Or is an oper
 pub fn Or(comptime T1: type, comptime T2: type) type {
     return struct {
         term_type1: T1,
@@ -157,7 +159,7 @@ const same_as_builder = .{ Filter(Position), Velocity, Optional(Acceleration), O
 
 // other way with structs hand-written. this allows you to define your `each` struct which acts as the base to generate the ecs_filter_desc_t.
 // additinal data is sent to create* with modifiers on the types (NOT, OR, etc) or the type modifiers can be included with the struct.
-const EntityEachCallbackType = struct {
+const SystemType = struct {
     vel: *const Velocity, // In + And
     acc: ?*Acceleration, // needs metadata. could be Or or Optional. If no metadata can assume optional.
     player: ?*Player,
@@ -168,73 +170,39 @@ const EntityEachCallbackType = struct {
 
     // in (readonly), out (writeonly), filter
     pub const inouts = .{ Filter(Or(Player, Enemy)) };
+
+    pub const name = "SuperSystem";
 };
 
-pub fn Delegate(comptime Event: type) type {
-    return struct {
-        const Self = @This();
 
-        ctx_ptr_address: usize = 0,
-        callback: union(enum) {
-            free: fn (Event) void,
-            bound: fn (usize, Event) void,
-        },
-
-        /// sets a bound function as the Delegate callback
-        pub fn initBound(ctx: anytype, comptime fn_name: []const u8) Self {
-            std.debug.assert(@typeInfo(@TypeOf(ctx)) == .Pointer);
-            std.debug.assert(@ptrToInt(ctx) != 0);
-
-            const T = @TypeOf(ctx);
-            return Self{
-                .ctx_ptr_address = @ptrToInt(ctx),
-                .callback = .{
-                    .bound = struct {
-                        fn cb(self: usize, param: Event) void {
-                            @call(.{ .modifier = .always_inline }, @field(@intToPtr(T, self), fn_name), .{param});
-                        }
-                    }.cb,
-                },
-            };
-        }
-
-        pub fn initFree(func: fn (Event) void) Self {
-            return Self{
-                .callback = .{ .free = func },
-            };
-        }
-    };
-}
-const PositionDelegate = Delegate(Position);
-
-// alternative idea: if the callback type has arrays provide a TableIterator. If it is single item pointers provide an EntityIterator
 const TableEachCallbackType = struct {
-    vel: [*]const Velocity, // In + And
-    acc: ?[*]Acceleration, // needs metadata. could be Or or Optional. If no metadata can assume optional.
-    player: ?[*]Player,
-    enemy: ?[*]Enemy,
+    vel: *const Velocity, // In + And
+    acc: ?*Acceleration, // needs metadata. could be Or or Optional. If no metadata can assume Optional.
+    player: ?*Player,
+    enemy: ?*Enemy,
 
-    pub const ors = .{ Or(Player, Enemy) };
+    // allowed modifiers: Filter, Not, WriteOnly, Or
+    pub const modifiers = .{ Filter(PopTart), Filter(Or(Player, Enemy)), Writeonly(Acceleration) };
+    pub const name = "SuperSystem";
 };
 
 //createFilter(world, EachCallbackType, .{ Or(Player, Enemy), Not(Position) });
 
-fn fart(_: Position) void {}
-
 pub fn main() !void {
-    var d = PositionDelegate.initFree(fart);
-    std.debug.print("shit: {s}, {s}\n", .{ @typeName(PositionDelegate), @typeName(@TypeOf(d)) });
-
     var world = flecs.World.init();
     defer world.deinit();
 
+    var f = world.filter(TableEachCallbackType);
+    std.debug.print("----- {s}\n", .{ f.asString() });
+    // world.system(TableEachCallbackType, system, .on_update);
+
     // const query1 = QueryTemplate.init(world, .{ Optional(Readonly((Position))), Velocity, Not(Acceleration), Or(Enemy, Player) });
     // const query2 = QueryTemplate.init(world, .{ Not(Acceleration), Filter(Or(Enemy, Player)) });
-    const query3 = createQuery(.{ Filter(Position), Velocity, Optional(Acceleration), Or(Enemy, Player) });
+    // const query3 = createQuery(.{ Filter(Position), Velocity, Optional(Acceleration), Or(Enemy, Player) });
 
     // std.debug.print("{any}\n", .{query1.terms[1]});
     // std.debug.print("{any}\n", .{query2.terms[1]});
-    std.debug.print("{any}", .{query3.terms[1]});
+    // std.debug.print("{any}", .{query3.terms[1]});
 
     const entity1 = world.newEntityWithName("MyEntityYo");
     const entity2 = world.newEntityWithName("MyEntity2");
@@ -266,28 +234,11 @@ pub fn main() !void {
     var filter = createFilter(world, same_as_builder);
     defer filter.deinit();
 
-    std.debug.print("\n\niterate with a Filter entityIterator\n", .{});
-    var entity_iter = filter.iterator(struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
-    while (entity_iter.next()) |comps| {
-        std.debug.print("comps: {any}\n", .{comps});
-    }
-
-    // std.debug.print("\n\niterate the Filter with a TableIterator\n", .{});
-    // var table_iter = filter.tableIterator(struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
-    // while (table_iter.next()) |it| {
-    //     var i: usize = 0;
-    //     while (i < it.count) : (i += 1) {
-    //         const accel = if (it.data.acc) |acc| acc[i] else null;
-    //         const player = if (it.data.player) |play| play[i] else null;
-    //         const enemy = if (it.data.enemy) |en| en[i] else null;
-    //         std.debug.print("i: {d}, vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ i, it.data.vel[i], accel, player, enemy });
-    //     }
+    // std.debug.print("\n\niterate with a Filter entityIterator\n", .{});
+    // var entity_iter = filter.iterator(struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+    // while (entity_iter.next()) |comps| {
+    //     std.debug.print("comps: {any}\n", .{comps});
     // }
-
-    // std.debug.print("\n\niterate with a Filter each with a single struct of components\n", .{});
-    // filter.each(eachFilter);
-    // std.debug.print("\n\niterate with a Filter each with a param per component\n", .{});
-    // filter.each(eachFilterSeperateParams);
 }
 
 fn eachFilter(e: struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy }) void {
@@ -296,4 +247,10 @@ fn eachFilter(e: struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player,
 
 fn eachFilterSeperateParams(vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy) void {
     std.debug.print("vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ vel, acc, player, enemy });
+}
+
+fn system(iter: *flecs.Iterator(TableEachCallbackType)) void {
+    while (iter.next()) |e| {
+        std.debug.print("WRAPPED: p: {d}, v: {d} - {s}\n", .{ e.pos, e.vel, iter.entity().getName() });
+    }
 }

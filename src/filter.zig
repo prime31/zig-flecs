@@ -7,8 +7,6 @@ pub const Filter = struct {
     world: flecs.World,
     filter: *flecs.c.ecs_filter_t = undefined,
 
-    var temp_iter_storage: flecs.c.ecs_iter_t = undefined;
-
     /// filter iterator that lets you fetch components via get/getOpt
     /// TODO: is this thing necessary? Seems the other iterators are more then capable compared to this thing.
     const FilterIterator = struct {
@@ -102,6 +100,10 @@ pub const Filter = struct {
         std.heap.c_allocator.destroy(self.filter);
     }
 
+    pub fn asString(self: *@This()) [*c]u8 {
+        return flecs.c.ecs_filter_str(self.world.world, self.filter);
+    }
+
     pub fn filterIterator(self: *@This()) FilterIterator {
         return FilterIterator.init(flecs.c.ecs_filter_iter(self.world.world, self.filter));
     }
@@ -110,6 +112,9 @@ pub const Filter = struct {
     pub fn tableIterator(self: *@This(), comptime Components: type) flecs.TableIterator(Components) {
         return flecs.TableIterator(Components).init(flecs.c.ecs_filter_iter(self.world.world, self.filter), flecs.c.ecs_filter_next);
     }
+
+    // storage for the iterator so it can be passed by reference. Do not in-flight two Filters at once!
+    var temp_iter_storage: flecs.c.ecs_iter_t = undefined;
 
     /// gets an iterator that iterates all matched entities from all tables in one iteration. Do not create more than one at a time!
     pub fn iterator(self: *@This(), comptime Components: type) flecs.Iterator(Components) {

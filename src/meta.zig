@@ -174,7 +174,7 @@ pub fn validateIterator(comptime Components: type, iter: *const flecs.c.ecs_iter
             if (is_const) std.debug.assert(iter.terms[index].inout == flecs.c.EcsIn);
             if (iter.terms[index].inout == flecs.c.EcsIn) std.debug.assert(is_const);
 
-            // validate that optionals (?* types in the struct) matche up with valid opers
+            // validate that optionals (?* types in the struct) match up with valid opers
             if (is_optional) std.debug.assert(iter.terms[index].oper == flecs.c.EcsOr or iter.terms[index].oper == flecs.c.EcsOptional);
             if (iter.terms[index].oper == flecs.c.EcsOr or iter.terms[index].oper == flecs.c.EcsOptional) std.debug.assert(is_optional);
             index += 1;

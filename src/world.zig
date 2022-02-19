@@ -4,8 +4,12 @@ const utils = @import("utils.zig");
 const meta = @import("meta.zig");
 const Entity = flecs.Entity;
 
+fn dummyFn(_: [*c]flecs.c.ecs_iter_t) callconv(.C) void {}
+
 pub const World = struct {
     world: *flecs.c.ecs_world_t,
+
+    pub usingnamespace @import("system_builder.zig").SystemBuilder(World);
 
     pub fn init() World {
         return .{ .world = flecs.c.ecs_init().? };
@@ -87,9 +91,30 @@ pub const World = struct {
         desc.entity.name = name;
         desc.entity.add[0] = @enumToInt(phase);
         desc.query.filter.expr = signature;
-        desc.callback = action;
+        desc.callback = dummyFn;
         desc.run = action;
         _ = flecs.c.ecs_system_init(self.world, &desc);
+    }
+
+    pub fn newWrappedRunSystem(self: World, name: [*c]const u8, phase: flecs.Phase, signature: [*c]const u8, comptime Components: type, comptime action: fn (*flecs.Iterator(Components)) void) void {
+        var desc = std.mem.zeroes(flecs.c.ecs_system_desc_t);
+        desc.entity.name = name;
+        desc.entity.add[0] = @enumToInt(phase);
+        desc.query.filter.expr = signature;
+        desc.callback = dummyFn;
+        desc.run = wrapSystemFn(Components, action);
+        _ = flecs.c.ecs_system_init(self.world, &desc);
+    }
+
+    pub fn wrapSystemFn(comptime T: type, comptime cb: fn (*flecs.Iterator(T)) void) fn ([*c]flecs.c.ecs_iter_t) callconv(.C) void {
+        const Closure = struct {
+            pub var callback: fn (*flecs.Iterator(T)) void = cb;
+
+            pub fn closure(it: [*c]flecs.c.ecs_iter_t) callconv(.C) void {
+                callback(&flecs.Iterator(T).init(it, flecs.c.ecs_iter_next));
+            }
+        };
+        return Closure.closure;
     }
 
     pub fn setName(self: World, entity: flecs.EntityId, name: [*c]const u8) void {
@@ -143,7 +168,7 @@ pub const World = struct {
     }
 
     // TODO: use ecs_get_mut_id optionally based on a bool perhaps or maybe if the passed in type is a pointer?
-    pub fn getSingleton(self: World, comptime T: type) ?* const T {
+    pub fn getSingleton(self: World, comptime T: type) ?*const T {
         std.debug.assert(@typeInfo(T) == .Struct);
         var val = flecs.c.ecs_get_id(self.world, self.componentId(T), self.componentId(T));
         if (val == null) return null;

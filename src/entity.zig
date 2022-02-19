@@ -38,7 +38,7 @@ pub const Entity = struct {
 
     /// removes a component from an Entity
     pub fn remove(self: Entity, comptime T: type) void {
-        flecs.c.ecs_remove_id(self.world, self.id, meta.componentId(T));
+        flecs.c.ecs_remove_id(self.world, self.id, meta.componentId(self.world, T));
     }
 
     /// removes all components from an Entity
@@ -50,6 +50,10 @@ pub const Entity = struct {
     pub fn delete(self: Entity) void {
         flecs.c.ecs_delete(self.world, self.id);
         self.id = 0;
+    }
+
+    pub fn has(self: Entity, comptime T: type) bool {
+        return flecs.c.ecs_has_id(self.world, self.id, meta.componentId(self.world, T));
     }
 
     /// prints a json representation of an Entity. Note that world.enable_type_reflection should be true to
