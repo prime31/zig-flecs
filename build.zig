@@ -49,7 +49,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
 
     // only mac and linux get the update_flecs command
     if (!target.isWindows()) {
-        var exe = b.addSystemCommand(&[_][]const u8{ "zsh", "update_flecs.sh" });
+        var exe = b.addSystemCommand(&[_][]const u8{ "zsh", ".vscode/update_flecs.sh" });
         const exe_step = b.step("update_flecs", b.fmt("updates Flecs.h/c and runs translate-c", .{}));
         exe_step.dependOn(&exe.step);
     }
