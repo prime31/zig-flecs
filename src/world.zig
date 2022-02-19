@@ -2,7 +2,9 @@ const std = @import("std");
 const flecs = @import("flecs.zig");
 const utils = @import("utils.zig");
 const meta = @import("meta.zig");
+
 const Entity = flecs.Entity;
+const FlecsOrderByAction = fn (flecs.c.ecs_entity_t, ?*const anyopaque, flecs.c.ecs_entity_t, ?*const anyopaque) callconv(.C) c_int;
 
 fn dummyFn(_: [*c]flecs.c.ecs_iter_t) callconv(.C) void {}
 
@@ -62,8 +64,8 @@ pub const World = struct {
         return meta.componentId(self.world, T);
     }
 
-    pub fn newType(self: World, components: [*c]const u8) flecs.EntityId {
-        var desc = std.mem.zeroInit(flecs.c.ecs_type_desc_t, .{ .ids_expr = components });
+    pub fn newTypeExpr(self: World, expr: [*c]const u8) flecs.EntityId {
+        var desc = std.mem.zeroInit(flecs.c.ecs_type_desc_t, .{ .ids_expr = expr });
         return flecs.c.ecs_type_init(self.world, &desc);
     }
 
@@ -104,17 +106,6 @@ pub const World = struct {
         desc.callback = dummyFn;
         desc.run = wrapSystemFn(Components, action);
         _ = flecs.c.ecs_system_init(self.world, &desc);
-    }
-
-    pub fn wrapSystemFn(comptime T: type, comptime cb: fn (*flecs.Iterator(T)) void) fn ([*c]flecs.c.ecs_iter_t) callconv(.C) void {
-        const Closure = struct {
-            pub var callback: fn (*flecs.Iterator(T)) void = cb;
-
-            pub fn closure(it: [*c]flecs.c.ecs_iter_t) callconv(.C) void {
-                callback(&flecs.Iterator(T).init(it, flecs.c.ecs_iter_next));
-            }
-        };
-        return Closure.closure;
     }
 
     pub fn setName(self: World, entity: flecs.EntityId, name: [*c]const u8) void {
@@ -188,3 +179,25 @@ pub const World = struct {
         flecs.c.ecs_remove_id(self.world, self.componentId(T), self.componentId(T));
     }
 };
+
+fn wrapSystemFn(comptime T: type, comptime cb: fn (*flecs.Iterator(T)) void) fn ([*c]flecs.c.ecs_iter_t) callconv(.C) void {
+    const Closure = struct {
+        pub var callback: fn (*flecs.Iterator(T)) void = cb;
+
+        pub fn closure(it: [*c]flecs.c.ecs_iter_t) callconv(.C) void {
+            callback(&flecs.Iterator(T).init(it, flecs.c.ecs_iter_next));
+        }
+    };
+    return Closure.closure;
+}
+
+fn wrapOrderByFn(comptime T: type, comptime cb: fn (flecs.EntityId, *const T, flecs.EntityId, *const T) c_int) FlecsOrderByAction {
+    const Closure = struct {
+        pub var callback: fn (flecs.Entity, T, flecs.Entity, T) c_int = cb;
+
+        pub fn closure(e1: flecs.EntityId, c1: ?*const anyopaque, e2: flecs.EntityId, c2: ?*const anyopaque) callconv(.C) c_int {
+            return @call(.{ .modifier = .always_inline }, cb, .{ e1, @ptrCast(*const T, @alignCast(@alignOf(T), c1)), e2, @ptrCast(*const T, @alignCast(@alignOf(T), c2)) });
+        }
+    };
+    return Closure.closure;
+}
