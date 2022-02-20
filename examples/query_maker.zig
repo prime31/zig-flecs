@@ -174,8 +174,9 @@ const TableEachCallbackType = struct {
     player: ?*Player,
     enemy: ?*Enemy,
 
-    // allowed modifiers: Filter, Not, WriteOnly, Or
+    // allowed modifiers: Filter, Not, WriteOnly, Or (soon AndFrom, OrFrom, NotFrom)
     pub const modifiers = .{ q.Filter(PopTart), q.Filter(q.Or(Player, Enemy)), q.Writeonly(Acceleration), q.Not(FunkLocity) };
+    pub const order_by = orderBy;
     pub const name = "SuperSystem";
 };
 
@@ -187,6 +188,9 @@ pub fn main() !void {
 
     var f = world.filter(TableEachCallbackType);
     std.debug.print("----- {s}\n", .{f.asString()});
+
+    var query = world.query(TableEachCallbackType);
+    std.debug.print("----- {s}\n", .{query.asString()});
     // world.system(TableEachCallbackType, system, .on_update);
 
     // const query1 = QueryTemplate.init(world, .{ Optional(Readonly((Position))), Velocity, Not(Acceleration), Or(Enemy, Player) });
@@ -247,4 +251,9 @@ fn system(iter: *flecs.Iterator(TableEachCallbackType)) void {
     while (iter.next()) |e| {
         std.debug.print("WRAPPED: p: {d}, v: {d} - {s}\n", .{ e.pos, e.vel, iter.entity().getName() });
     }
+}
+
+fn orderBy(_: flecs.EntityId, c1: *const Velocity, _: flecs.EntityId, c2: *const Velocity) c_int {
+    std.debug.print("c1: {any}, c2: {any}\n", .{c1, c2});
+    return if (c1.x < c2.x) 1 else -1;
 }

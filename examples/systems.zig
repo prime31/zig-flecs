@@ -10,16 +10,12 @@ pub fn main() !void {
     var world = flecs.World.init();
     defer world.deinit();
 
-    // bulk register required components since we use expressions for the systems
-    world.registerComponents(.{ Position, Velocity, Acceleration });
-
-    world.newWrappedRunSystem("MoveWrap", .on_update, "Position, Velocity", ComponentData, moveWrapped);
-    world.newWrappedRunSystem("Move2Wrap", .on_update, "Position, Velocity", ComponentData, move2Wrapped);
-    world.newWrappedRunSystem("AccelWrap", .on_update, "Position, Velocity, Acceleration", AccelComponentData, accelWrapped);
+    world.newWrappedRunSystem("MoveWrap", .on_update, ComponentData, moveWrapped);
+    world.newWrappedRunSystem("Move2Wrap", .on_update, ComponentData, move2Wrapped);
+    world.newWrappedRunSystem("AccelWrap", .on_update, AccelComponentData, accelWrapped);
 
     const entity1 = world.newEntity();
     entity1.setName("MyEntityYo");
-    std.debug.print("{s}\n\n", .{entity1.getName()});
 
     const entity2 = world.newEntityWithName("MyEntity2");
     const entity3 = world.newEntityWithName("HasAccel");
@@ -47,7 +43,7 @@ pub fn main() !void {
     _ = flecs.c.ecs_app_run(world.world, &std.mem.zeroInit(flecs.c.ecs_app_desc_t, .{
         .target_fps = 1,
         .delta_time = 1,
-        .threads = 4,
+        .threads = 8,
         .enable_rest = true,
     }));
 }

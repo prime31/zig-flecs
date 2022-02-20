@@ -11,8 +11,6 @@ fn dummyFn(_: [*c]flecs.c.ecs_iter_t) callconv(.C) void {}
 pub const World = struct {
     world: *flecs.c.ecs_world_t,
 
-    pub usingnamespace @import("world_query_helpers.zig").QueryHelpers(World);
-
     pub fn init() World {
         return .{ .world = flecs.c.ecs_init().? };
     }
@@ -125,14 +123,42 @@ pub const World = struct {
         _ = flecs.c.ecs_system_init(self.world, &desc);
     }
 
-    pub fn newWrappedRunSystem(self: World, name: [*c]const u8, phase: flecs.Phase, signature: [*c]const u8, comptime Components: type, comptime action: fn (*flecs.Iterator(Components)) void) void {
+    pub fn newWrappedRunSystem(self: World, name: [*c]const u8, phase: flecs.Phase, comptime Components: type, comptime action: fn (*flecs.Iterator(Components)) void) void {
         var desc = std.mem.zeroes(flecs.c.ecs_system_desc_t);
         desc.entity.name = name;
         desc.entity.add[0] = @enumToInt(phase);
-        desc.query.filter.expr = signature;
+        desc.query.filter = meta.generateFilterDesc(self, Components);
+        // desc.multi_threaded = true;
         desc.callback = dummyFn;
         desc.run = wrapSystemFn(Components, action);
         _ = flecs.c.ecs_system_init(self.world, &desc);
+    }
+
+    pub fn filter(self: World, comptime Components: type) flecs.Filter {
+        std.debug.assert(@typeInfo(Components) == .Struct);
+        var desc = meta.generateFilterDesc(self, Components);
+        return flecs.Filter.init(self, &desc);
+    }
+
+    pub fn query(self: World, comptime Components: type) flecs.Query {
+        std.debug.assert(@typeInfo(Components) == .Struct);
+        var desc = std.mem.zeroes(flecs.c.ecs_query_desc_t);
+        desc.filter = meta.generateFilterDesc(self, Components);
+
+        if (@hasDecl(Components, "order_by")) {
+            meta.validateOrderByFn(Components.order_by);
+            const ti = @typeInfo(@TypeOf(Components.order_by));
+            const OrderByType = meta.FinalChild(ti.Fn.args[1].arg_type.?);
+            meta.validateOrderByType(Components, OrderByType);
+
+            desc.order_by = wrapOrderByFn(OrderByType, Components.order_by);
+            desc.order_by_component = self.componentId(OrderByType);
+        }
+        return flecs.Query.init(self, &desc);
+    }
+
+    pub fn system(self: World, comptime Components: type, comptime action: fn (*flecs.Iterator(Components)) void, phase: flecs.Phase) void {
+        std.debug.print("me: {any}\n", .{ self, Components, action, phase });
     }
 
     pub fn setName(self: World, entity: flecs.EntityId, name: [*c]const u8) void {
