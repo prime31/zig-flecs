@@ -40,7 +40,8 @@ pub const World = struct {
     }
 
     pub fn newEntityWithName(self: World, name: [*c]const u8) Entity {
-        return Entity.init(self.world, flecs.c.ecs_set_name(self.world, 0, name));
+        var desc = std.mem.zeroInit(flecs.c.ecs_entity_desc_t, .{ .name = name });
+        return Entity.init(self.world, flecs.c.ecs_entity_init(self.world, &desc));
     }
 
     pub fn newPrefab(self: World, name: [*c]const u8) flecs.EntityId {
@@ -48,7 +49,7 @@ pub const World = struct {
             .name = name,
             .add = [1]flecs.c.ecs_id_t{flecs.c.EcsPrefab} ++ [_]flecs.c.ecs_id_t{0} ** 31,
         });
-        return flecs.c.ecs_entity_init(self.world, &desc);
+        return Entity.init(self.world, flecs.c.ecs_entity_init(self.world, &desc));
     }
 
     /// bulk registers a tuple of Types
@@ -64,8 +65,22 @@ pub const World = struct {
         return meta.componentId(self.world, T);
     }
 
-    pub fn newTypeExpr(self: World, expr: [*c]const u8) flecs.EntityId {
+    /// creates a new type entity, or finds an existing one. A type entity is an entity with the EcsType component.
+    pub fn newType(self: World, name: [*c]const u8, comptime Types: anytype) flecs.EntityId {
+        var desc = std.mem.zeroInit(flecs.c.ecs_type_desc_t);
+        desc.entity = std.mem.zeroInit(flecs.c.ecs_entity_desc_t, .{ .name = name });
+
+        inline for (Types) |T, i| {
+            desc.ids[i] = self.componentId(T);
+        }
+
+        return flecs.c.ecs_type_init(self.world, &desc);
+    }
+
+    pub fn newTypeExpr(self: World, name: [*c]const u8, expr: [*c]const u8) flecs.EntityId {
         var desc = std.mem.zeroInit(flecs.c.ecs_type_desc_t, .{ .ids_expr = expr });
+        desc.entity = std.mem.zeroInit(flecs.c.ecs_entity_desc_t, .{ .name = name });
+
         return flecs.c.ecs_type_init(self.world, &desc);
     }
 

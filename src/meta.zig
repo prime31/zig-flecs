@@ -233,7 +233,7 @@ fn registerReflectionData(world: *flecs.c.ecs_world_t, comptime T: type, entity:
                     [*]const u8 => flecs.c.FLECS__Eecs_string_t,
                     else => blk: {
                         if (@typeInfo(field.field_type) == .Struct)
-                            break :blk componentId(field.field_type);
+                            break :blk componentId(world, field.field_type);
 
                         if (@typeInfo(field.field_type) == .Enum) {
                             var enum_desc = std.mem.zeroes(flecs.c.ecs_enum_desc_t);

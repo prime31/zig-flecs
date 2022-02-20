@@ -2,21 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "lldb Debug ecs binary",
+            "name": "Launch Last Target",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/zig-cache/bin/query_maker",
+            "program": "${workspaceFolder}/zig-cache/bin/${input:zigLastTarget}",
             "args": [],
-            "preLaunchTask": "Build Project",
-        },
+        }
+    ],
+    "inputs": [
         {
-            "type": "gdb",
-            "request": "launch",
-            "name": "GDB Launch Program",
-            "target": "${workspaceFolder}/zig-cache/bin/query_maker",
-            "cwd": "${workspaceFolder}/zig-cache/bin/",
-            "valuesFormatting": "parseText",
-            "preLaunchTask": "Build Project",
-    },
+            "id": "zigLastTarget",
+            "type": "command",
+            "command": "zig.build.getLastTargetOrPrompt"
+        }
     ]
 }
