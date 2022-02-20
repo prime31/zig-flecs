@@ -1,5 +1,6 @@
 const std = @import("std");
 const flecs = @import("flecs");
+const q = flecs.queries;
 
 pub const Velocity = struct { x: f32, y: f32 };
 pub const Position = struct { x: f32, y: f32 };

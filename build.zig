@@ -31,6 +31,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         const source = example[1];
 
         var exe = b.addExecutable(name, source);
+        exe.setTarget(target);
         exe.setOutputDir("zig-cache/bin");
 
         if (!std.mem.eql(u8, name, "generator")) {
@@ -53,6 +54,14 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         const exe_step = b.step("update_flecs", b.fmt("updates Flecs.h/c and runs translate-c", .{}));
         exe_step.dependOn(&exe.step);
     }
+
+    const exe_tests = b.addTest("src/tests.zig");
+    exe_tests.setTarget(target);
+    exe_tests.setBuildMode(b.standardReleaseOptions());
+    linkArtifact(b, exe_tests, target, if (target.isWindows()) .static else .exe_compiled, "");
+
+    const test_step = b.step("test", "Run unit tests");
+    test_step.dependOn(&exe_tests.step);
 }
 
 /// prefix_path is used to add package paths. It should be the the same path used to include this build file

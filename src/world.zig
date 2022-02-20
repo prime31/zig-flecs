@@ -11,7 +11,7 @@ fn dummyFn(_: [*c]flecs.c.ecs_iter_t) callconv(.C) void {}
 pub const World = struct {
     world: *flecs.c.ecs_world_t,
 
-    pub usingnamespace @import("system_builder.zig").SystemBuilder(World);
+    pub usingnamespace @import("world_query_helpers.zig").QueryHelpers(World);
 
     pub fn init() World {
         return .{ .world = flecs.c.ecs_init().? };
@@ -65,9 +65,21 @@ pub const World = struct {
         return meta.componentId(self.world, T);
     }
 
+    /// creates a new type entity, or finds an existing one. A type entity is an entity with the EcsType component. The name will be generated
+    /// by adding the Ids of each component so that order doesnt matter.
+    pub fn newType(self: World, comptime Types: anytype) flecs.EntityId {
+        var i: flecs.EntityId = 0;
+        inline for (Types) |T| {
+            i += self.componentId(T);
+        }
+
+        const name = std.fmt.allocPrintZ(std.heap.c_allocator, "Type{d}", .{i}) catch unreachable;
+        return self.newTypeWithName(name, Types);
+    }
+
     /// creates a new type entity, or finds an existing one. A type entity is an entity with the EcsType component.
-    pub fn newType(self: World, name: [*c]const u8, comptime Types: anytype) flecs.EntityId {
-        var desc = std.mem.zeroInit(flecs.c.ecs_type_desc_t);
+    pub fn newTypeWithName(self: World, name: [*c]const u8, comptime Types: anytype) flecs.EntityId {
+        var desc = std.mem.zeroes(flecs.c.ecs_type_desc_t);
         desc.entity = std.mem.zeroInit(flecs.c.ecs_entity_desc_t, .{ .name = name });
 
         inline for (Types) |T, i| {
@@ -211,7 +223,7 @@ fn wrapOrderByFn(comptime T: type, comptime cb: fn (flecs.EntityId, *const T, fl
         pub var callback: fn (flecs.Entity, T, flecs.Entity, T) c_int = cb;
 
         pub fn closure(e1: flecs.EntityId, c1: ?*const anyopaque, e2: flecs.EntityId, c2: ?*const anyopaque) callconv(.C) c_int {
-            return @call(.{ .modifier = .always_inline }, cb, .{ e1, @ptrCast(*const T, @alignCast(@alignOf(T), c1)), e2, @ptrCast(*const T, @alignCast(@alignOf(T), c2)) });
+            return @call(.{ .modifier = .always_inline }, cb, .{ e1, utils.componentCast(T, c1), e2, utils.componentCast(T, c2) });
         }
     };
     return Closure.closure;

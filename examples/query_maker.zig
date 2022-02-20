@@ -1,5 +1,6 @@
 const std = @import("std");
 const flecs = @import("flecs");
+const q = flecs.queries;
 
 pub const Velocity = struct { x: f32, y: f32 };
 pub const Position = struct { x: f32, y: f32 };
@@ -7,6 +8,16 @@ pub const Acceleration = struct { x: f32, y: f32 };
 pub const Player = struct { id: u8 = 0 };
 pub const Enemy = struct { id: u64 = 0 };
 pub const PopTart = struct { id: u64 = 0 };
+pub const Shit = struct {
+    pub const Fuck = struct { id: u8 = 0 };
+};
+pub const FunkLocity = Wrapper(Velocity);
+
+pub fn Wrapper(comptime t: type) type {
+    return struct {
+        inner: t,
+    };
+}
 
 pub fn createQuery(comptime terms: anytype) struct { terms: []TermInfo } {
     var term_infos: [terms.len]TermInfo = undefined;
@@ -157,24 +168,6 @@ pub fn Or(comptime T1: type, comptime T2: type) type {
 // this tuple matches what the QueryBuilder does below so we can swap it to test
 const same_as_builder = .{ Filter(Position), Velocity, Optional(Acceleration), Or(Player, Enemy) };
 
-// other way with structs hand-written. this allows you to define your `each` struct which acts as the base to generate the ecs_filter_desc_t.
-// additinal data is sent to create* with modifiers on the types (NOT, OR, etc) or the type modifiers can be included with the struct.
-const SystemType = struct {
-    vel: *const Velocity, // In + And
-    acc: ?*Acceleration, // needs metadata. could be Or or Optional. If no metadata can assume optional.
-    player: ?*Player,
-    enemy: ?*Enemy,
-
-    // and, or, not, optional
-    pub const ors = .{ Or(Player, Enemy) };
-
-    // in (readonly), out (writeonly), filter
-    pub const inouts = .{ Filter(Or(Player, Enemy)) };
-
-    pub const name = "SuperSystem";
-};
-
-
 const TableEachCallbackType = struct {
     vel: *const Velocity, // In + And
     acc: ?*Acceleration, // needs metadata. could be Or or Optional. If no metadata can assume Optional.
@@ -182,7 +175,7 @@ const TableEachCallbackType = struct {
     enemy: ?*Enemy,
 
     // allowed modifiers: Filter, Not, WriteOnly, Or
-    pub const modifiers = .{ Filter(PopTart), Filter(Or(Player, Enemy)), Writeonly(Acceleration) };
+    pub const modifiers = .{ q.Filter(PopTart), q.Filter(q.Or(Player, Enemy)), q.Writeonly(Acceleration), q.Not(FunkLocity) };
     pub const name = "SuperSystem";
 };
 
@@ -193,7 +186,7 @@ pub fn main() !void {
     defer world.deinit();
 
     var f = world.filter(TableEachCallbackType);
-    std.debug.print("----- {s}\n", .{ f.asString() });
+    std.debug.print("----- {s}\n", .{f.asString()});
     // world.system(TableEachCallbackType, system, .on_update);
 
     // const query1 = QueryTemplate.init(world, .{ Optional(Readonly((Position))), Velocity, Not(Acceleration), Or(Enemy, Player) });
@@ -212,6 +205,7 @@ pub fn main() !void {
     entity1.set(Position{ .x = 0, .y = 0 });
     entity1.set(Velocity{ .x = 1.1, .y = 1.1 });
     entity1.set(Enemy{ .id = 66 });
+    entity1.set(FunkLocity{ .inner = .{ .x = 555, .y = 666 } });
 
     entity2.set(Position{ .x = 2, .y = 2 });
     entity2.set(Velocity{ .x = 1.2, .y = 1.2 });

@@ -22,11 +22,11 @@ const TermInfo = struct {
 
             if (@hasDecl(t, "inout")) {
                 if (term_info.inout != 0) @compileError("Bad inout in query. Previous modifier already set inout. " ++ @typeName(T));
-                term_info.inout = @field(t, "inout");
+                term_info.inout = @enumToInt(@field(t, "inout"));
             }
             if (@hasDecl(t, "oper")) {
                 if (term_info.oper != 0) @compileError("Bad oper in query. Previous modifier already set oper. " ++ @typeName(T));
-                term_info.oper = @field(t, "oper");
+                term_info.oper = @enumToInt(@field(t, "oper"));
             }
 
             t = fi.field_type;
@@ -55,9 +55,7 @@ const TermInfo = struct {
         if (self.oper == flecs.c.EcsNot and self.inout != flecs.c.EcsInOutDefault) @compileError("Not cant be combined with any other modifiers");
     }
 
-    pub fn format(comptime value: TermInfo, comptime fmt: []const u8, options: std.fmt.FormatOptions, writer: anytype) !void {
-        _ = options;
-        _ = fmt;
+    pub fn format(comptime value: TermInfo, comptime _: []const u8, _: std.fmt.FormatOptions, writer: anytype) !void {
         const inout = switch (value.inout) {
             flecs.c.EcsInOutDefault => "InOutDefault",
             flecs.c.EcsInOutFilter => "Filter",
@@ -76,9 +74,23 @@ const TermInfo = struct {
     }
 };
 
-pub fn SystemBuilder(comptime Self: type) type {
+pub fn QueryHelpers(comptime Self: type) type {
     return struct {
         pub fn filter(self: Self, comptime Components: type) flecs.Filter {
+            assert(@typeInfo(Components) == .Struct);
+            var desc = generateFilterDesc(self, Components);
+            return flecs.Filter.init(self, &desc);
+        }
+
+        pub fn query(self: Self, comptime Components: type) flecs.Query {
+            std.debug.print("me: {any}\n", .{ self, Components });
+        }
+
+        pub fn system(self: Self, comptime Components: type, comptime action: fn (*flecs.Iterator(Components)) void, phase: flecs.Phase) void {
+            std.debug.print("me: {any}\n", .{ self, Components, action, phase });
+        }
+
+        fn generateFilterDesc(self: Self, comptime Components: type) flecs.c.ecs_filter_desc_t {
             assert(@typeInfo(Components) == .Struct);
             var desc = std.mem.zeroes(flecs.c.ecs_filter_desc_t);
 
@@ -99,9 +111,9 @@ pub fn SystemBuilder(comptime Self: type) type {
             if (@hasDecl(Components, "modifiers")) {
                 inline for (Components.modifiers) |inout_tuple| {
                     const ti = TermInfo.init(inout_tuple);
-                    if (getTermIndex(ti.term_type, &desc, component_info.fields.len)) |term_index| {
-                        // std.debug.print("{any}: {any}, term_index: {d}\n", .{ inout_tuple, ti, term_index });
+                    // std.debug.print("{any}: {any}\n", .{ inout_tuple, ti });
 
+                    if (getTermIndex(ti.term_type, &desc, component_info.fields.len)) |term_index| {
                         // Not terms should not be present in the Components struct
                         assert(ti.oper != flecs.c.EcsNot);
 
@@ -144,7 +156,6 @@ pub fn SystemBuilder(comptime Self: type) type {
                             }
                         }
                     } else {
-                        std.debug.print("{any}: {any}\n", .{ inout_tuple, ti });
                         // the term wasnt found so we must have either a Filter or a Not
                         if (ti.inout != flecs.c.EcsInOutFilter and ti.oper != flecs.c.EcsNot) std.debug.print("invalid inout found! No matching type found in the Components struct. Only Not and Filters are valid for types not in the struct. This should assert/panic but a zig bug lets us only print it.\n", .{});
                         if (ti.inout == flecs.c.EcsInOutFilter) {
@@ -162,11 +173,7 @@ pub fn SystemBuilder(comptime Self: type) type {
                 }
             }
 
-            return flecs.Filter.init(self, &desc);
-        }
-
-        pub fn system(self: Self, comptime Components: type, comptime action: fn (*flecs.Iterator(Components)) void, phase: flecs.Phase) void {
-            std.debug.print("me: {any}\n", .{ self, Components, action, phase });
+            return desc;
         }
     };
 }
