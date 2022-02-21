@@ -1,43 +1,38 @@
 ## Flecs Zig Bindings
-
-Currently quite messy and in progress zigification of the Flecs API.
+Flecs v3's node system is still under development so the code in this repository is likely to change over time to match the latest Flecs changes.
 
 #### TODO:
-- figure out a good, clean way to handle Systems ergonomically. Start with a simple ecs_iter_t wrapper since that is always passed to systems
-- add multi world support. `meta.compoentId` needs to somehow get scoped to a world
+- add multi world support. `meta.componentId` needs to somehow get scoped to a world without having to resport to `World(store_id: u8)` as the type
+
+
+### New Iterator API and Query Builder
+An expermiental filter/query/system builder + iterator builder in once concept is now in the codebase. You define a struct (`MoveSystemData` below) with
+the fields being the terms you want from the query returned to you. Flecs allows some more complex features that you can access by providing data in the
+`modifiers` static. Terms that arent actually returned (such as filters and not terms) can be defined here. You can also annotate the fields in the struct
+with additional modifiers to make them part of an `or` term or mark them as writeonly.
+
+```zig
+const q = flecs.queries;
+
+const MoveSystemData = struct {
+    vel: *const Velocity, // In + And
+    acc: ?*Acceleration, // needs metadata. could be Or or Optional. If no metadata can assume Optional.
+    player: ?*Player,
+    enemy: ?*Enemy,
+
+    // allowed modifiers: Filter, Not, WriteOnly, Or (soon AndFrom, OrFrom, NotFrom for using type collections)
+    pub const modifiers = .{ q.Filter(PopTart), q.Filter(q.Or(Player, Enemy)), q.Writeonly(Acceleration), q.Not(SomethingWeDontWantMatching) };
+    pub const order_by = orderBy; // used only by systems and queries
+    pub const name = "SuperSystem";
+};
+
+var filter = world.filter(MoveSystemData);
+// iterate filter as below
+```
 
 
 ### Random Info
 Reflection metadata is enabled by default. To disable it in your root zig file add `pub const disable_reflection = true;`
-
-
-### Iterator Musings and API
-```zig
-var filter = ...
-
-// inner iter.data is derived from the struct passed into the TableIterator with the types converted to arrays from the table
-// const Columns = struct {
-//      pos: [*]Position,
-//      vel: [*]const Velocity,
-//      acc: ?[*]Acceleration,
-//      player: ?[*]Player,
-//      enemy: ?[*]Enemy,
-// }
-
-// while loops through the tables. Each iteration the `it` returned has the arrays from the `Columns` struct
-var table_iter = filter.tableIterator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
-while (table_iter.next()) |it| {
-    // inner loop loops through the entities in the table
-    var i: usize = 0;
-    while (i < it.count) : (i += 1) {
-        const accel = if (it.data.acc) |acc| acc[i] else null;
-        const player = if (it.data.player) |play| play[i] else null;
-        const enemy = if (it.data.enemy) |en| en[i] else null;
-        std.debug.print("i: {d}, pos: {d}, vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ i, it.data.pos[i], it.data.vel[i], accel, player, enemy });
-    }
-}
-```
-
 
 
 ### Terms
@@ -85,19 +80,10 @@ while (filter_iter.next()) |_| {
         .{ filter_iter.getConst(Position), filter_iter.get(Velocity), filter_iter.getOpt(Player) });
 }
 
-// Iterator allows you to iterate all the entities regardless of which table they are in with a single iteration. Note that the struct passed in
-// is validated in debug builds. The parameters must be in the same order as they were added to the QueryBuilder. Optionals should be marked as such with
-// a `?*` and readonly components must be `*const`.
-var entity_iter = filter.terator(struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
-while (entity_iter.next()) |comps| {
-    std.debug.print("comps: {any}\n", .{comps});
-}
-
 // iterate with a function called for each entity that matches the filter. The same rules apply as above for the struct passed in.
 filter.each(eachFilter);
 
-// iterate with a function called for each entity that matches the filter. The same rules apply as above for the struct passed in, with the only
-// difference being each component is a separate parameter.
+// save as `each` with the only difference being each component is a separate parameter.
 filter.each(eachFilterSeperateParams);
 
 fn eachFilter(e: struct { pos: *const Position, vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy }) void {
