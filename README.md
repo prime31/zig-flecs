@@ -3,12 +3,8 @@
 Currently quite messy and in progress zigification of the Flecs API.
 
 #### TODO:
-- make a `Query` struct and interator to match the `Filter` one
-- make three ways to iterate for Filter/Query:
-    1. iterator: iterates just the entities and requires manually fetching components (done)
-    2. entityIterator: iterates each entity (done)
-    3. tableIterator: iterates each archetype and provides component arrays for each (done)
 - figure out a good, clean way to handle Systems ergonomically. Start with a simple ecs_iter_t wrapper since that is always passed to systems
+- add multi world support. `meta.compoentId` needs to somehow get scoped to a world
 
 
 ### Random Info

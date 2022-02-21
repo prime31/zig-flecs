@@ -5,20 +5,20 @@ const utils = @import("utils.zig");
 pub fn Term(comptime T: type) type {
     return struct {
         world: flecs.World,
-        term: flecs.ecs_term_t,
+        term: flecs.c.ecs_term_t,
 
         const Iterator = struct {
-            iter: flecs.ecs_iter_t,
+            iter: flecs.c.ecs_iter_t,
             index: usize = 0,
 
-            pub fn init(iter: flecs.ecs_iter_t) @This() {
+            pub fn init(iter: flecs.c.ecs_iter_t) @This() {
                 return .{ .iter = iter };
             }
 
             pub fn next(self: *@This()) ?*T {
                 if (self.index >= self.iter.count) {
                     self.index = 0;
-                    if (!flecs.ecs_term_next(&self.iter)) return null;
+                    if (!flecs.c.ecs_term_next(&self.iter)) return null;
                 }
 
                 self.index += 1;
@@ -32,16 +32,16 @@ pub fn Term(comptime T: type) type {
         };
 
         pub fn init(world: flecs.World) @This() {
-            var term = std.mem.zeroInit(flecs.ecs_term_t, .{ .id = world.componentId(T) });
+            var term = std.mem.zeroInit(flecs.c.ecs_term_t, .{ .id = world.componentId(T) });
             return .{ .world = world, .term = term };
         }
 
         pub fn deinit(self: *@This()) void {
-            flecs.ecs_term_fini(&self.term);
+            flecs.c.ecs_term_fini(&self.term);
         }
 
         pub fn iterator(self: *@This()) Iterator {
-            return Iterator.init(flecs.ecs_term_iter(self.world.world, &self.term));
+            return Iterator.init(flecs.c.ecs_term_iter(self.world.world, &self.term));
         }
 
         pub fn each(self: *@This(), functin: fn (flecs.Entity, *T) void) void {

@@ -17,18 +17,27 @@ pub fn build(b: *std.build.Builder) anyerror!void {
         [_][]const u8{ "queries", "examples/queries.zig" },
         [_][]const u8{ "systems", "examples/systems.zig" },
         [_][]const u8{ "benchmark", "examples/benchmark.zig" },
-        [_][]const u8{ "simple", "examples/simple.zig" },
         [_][]const u8{ "generator", "examples/generator.zig" },
         [_][]const u8{ "tester", "examples/tester.zig" },
         [_][]const u8{ "query_maker", "examples/query_maker.zig" },
     };
+
+    const examples_step = b.step("all_examples", "build all examples");
+    b.default_step.dependOn(examples_step);
 
     for (examples) |example| {
         const name = example[0];
         const source = example[1];
 
         var exe = b.addExecutable(name, source);
-        exe.setBuildMode(b.standardReleaseOptions());
+        exe.setTarget(target);
+        exe.setOutputDir("zig-cache/bin");
+
+        if (!std.mem.eql(u8, name, "generator")) {
+            exe.setBuildMode(b.standardReleaseOptions());
+            examples_step.dependOn(&exe.step);
+            exe.install();
+        }
 
         // for some reason exe_compiled + debug build results in "illegal instruction 4". Investigate at some point.
         linkArtifact(b, exe, target, if (target.isWindows()) .static else .exe_compiled, "");
@@ -40,10 +49,18 @@ pub fn build(b: *std.build.Builder) anyerror!void {
 
     // only mac and linux get the update_flecs command
     if (!target.isWindows()) {
-        var exe = b.addSystemCommand(&[_][]const u8{ "zsh", "update_flecs.sh" });
+        var exe = b.addSystemCommand(&[_][]const u8{ "zsh", ".vscode/update_flecs.sh" });
         const exe_step = b.step("update_flecs", b.fmt("updates Flecs.h/c and runs translate-c", .{}));
         exe_step.dependOn(&exe.step);
     }
+
+    const exe_tests = b.addTest("src/tests.zig");
+    exe_tests.setTarget(target);
+    exe_tests.setBuildMode(b.standardReleaseOptions());
+    linkArtifact(b, exe_tests, target, if (target.isWindows()) .static else .exe_compiled, "");
+
+    const test_step = b.step("test", "Run unit tests");
+    test_step.dependOn(&exe_tests.step);
 }
 
 /// prefix_path is used to add package paths. It should be the the same path used to include this build file

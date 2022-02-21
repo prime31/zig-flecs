@@ -1,11 +1,23 @@
 const std = @import("std");
 const flecs = @import("flecs");
+const q = flecs.queries;
 
 pub const Velocity = struct { x: f32, y: f32 };
 pub const Position = struct { x: f32, y: f32 };
 pub const Acceleration = struct { x: f32, y: f32 };
 pub const Player = struct { id: u8 = 0 };
 pub const Enemy = struct { id: u64 = 0 };
+pub const PopTart = struct { id: u64 = 0 };
+pub const Shit = struct {
+    pub const Fuck = struct { id: u8 = 0 };
+};
+pub const FunkLocity = Wrapper(Velocity);
+
+pub fn Wrapper(comptime t: type) type {
+    return struct {
+        inner: t,
+    };
+}
 
 pub fn createQuery(comptime terms: anytype) struct { terms: []TermInfo } {
     var term_infos: [terms.len]TermInfo = undefined;
@@ -19,7 +31,7 @@ pub fn createQuery(comptime terms: anytype) struct { terms: []TermInfo } {
 }
 
 pub fn createFilter(world: flecs.World, comptime terms: anytype) flecs.Filter {
-    var desc = std.mem.zeroes(flecs.ecs_filter_desc_t);
+    var desc = std.mem.zeroes(flecs.c.ecs_filter_desc_t);
 
     var term_count: usize = 0;
     inline for (terms) |t| {
@@ -43,24 +55,24 @@ pub fn createFilter(world: flecs.World, comptime terms: anytype) flecs.Filter {
 const TermInfo = struct {
     term_type: type = undefined,
     or_term_type: ?type = null,
-    inout: flecs.ecs_inout_kind_t = flecs.EcsInOutDefault,
-    oper: flecs.ecs_oper_kind_t = flecs.EcsAnd,
+    inout: flecs.c.ecs_inout_kind_t = flecs.c.EcsInOutDefault,
+    oper: flecs.c.ecs_oper_kind_t = flecs.c.EcsAnd,
 
     pub fn format(comptime value: TermInfo, comptime fmt: []const u8, options: std.fmt.FormatOptions, writer: anytype) !void {
         _ = options;
         _ = fmt;
         const inout = switch (value.inout) {
-            flecs.EcsAnd => "And",
-            flecs.EcsOr => "Or",
-            flecs.EcsNot => "Not",
-            flecs.EcsOptional => "Optional",
+            flecs.c.EcsAnd => "And",
+            flecs.c.EcsOr => "Or",
+            flecs.c.EcsNot => "Not",
+            flecs.c.EcsOptional => "Optional",
             else => unreachable,
         };
         const oper = switch (value.oper) {
-            flecs.EcsInOutDefault => "InOutDefault",
-            flecs.EcsInOutFilter => "Filter",
-            flecs.EcsIn => "In",
-            flecs.EcsOut => "Out",
+            flecs.c.EcsInOutDefault => "InOutDefault",
+            flecs.c.EcsInOutFilter => "Filter",
+            flecs.c.EcsIn => "In",
+            flecs.c.EcsOut => "Out",
             else => unreachable,
         };
         try std.fmt.format(writer, "TermInfo{{ type = {d}, or_type = {d}, inout: {s}, oper: {s} }}", .{ value.term_type, value.or_term_type, inout, oper });
@@ -99,7 +111,7 @@ pub fn extractTermInfo(comptime T: type) TermInfo {
         term_info.or_term_type = fields[1].field_type;
 
         if (term_info.oper != 0) @compileError("Bad oper in query. Previous modifier already set oper. " ++ @typeName(T));
-        term_info.oper = flecs.EcsOr;
+        term_info.oper = flecs.c.EcsOr;
     }
 
     std.debug.assert(!@hasDecl(t, "term_type") and !@hasDecl(t, "term_type1"));
@@ -111,39 +123,40 @@ pub fn extractTermInfo(comptime T: type) TermInfo {
 
 pub fn Readonly(comptime T: type) type {
     return struct {
-        pub const inout = flecs.EcsIn;
-        term_type: T,
-    };
-}
-
-pub fn Writeonly(comptime T: type) type {
-    return struct {
-        pub const inout = flecs.EcsOut;
-        term_type: T,
-    };
-}
-
-pub fn Filter(comptime T: type) type {
-    return struct {
-        pub const inout = flecs.EcsInOutFilter;
+        pub const inout = flecs.c.EcsIn;
         term_type: T,
     };
 }
 
 pub fn Optional(comptime T: type) type {
     return struct {
-        pub const oper = flecs.EcsOptional;
+        pub const oper = flecs.c.EcsOptional;
+        term_type: T,
+    };
+}
+
+pub fn Writeonly(comptime T: type) type {
+    return struct {
+        pub const inout = flecs.c.EcsOut;
+        term_type: T,
+    };
+}
+
+pub fn Filter(comptime T: type) type {
+    return struct {
+        pub const inout = flecs.c.EcsInOutFilter;
         term_type: T,
     };
 }
 
 pub fn Not(comptime T: type) type {
     return struct {
-        pub const oper = flecs.EcsNot;
+        pub const oper = flecs.c.EcsNot;
         term_type: T,
     };
 }
 
+// Or is an oper
 pub fn Or(comptime T1: type, comptime T2: type) type {
     return struct {
         term_type1: T1,
@@ -155,29 +168,16 @@ pub fn Or(comptime T1: type, comptime T2: type) type {
 // this tuple matches what the QueryBuilder does below so we can swap it to test
 const same_as_builder = .{ Filter(Position), Velocity, Optional(Acceleration), Or(Player, Enemy) };
 
-// other way with structs hand-written. this allows you to define your `each` struct which acts as the base to generate the ecs_filter_desc_t.
-// additinal data is sent to create* with modifiers on the types (NOT, OR, etc) or the type modifiers can be included with the struct.
-const EntityEachCallbackType = struct {
+const TableEachCallbackType = struct {
     vel: *const Velocity, // In + And
-    acc: ?*Acceleration, // needs metadata. could be Or or Optional. If no metadata can assume optional.
+    acc: ?*Acceleration, // needs metadata. could be Or or Optional. If no metadata can assume Optional.
     player: ?*Player,
     enemy: ?*Enemy,
 
-    // and, or, not, optional
-    pub const ors = .{ Or(Player, Enemy) };
-
-    // in (readonly), out (writeonly), filter
-    pub const inouts = .{ Filter(Or(Player, Enemy)) };
-};
-
-// alternative idea: if the callback type has arrays provide a TableIterator. If it is single item pointers provide an EntityIterator
-const TableEachCallbackType = struct {
-    vel: [*]const Velocity, // In + And
-    acc: ?[*]Acceleration, // needs metadata. could be Or or Optional. If no metadata can assume optional.
-    player: ?[*]Player,
-    enemy: ?[*]Enemy,
-
-    pub const ors = .{ Or(Player, Enemy) };
+    // allowed modifiers: Filter, Not, WriteOnly, Or (soon AndFrom, OrFrom, NotFrom)
+    pub const modifiers = .{ q.Filter(PopTart), q.Filter(q.Or(Player, Enemy)), q.Writeonly(Acceleration), q.Not(FunkLocity) };
+    pub const order_by = orderBy;
+    pub const name = "SuperSystem";
 };
 
 //createFilter(world, EachCallbackType, .{ Or(Player, Enemy), Not(Position) });
@@ -186,13 +186,20 @@ pub fn main() !void {
     var world = flecs.World.init();
     defer world.deinit();
 
+    var f = world.filter(TableEachCallbackType);
+    std.debug.print("----- {s}\n", .{f.asString()});
+
+    var query = world.query(TableEachCallbackType);
+    std.debug.print("----- {s}\n", .{query.asString()});
+    // world.system(TableEachCallbackType, system, .on_update);
+
     // const query1 = QueryTemplate.init(world, .{ Optional(Readonly((Position))), Velocity, Not(Acceleration), Or(Enemy, Player) });
     // const query2 = QueryTemplate.init(world, .{ Not(Acceleration), Filter(Or(Enemy, Player)) });
-    const query3 = createQuery(.{ Filter(Position), Velocity, Optional(Acceleration), Or(Enemy, Player) });
+    // const query3 = createQuery(.{ Filter(Position), Velocity, Optional(Acceleration), Or(Enemy, Player) });
 
     // std.debug.print("{any}\n", .{query1.terms[1]});
     // std.debug.print("{any}\n", .{query2.terms[1]});
-    std.debug.print("{any}", .{query3.terms[1]});
+    // std.debug.print("{any}", .{query3.terms[1]});
 
     const entity1 = world.newEntityWithName("MyEntityYo");
     const entity2 = world.newEntityWithName("MyEntity2");
@@ -202,6 +209,7 @@ pub fn main() !void {
     entity1.set(Position{ .x = 0, .y = 0 });
     entity1.set(Velocity{ .x = 1.1, .y = 1.1 });
     entity1.set(Enemy{ .id = 66 });
+    entity1.set(FunkLocity{ .inner = .{ .x = 555, .y = 666 } });
 
     entity2.set(Position{ .x = 2, .y = 2 });
     entity2.set(Velocity{ .x = 1.2, .y = 1.2 });
@@ -224,28 +232,11 @@ pub fn main() !void {
     var filter = createFilter(world, same_as_builder);
     defer filter.deinit();
 
-    std.debug.print("\n\niterate with a Filter entityIterator\n", .{});
-    var entity_iter = filter.iterator(struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
-    while (entity_iter.next()) |comps| {
-        std.debug.print("comps: {any}\n", .{comps});
-    }
-
-    // std.debug.print("\n\niterate the Filter with a TableIterator\n", .{});
-    // var table_iter = filter.tableIterator(struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
-    // while (table_iter.next()) |it| {
-    //     var i: usize = 0;
-    //     while (i < it.count) : (i += 1) {
-    //         const accel = if (it.data.acc) |acc| acc[i] else null;
-    //         const player = if (it.data.player) |play| play[i] else null;
-    //         const enemy = if (it.data.enemy) |en| en[i] else null;
-    //         std.debug.print("i: {d}, vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ i, it.data.vel[i], accel, player, enemy });
-    //     }
+    // std.debug.print("\n\niterate with a Filter entityIterator\n", .{});
+    // var entity_iter = filter.iterator(struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy });
+    // while (entity_iter.next()) |comps| {
+    //     std.debug.print("comps: {any}\n", .{comps});
     // }
-
-    // std.debug.print("\n\niterate with a Filter each with a single struct of components\n", .{});
-    // filter.each(eachFilter);
-    // std.debug.print("\n\niterate with a Filter each with a param per component\n", .{});
-    // filter.each(eachFilterSeperateParams);
 }
 
 fn eachFilter(e: struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy }) void {
@@ -254,4 +245,15 @@ fn eachFilter(e: struct { vel: *Velocity, acc: ?*Acceleration, player: ?*Player,
 
 fn eachFilterSeperateParams(vel: *Velocity, acc: ?*Acceleration, player: ?*Player, enemy: ?*Enemy) void {
     std.debug.print("vel: {d}, acc: {d}, player: {d}, enemy: {d}\n", .{ vel, acc, player, enemy });
+}
+
+fn system(iter: *flecs.Iterator(TableEachCallbackType)) void {
+    while (iter.next()) |e| {
+        std.debug.print("WRAPPED: p: {d}, v: {d} - {s}\n", .{ e.pos, e.vel, iter.entity().getName() });
+    }
+}
+
+fn orderBy(_: flecs.EntityId, c1: *const Velocity, _: flecs.EntityId, c2: *const Velocity) c_int {
+    std.debug.print("c1: {any}, c2: {any}\n", .{c1, c2});
+    return if (c1.x < c2.x) 1 else -1;
 }

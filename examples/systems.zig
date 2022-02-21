@@ -1,5 +1,6 @@
 const std = @import("std");
 const flecs = @import("flecs");
+const q = flecs.queries;
 
 pub const Velocity = struct { x: f32, y: f32 };
 pub const Position = struct { x: f32, y: f32 };
@@ -9,15 +10,12 @@ pub fn main() !void {
     var world = flecs.World.init();
     defer world.deinit();
 
-    // bulk register required components since we use expressions for the systems
-    world.registerComponents(.{ Position, Velocity, Acceleration });
-
-    world.newRunSystem("Move", .on_update, "Position, Velocity", move);
-    world.newSystem("Accel", .on_update, "Position, Velocity, Acceleration", accel);
+    world.newWrappedRunSystem("MoveWrap", .on_update, ComponentData, moveWrapped);
+    world.newWrappedRunSystem("Move2Wrap", .on_update, ComponentData, move2Wrapped);
+    world.newWrappedRunSystem("AccelWrap", .on_update, AccelComponentData, accelWrapped);
 
     const entity1 = world.newEntity();
     entity1.setName("MyEntityYo");
-    std.debug.print("{s}\n\n", .{entity1.getName()});
 
     const entity2 = world.newEntityWithName("MyEntity2");
     const entity3 = world.newEntityWithName("HasAccel");
@@ -42,33 +40,31 @@ pub fn main() !void {
     world.progress(0);
 
     // open the web explorer at https://www.flecs.dev/explorer/?remote=true
-    _ = flecs.ecs_app_run(world.world, &std.mem.zeroInit(flecs.ecs_app_desc_t, .{
+    _ = flecs.c.ecs_app_run(world.world, &std.mem.zeroInit(flecs.c.ecs_app_desc_t, .{
         .target_fps = 1,
         .delta_time = 1,
-        .threads = 4,
+        .threads = 8,
         .enable_rest = true,
     }));
 }
 
 const ComponentData = struct { pos: *Position, vel: *Velocity };
+const AccelComponentData = struct { pos: *Position, vel: *Velocity, accel: *Acceleration };
 
-fn move(it: [*c]flecs.ecs_iter_t) callconv(.C) void {
-    var iter = flecs.Iterator(ComponentData).init(it, flecs.ecs_iter_next);
+fn moveWrapped(iter: *flecs.Iterator(ComponentData)) void {
     while (iter.next()) |e| {
-        std.debug.print("p: {d}, v: {d} - {s}\n", .{ e.pos, e.vel, iter.entity().getName() });
+        std.debug.print("Move wrapped: p: {d}, v: {d} - {s}\n", .{ e.pos, e.vel, iter.entity().getName() });
     }
 }
 
-fn accel(it: [*c]flecs.ecs_iter_t) callconv(.C) void {
-    const positions = flecs.column(it, Position, 1);
-    const velocities = flecs.column(it, Velocity, 2);
-    const accels = flecs.column(it, Acceleration, 3);
-    const world = flecs.World{ .world = it.*.world.? };
+fn move2Wrapped(iter: *flecs.Iterator(ComponentData)) void {
+    while (iter.next()) |e| {
+        std.debug.print("Move2 wrapped: p: {d}, v: {d} - {s}\n", .{ e.pos, e.vel, iter.entity().getName() });
+    }
+}
 
-    var i: usize = 0;
-    while (i < it.*.count) : (i += 1) {
-        positions[i].x += velocities[i].x;
-        positions[i].y += velocities[i].y;
-        std.debug.print("p: {d}, v: {d}, a: {d} - {s}\n", .{ positions[i], velocities[i], accels[i], world.getName(it.*.entities[i]) });
+fn accelWrapped(iter: *flecs.Iterator(AccelComponentData)) void {
+    while (iter.next()) |e| {
+        std.debug.print("Accel wrapped: p: {d}, v: {d} - {s}\n", .{ e.pos, e.vel, iter.entity().getName() });
     }
 }

@@ -2749,149 +2749,149 @@ pub const ECS_ALIGNOF = @compileError("unable to translate macro: undefined iden
 pub const ECS_UNUSED = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // flecs.h:228:9
 pub const ECS_DEPRECATED = @compileError("unable to translate C expr: unexpected token 'Eof'"); // flecs.h:242:9
 pub const ECS_HAS_ROLE = @compileError("unable to translate macro: undefined identifier `ECS_`"); // flecs.h:280:9
-pub const ECS_HAS_RELATION = @compileError("unable to translate macro: undefined identifier `PAIR`"); // flecs.h:283:9
-pub const ECS_ID_ON_DELETE = @compileError("unable to translate C expr: expected ')' instead got '['"); // flecs.h:314:9
-pub const ecs_id = @compileError("unable to translate macro: undefined identifier `FLECS__E`"); // flecs.h:327:9
-pub const ecs_iter_action = @compileError("unable to translate macro: undefined identifier `FLECS__F`"); // flecs.h:330:9
-pub const ECS_XTOR_IMPL = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:370:9
-pub const ECS_COPY_IMPL = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:397:9
-pub const ECS_MOVE_IMPL = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:432:9
-pub const ECS_ON_SET_IMPL = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:467:9
-pub const ecs_log = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:644:9
-pub const ecs_logv = @compileError("unable to translate macro: undefined identifier `__FILE__`"); // flecs.h:647:9
-pub const _ecs_trace = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:651:9
-pub const ecs_trace = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:652:9
-pub const _ecs_warn = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:655:9
-pub const ecs_warn = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:656:9
-pub const _ecs_err = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:659:9
-pub const ecs_err = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:660:9
-pub const _ecs_fatal = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:663:9
-pub const ecs_fatal = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:664:9
-pub const ecs_deprecated = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:671:9
-pub const ecs_dbg_1 = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:688:9
-pub const ecs_dbg_2 = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:689:9
-pub const ecs_dbg_3 = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:690:9
-pub const ecs_abort = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:720:9
-pub const ecs_assert = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:729:9
-pub const ecs_dbg_assert = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:739:9
-pub const ecs_dummy_check = @compileError("unable to translate macro: undefined identifier `error`"); // flecs.h:745:9
-pub const ecs_check = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:761:9
-pub const ecs_throw = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:777:9
-pub const ecs_parser_error = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:784:9
-pub const ECS_VECTOR_VALUE = @compileError("unable to translate C expr: unexpected token '{'"); // flecs.h:954:9
-pub const ECS_VECTOR_DECL = @compileError("unable to translate macro: undefined identifier `vector`"); // flecs.h:968:9
-pub const ECS_VECTOR_IMPL = @compileError("unable to translate macro: undefined identifier `__`"); // flecs.h:980:9
-pub const ECS_VECTOR_STACK = @compileError("unable to translate C expr: unexpected token ';'"); // flecs.h:983:9
-pub const ecs_vector_add = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1050:9
-pub const ecs_vector_insert_at = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1064:9
-pub const ecs_vector_addn = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1078:9
-pub const ecs_vector_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1092:9
-pub const ecs_vector_last = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1105:9
-pub const ecs_vector_first = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1250:9
-pub const ecs_vector_each = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:1296:9
-pub const ecs_map_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1497:9
-pub const ecs_map_ensure = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1525:9
-pub const ecs_map_set = @compileError("unable to translate C expr: unexpected token '*'"); // flecs.h:1536:9
-pub const ecs_map_next = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1579:9
-pub const ecs_map_each = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:1616:9
+pub const ECS_HAS_RELATION = @compileError("unable to translate macro: undefined identifier `PAIR`"); // flecs.h:285:9
+pub const ECS_ID_ON_DELETE = @compileError("unable to translate C expr: expected ')' instead got '['"); // flecs.h:316:9
+pub const ecs_id = @compileError("unable to translate macro: undefined identifier `FLECS__E`"); // flecs.h:329:9
+pub const ecs_iter_action = @compileError("unable to translate macro: undefined identifier `FLECS__F`"); // flecs.h:332:9
+pub const ECS_XTOR_IMPL = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:372:9
+pub const ECS_COPY_IMPL = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:399:9
+pub const ECS_MOVE_IMPL = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:434:9
+pub const ECS_ON_SET_IMPL = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:469:9
+pub const ecs_log = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:646:9
+pub const ecs_logv = @compileError("unable to translate macro: undefined identifier `__FILE__`"); // flecs.h:649:9
+pub const _ecs_trace = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:653:9
+pub const ecs_trace = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:654:9
+pub const _ecs_warn = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:657:9
+pub const ecs_warn = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:658:9
+pub const _ecs_err = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:661:9
+pub const ecs_err = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:662:9
+pub const _ecs_fatal = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:665:9
+pub const ecs_fatal = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:666:9
+pub const ecs_deprecated = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:673:9
+pub const ecs_dbg_1 = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:690:9
+pub const ecs_dbg_2 = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:691:9
+pub const ecs_dbg_3 = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:692:9
+pub const ecs_abort = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:722:9
+pub const ecs_assert = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:731:9
+pub const ecs_dbg_assert = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:741:9
+pub const ecs_dummy_check = @compileError("unable to translate macro: undefined identifier `error`"); // flecs.h:747:9
+pub const ecs_check = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:763:9
+pub const ecs_throw = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:779:9
+pub const ecs_parser_error = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:786:9
+pub const ECS_VECTOR_VALUE = @compileError("unable to translate C expr: unexpected token '{'"); // flecs.h:956:9
+pub const ECS_VECTOR_DECL = @compileError("unable to translate macro: undefined identifier `vector`"); // flecs.h:970:9
+pub const ECS_VECTOR_IMPL = @compileError("unable to translate macro: undefined identifier `__`"); // flecs.h:982:9
+pub const ECS_VECTOR_STACK = @compileError("unable to translate C expr: unexpected token ';'"); // flecs.h:985:9
+pub const ecs_vector_add = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1052:9
+pub const ecs_vector_insert_at = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1066:9
+pub const ecs_vector_addn = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1080:9
+pub const ecs_vector_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1094:9
+pub const ecs_vector_last = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1107:9
+pub const ecs_vector_first = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1252:9
+pub const ecs_vector_each = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:1298:9
+pub const ecs_map_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1499:9
+pub const ecs_map_ensure = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1527:9
+pub const ecs_map_set = @compileError("unable to translate C expr: unexpected token '*'"); // flecs.h:1538:9
+pub const ecs_map_next = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1581:9
+pub const ecs_map_each = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:1618:9
 pub const __alloca = @compileError("unable to translate macro: undefined identifier `__builtin_alloca`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/alloca.h:40:9
-pub const ecs_os_malloc_t = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2142:9
-pub const ecs_os_malloc_n = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2143:9
-pub const ecs_os_calloc_t = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2144:9
-pub const ecs_os_calloc_n = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2145:9
-pub const ecs_os_realloc_t = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2146:9
-pub const ecs_os_realloc_n = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2147:9
-pub const ecs_os_alloca_t = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2148:9
-pub const ecs_os_alloca_n = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2149:9
-pub const ecs_os_strset = @compileError("unable to translate C expr: unexpected token ';'"); // flecs.h:2156:9
-pub const ecs_offset = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2185:9
-pub const ecs_os_sprintf = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:2200:9
-pub const ecs_os_vsprintf = @compileError("unable to translate macro: undefined identifier `vsprintf`"); // flecs.h:2201:9
-pub const ecs_os_fopen = @compileError("unable to translate macro: undefined identifier `fopen`"); // flecs.h:2214:9
-pub const flecs_sparse_add = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3240:9
-pub const flecs_sparse_remove_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3274:9
-pub const flecs_sparse_get_dense = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3303:9
-pub const flecs_sparse_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3324:9
-pub const flecs_sparse_get_any = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3334:9
-pub const flecs_sparse_ensure = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3344:9
-pub const flecs_sparse_set = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3355:9
-pub const flecs_sparse_each = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:3396:9
-pub const ecs_sparse_add = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3422:9
-pub const ecs_sparse_get_dense = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3445:9
-pub const ecs_sparse_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3454:9
-pub const flecs_hashmap_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3520:9
-pub const flecs_hashmap_next = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3580:9
-pub const flecs_hashmap_next_w_key = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3583:9
-pub const EcsLastInternalComponentId = @compileError("unable to translate macro: undefined identifier `EcsSystem`"); // flecs.h:4273:9
-pub const ECS_PIPELINE_DEFINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:7922:9
-pub const ECS_PIPELINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:7932:9
-pub const ECS_SYSTEM_DEFINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:8220:9
-pub const ECS_SYSTEM = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:8231:9
+pub const ecs_os_malloc_t = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2144:9
+pub const ecs_os_malloc_n = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2145:9
+pub const ecs_os_calloc_t = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2146:9
+pub const ecs_os_calloc_n = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2147:9
+pub const ecs_os_realloc_t = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2148:9
+pub const ecs_os_realloc_n = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2149:9
+pub const ecs_os_alloca_t = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2150:9
+pub const ecs_os_alloca_n = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2151:9
+pub const ecs_os_strset = @compileError("unable to translate C expr: unexpected token ';'"); // flecs.h:2158:9
+pub const ecs_offset = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2188:9
+pub const ecs_os_sprintf = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:2203:9
+pub const ecs_os_vsprintf = @compileError("unable to translate macro: undefined identifier `vsprintf`"); // flecs.h:2204:9
+pub const ecs_os_fopen = @compileError("unable to translate macro: undefined identifier `fopen`"); // flecs.h:2217:9
+pub const flecs_sparse_add = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3243:9
+pub const flecs_sparse_remove_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3277:9
+pub const flecs_sparse_get_dense = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3306:9
+pub const flecs_sparse_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3327:9
+pub const flecs_sparse_get_any = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3337:9
+pub const flecs_sparse_ensure = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3347:9
+pub const flecs_sparse_set = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3358:9
+pub const flecs_sparse_each = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:3399:9
+pub const ecs_sparse_add = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3425:9
+pub const ecs_sparse_get_dense = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3448:9
+pub const ecs_sparse_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3457:9
+pub const flecs_hashmap_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3523:9
+pub const flecs_hashmap_next = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3583:9
+pub const flecs_hashmap_next_w_key = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3586:9
+pub const EcsLastInternalComponentId = @compileError("unable to translate macro: undefined identifier `EcsSystem`"); // flecs.h:4276:9
+pub const ECS_PIPELINE_DEFINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:7925:9
+pub const ECS_PIPELINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:7935:9
+pub const ECS_SYSTEM_DEFINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:8223:9
+pub const ECS_SYSTEM = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:8234:9
 pub const offsetof = @compileError("unable to translate macro: undefined identifier `__builtin_offsetof`"); // /Users/desaro/zig/lib/zig/include/stddef.h:104:9
-pub const ECS_META_COMPONENT = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:9581:9
-pub const ECS_STRUCT = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9587:9
-pub const ECS_ENUM = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9592:9
-pub const ECS_BITMASK = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9597:9
-pub const ECS_META_IMPL_CALL_INNER = @compileError("unable to translate C expr: unexpected token '##'"); // flecs.h:9616:9
-pub const ECS_STRUCT_TYPE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9623:9
-pub const ECS_STRUCT_IMPL = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:9628:9
-pub const ECS_STRUCT_DECLARE = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9634:9
-pub const ECS_STRUCT_EXTERN = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9638:9
-pub const ECS_ENUM_TYPE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9643:9
-pub const ECS_ENUM_IMPL = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:9648:9
-pub const ECS_ENUM_DECLARE = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9654:9
-pub const ECS_ENUM_EXTERN = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9658:9
-pub const ECS_BITMASK_TYPE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9663:9
-pub const ECS_BITMASK_IMPL = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:9668:9
-pub const ECS_BITMASK_DECLARE = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9674:9
-pub const ECS_BITMASK_EXTERN = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9678:9
-pub const FLECS_META_C_EXPORT = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // flecs.h:9687:9
-pub const ECS_MODULE = @compileError("unable to translate C expr: unexpected token '='"); // flecs.h:10763:9
-pub const ECS_IMPORT = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:10785:9
-pub const ECS_ENTITY_DEFINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10818:9
-pub const ECS_ENTITY = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10830:9
-pub const ECS_PREFAB_DEFINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10838:9
-pub const ECS_PREFAB = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10839:9
-pub const ECS_COMPONENT_DEFINE = @compileError("unable to translate macro: undefined identifier `desc`"); // flecs.h:10843:9
-pub const ECS_COMPONENT = @compileError("unable to translate C expr: unexpected token '='"); // flecs.h:10855:9
-pub const ECS_TRIGGER_DEFINE = @compileError("unable to translate macro: undefined identifier `desc`"); // flecs.h:10864:9
-pub const ECS_TRIGGER = @compileError("unable to translate C expr: unexpected token '='"); // flecs.h:10876:9
-pub const ECS_OBSERVER_DEFINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10884:9
-pub const ECS_OBSERVER = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10896:9
-pub const ecs_set_component_actions = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10914:9
-pub const ecs_new_entity = @compileError("unable to translate C expr: expected '.' instead got '}'"); // flecs.h:10927:9
-pub const ecs_new_prefab = @compileError("unable to translate C expr: unexpected token '{'"); // flecs.h:10932:9
-pub const ecs_set = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10967:9
-pub const ecs_set_pair = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10970:9
-pub const ecs_set_pair_object = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10975:9
-pub const ecs_set_override = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10980:9
-pub const ecs_emplace = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:10986:9
-pub const ecs_get_ref = @compileError("unable to translate C expr: unexpected token 'const'"); // flecs.h:10992:9
-pub const ecs_get = @compileError("unable to translate C expr: unexpected token 'const'"); // flecs.h:10995:9
-pub const ecs_get_pair = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:10998:9
-pub const ecs_get_pair_object = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11002:9
-pub const ecs_get_mut = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11009:9
-pub const ecs_get_mut_pair = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11012:9
-pub const ecs_get_mut_pair_object = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11016:9
-pub const ecs_singleton_set = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11038:9
-pub const ecs_term = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11143:9
-pub const ecs_iter_column = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11146:9
-pub const ECS_CTOR = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11171:9
-pub const ECS_DTOR = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11178:9
-pub const ECS_COPY = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11185:9
-pub const ECS_MOVE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11192:9
-pub const ECS_ON_SET = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11199:9
-pub const ecs_ctor = @compileError("unable to translate macro: undefined identifier `_ctor`"); // flecs.h:11203:9
-pub const ecs_dtor = @compileError("unable to translate macro: undefined identifier `_dtor`"); // flecs.h:11204:9
-pub const ecs_copy = @compileError("unable to translate macro: undefined identifier `_copy`"); // flecs.h:11205:9
-pub const ecs_move = @compileError("unable to translate macro: undefined identifier `_move`"); // flecs.h:11206:9
-pub const ecs_on_set = @compileError("unable to translate macro: undefined identifier `_on_set`"); // flecs.h:11207:9
-pub const ecs_query_new = @compileError("unable to translate C expr: expected '=' instead got '.'"); // flecs.h:11209:9
-pub const ECS_TYPE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11219:9
-pub const ECS_FUNC_NAME_FRONT = @compileError("unable to translate C expr: unexpected token '#'"); // flecs.h:11253:9
-pub const ECS_FUNC_NAME_BACK = @compileError("unable to translate C expr: unexpected token 'StringLiteral'"); // flecs.h:11254:9
-pub const ECS_FUNC_NAME = @compileError("unable to translate macro: undefined identifier `__PRETTY_FUNCTION__`"); // flecs.h:11255:9
-pub const ECS_FUNC_TYPE_LEN = @compileError("unable to translate macro: undefined identifier `flecs`"); // flecs.h:11268:9
+pub const ECS_META_COMPONENT = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:9584:9
+pub const ECS_STRUCT = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9590:9
+pub const ECS_ENUM = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9595:9
+pub const ECS_BITMASK = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9600:9
+pub const ECS_META_IMPL_CALL_INNER = @compileError("unable to translate C expr: unexpected token '##'"); // flecs.h:9619:9
+pub const ECS_STRUCT_TYPE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9626:9
+pub const ECS_STRUCT_IMPL = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:9631:9
+pub const ECS_STRUCT_DECLARE = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9637:9
+pub const ECS_STRUCT_EXTERN = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9641:9
+pub const ECS_ENUM_TYPE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9646:9
+pub const ECS_ENUM_IMPL = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:9651:9
+pub const ECS_ENUM_DECLARE = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9657:9
+pub const ECS_ENUM_EXTERN = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9661:9
+pub const ECS_BITMASK_TYPE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9666:9
+pub const ECS_BITMASK_IMPL = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:9671:9
+pub const ECS_BITMASK_DECLARE = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9677:9
+pub const ECS_BITMASK_EXTERN = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9681:9
+pub const FLECS_META_C_EXPORT = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // flecs.h:9690:9
+pub const ECS_MODULE = @compileError("unable to translate C expr: unexpected token '='"); // flecs.h:10766:9
+pub const ECS_IMPORT = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:10788:9
+pub const ECS_ENTITY_DEFINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10821:9
+pub const ECS_ENTITY = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10833:9
+pub const ECS_PREFAB_DEFINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10841:9
+pub const ECS_PREFAB = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10842:9
+pub const ECS_COMPONENT_DEFINE = @compileError("unable to translate macro: undefined identifier `desc`"); // flecs.h:10846:9
+pub const ECS_COMPONENT = @compileError("unable to translate C expr: unexpected token '='"); // flecs.h:10858:9
+pub const ECS_TRIGGER_DEFINE = @compileError("unable to translate macro: undefined identifier `desc`"); // flecs.h:10867:9
+pub const ECS_TRIGGER = @compileError("unable to translate C expr: unexpected token '='"); // flecs.h:10879:9
+pub const ECS_OBSERVER_DEFINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10887:9
+pub const ECS_OBSERVER = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10899:9
+pub const ecs_set_component_actions = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10917:9
+pub const ecs_new_entity = @compileError("unable to translate C expr: expected '.' instead got '}'"); // flecs.h:10930:9
+pub const ecs_new_prefab = @compileError("unable to translate C expr: unexpected token '{'"); // flecs.h:10935:9
+pub const ecs_set = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10970:9
+pub const ecs_set_pair = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10973:9
+pub const ecs_set_pair_object = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10978:9
+pub const ecs_set_override = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10983:9
+pub const ecs_emplace = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:10989:9
+pub const ecs_get_ref = @compileError("unable to translate C expr: unexpected token 'const'"); // flecs.h:10995:9
+pub const ecs_get = @compileError("unable to translate C expr: unexpected token 'const'"); // flecs.h:10998:9
+pub const ecs_get_pair = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11001:9
+pub const ecs_get_pair_object = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11005:9
+pub const ecs_get_mut = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11012:9
+pub const ecs_get_mut_pair = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11015:9
+pub const ecs_get_mut_pair_object = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11019:9
+pub const ecs_singleton_set = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11041:9
+pub const ecs_term = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11146:9
+pub const ecs_iter_column = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11149:9
+pub const ECS_CTOR = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11174:9
+pub const ECS_DTOR = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11181:9
+pub const ECS_COPY = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11188:9
+pub const ECS_MOVE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11195:9
+pub const ECS_ON_SET = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11202:9
+pub const ecs_ctor = @compileError("unable to translate macro: undefined identifier `_ctor`"); // flecs.h:11206:9
+pub const ecs_dtor = @compileError("unable to translate macro: undefined identifier `_dtor`"); // flecs.h:11207:9
+pub const ecs_copy = @compileError("unable to translate macro: undefined identifier `_copy`"); // flecs.h:11208:9
+pub const ecs_move = @compileError("unable to translate macro: undefined identifier `_move`"); // flecs.h:11209:9
+pub const ecs_on_set = @compileError("unable to translate macro: undefined identifier `_on_set`"); // flecs.h:11210:9
+pub const ecs_query_new = @compileError("unable to translate C expr: expected '=' instead got '.'"); // flecs.h:11212:9
+pub const ECS_TYPE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11222:9
+pub const ECS_FUNC_NAME_FRONT = @compileError("unable to translate C expr: unexpected token '#'"); // flecs.h:11256:9
+pub const ECS_FUNC_NAME_BACK = @compileError("unable to translate C expr: unexpected token 'StringLiteral'"); // flecs.h:11257:9
+pub const ECS_FUNC_NAME = @compileError("unable to translate macro: undefined identifier `__PRETTY_FUNCTION__`"); // flecs.h:11258:9
+pub const ECS_FUNC_TYPE_LEN = @compileError("unable to translate macro: undefined identifier `flecs`"); // flecs.h:11271:9
 pub const __llvm__ = @as(c_int, 1);
 pub const __clang__ = @as(c_int, 1);
 pub const __clang_major__ = @as(c_int, 13);
@@ -3256,7 +3256,7 @@ pub const __STDC_NO_THREADS__ = @as(c_int, 1);
 pub const __strong = "";
 pub const __unsafe_unretained = "";
 pub const __DYNAMIC__ = @as(c_int, 1);
-pub const __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ = @import("std").zig.c_translation.promoteIntLiteral(c_int, 120001, .decimal);
+pub const __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ = @import("std").zig.c_translation.promoteIntLiteral(c_int, 120201, .decimal);
 pub const __MACH__ = @as(c_int, 1);
 pub const __STDC__ = @as(c_int, 1);
 pub const __STDC_HOSTED__ = @as(c_int, 1);
@@ -3868,17 +3868,19 @@ pub inline fn ECS_GENERATION_INC(e: anytype) @TypeOf((e & ~ECS_GENERATION_MASK) 
     return (e & ~ECS_GENERATION_MASK) | ((@import("std").zig.c_translation.promoteIntLiteral(c_int, 0xFFFF, .hexadecimal) & (ECS_GENERATION(e) + @as(c_int, 1))) << @as(c_int, 32));
 }
 pub const ECS_COMPONENT_MASK = ~ECS_ROLE_MASK;
-pub inline fn ECS_PAIR_RELATION(e: anytype) @TypeOf(ecs_entity_t_hi(e & ECS_COMPONENT_MASK)) {
+pub inline fn ECS_PAIR_FIRST(e: anytype) @TypeOf(ecs_entity_t_hi(e & ECS_COMPONENT_MASK)) {
     return ecs_entity_t_hi(e & ECS_COMPONENT_MASK);
 }
-pub inline fn ECS_PAIR_OBJECT(e: anytype) @TypeOf(ecs_entity_t_lo(e)) {
+pub inline fn ECS_PAIR_SECOND(e: anytype) @TypeOf(ecs_entity_t_lo(e)) {
     return ecs_entity_t_lo(e);
 }
-pub inline fn ECS_HAS_PAIR_OBJECT(e: anytype, rel: anytype, obj: anytype) @TypeOf((ECS_HAS_RELATION(e, rel) != 0) and (ECS_PAIR_OBJECT(e) == obj)) {
-    return (ECS_HAS_RELATION(e, rel) != 0) and (ECS_PAIR_OBJECT(e) == obj);
+pub const ECS_PAIR_RELATION = ECS_PAIR_FIRST;
+pub const ECS_PAIR_OBJECT = ECS_PAIR_SECOND;
+pub inline fn ECS_HAS_PAIR_OBJECT(e: anytype, rel: anytype, obj: anytype) @TypeOf((ECS_HAS_RELATION(e, rel) != 0) and (ECS_PAIR_SECOND(e) == obj)) {
+    return (ECS_HAS_RELATION(e, rel) != 0) and (ECS_PAIR_SECOND(e) == obj);
 }
-pub inline fn ECS_HAS(id: anytype, has_id: anytype) @TypeOf((id == has_id) or (ECS_HAS_PAIR_OBJECT(id, ECS_PAIR_RELATION(has_id), ECS_PAIR_OBJECT(has_id)) != 0)) {
-    return (id == has_id) or (ECS_HAS_PAIR_OBJECT(id, ECS_PAIR_RELATION(has_id), ECS_PAIR_OBJECT(has_id)) != 0);
+pub inline fn ECS_HAS(id: anytype, has_id: anytype) @TypeOf((id == has_id) or (ECS_HAS_PAIR_OBJECT(id, ECS_PAIR_FIRST(has_id), ECS_PAIR_SECOND(has_id)) != 0)) {
+    return (id == has_id) or (ECS_HAS_PAIR_OBJECT(id, ECS_PAIR_FIRST(has_id), ECS_PAIR_SECOND(has_id)) != 0);
 }
 pub const ECS_ID_ON_DELETE_REMOVE = @as(c_uint, 1) << @as(c_int, 0);
 pub const ECS_ID_ON_DELETE_DELETE = @as(c_uint, 1) << @as(c_int, 1);
@@ -3914,11 +3916,11 @@ pub inline fn ecs_pair(pred: anytype, obj: anytype) @TypeOf(ECS_PAIR | ecs_entit
 pub inline fn ecs_case(pred: anytype, obj: anytype) @TypeOf(ECS_CASE | ecs_entity_t_comb(obj, pred)) {
     return ECS_CASE | ecs_entity_t_comb(obj, pred);
 }
-pub inline fn ecs_pair_first(world: anytype, pair: anytype) @TypeOf(ecs_get_alive(world, ECS_PAIR_RELATION(pair))) {
-    return ecs_get_alive(world, ECS_PAIR_RELATION(pair));
+pub inline fn ecs_pair_first(world: anytype, pair: anytype) @TypeOf(ecs_get_alive(world, ECS_PAIR_FIRST(pair))) {
+    return ecs_get_alive(world, ECS_PAIR_FIRST(pair));
 }
-pub inline fn ecs_pair_second(world: anytype, pair: anytype) @TypeOf(ecs_get_alive(world, ECS_PAIR_OBJECT(pair))) {
-    return ecs_get_alive(world, ECS_PAIR_OBJECT(pair));
+pub inline fn ecs_pair_second(world: anytype, pair: anytype) @TypeOf(ecs_get_alive(world, ECS_PAIR_SECOND(pair))) {
+    return ecs_get_alive(world, ECS_PAIR_SECOND(pair));
 }
 pub const ecs_pair_relation = ecs_pair_first;
 pub const ecs_pair_object = ecs_pair_second;
@@ -4246,6 +4248,9 @@ pub inline fn ecs_os_memcpy_t(ptr1: anytype, ptr2: anytype, T: anytype) @TypeOf(
 }
 pub inline fn ecs_os_memcpy_n(ptr1: anytype, ptr2: anytype, T: anytype, count: anytype) @TypeOf(ecs_os_memcpy(ptr1, ptr2, ECS_SIZEOF(T) * count)) {
     return ecs_os_memcpy(ptr1, ptr2, ECS_SIZEOF(T) * count);
+}
+pub inline fn ecs_os_memcmp_t(ptr1: anytype, ptr2: anytype, T: anytype) @TypeOf(ecs_os_memcmp(ptr1, ptr2, ECS_SIZEOF(T))) {
+    return ecs_os_memcmp(ptr1, ptr2, ECS_SIZEOF(T));
 }
 pub inline fn ecs_os_strcmp(str1: anytype, str2: anytype) @TypeOf(strcmp(str1, str2)) {
     return strcmp(str1, str2);

@@ -2,12 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "lldb Debug ecs binary",
+            "name": "Launch Last Target",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/zig-cache/bin/ecs",
+            "program": "${workspaceFolder}/zig-cache/bin/${input:zigLastTarget}",
             "args": [],
-            "preLaunchTask": "Build Project",
+        }
+    ],
+    "inputs": [
+        {
+            "id": "zigLastTarget",
+            "type": "command",
+            "command": "zig.build.getLastTargetOrPrompt"
         }
     ]
 }
