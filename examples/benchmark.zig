@@ -3,10 +3,13 @@ const flecs = @import("flecs");
 
 // toggle to false to compare the zigified version. Use release builds because the wrapper does a bunch of debug build validation!
 const raw_flecs = false;
-const total_entities: i32 = 100_000;
+const total_entities: i32 = 1_000_000;
 
 pub const Velocity = struct { x: f32, y: f32, z: f64 = 0 };
 pub const Position = struct { x: f32, y: f32 };
+pub const Acceleration = struct { x: f32 = 1, y: f32 = 1 };
+pub const Player = struct { id: u8 = 5 };
+pub const Enemy = struct { id: u8 = 3 };
 const MoveSystemData = struct { pos: *Position, vel: *Velocity };
 
 pub fn main() !void {
@@ -22,6 +25,7 @@ pub fn main() !void {
         iterateEntities(world, 10);
     } else {
         std.debug.print("\niterate with zigified flecs\n", .{});
+        world.newRunSystem("MoveRun", .on_update, "Position, Velocity", moveRun);
         createEntities(&world);
         iterateEntities(world, 10);
     }
@@ -33,7 +37,6 @@ fn move(it: [*c]flecs.c.ecs_iter_t) callconv(.C) void {
 
     var i: usize = 0;
     while (i < it.*.count) : (i += 1) {
-        // std.debug.print("p: {d}, v: {d}\n", .{ positions[i], velocities[i] });
         positions[i].x += velocities[i].x;
         positions[i].y += velocities[i].y;
     }
@@ -55,6 +58,9 @@ fn createEntities(world: *flecs.World) void {
         const e = world.newEntity();
         e.set(&Position{ .x = 100, .y = 100 });
         e.set(&Velocity{ .x = 5, .y = 5 });
+        if (i % 3 == 0) e.set(Acceleration{});
+        if (i % 7 == 0) e.set(Player{});
+        if (i % 9 == 0) e.set(Enemy{});
     }
 
     var end = timer.lap();

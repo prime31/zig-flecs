@@ -109,6 +109,7 @@ pub const World = struct {
         desc.entity.name = name;
         desc.entity.add[0] = @enumToInt(phase);
         desc.query.filter.expr = signature;
+        // desc.multi_threaded = true;
         desc.callback = action;
         _ = flecs.c.ecs_system_init(self.world, &desc);
     }
@@ -118,6 +119,7 @@ pub const World = struct {
         desc.entity.name = name;
         desc.entity.add[0] = @enumToInt(phase);
         desc.query.filter.expr = signature;
+        // desc.multi_threaded = true;
         desc.callback = dummyFn;
         desc.run = action;
         _ = flecs.c.ecs_system_init(self.world, &desc);
@@ -134,12 +136,14 @@ pub const World = struct {
         _ = flecs.c.ecs_system_init(self.world, &desc);
     }
 
+    /// creates a Filter using the passed in struct
     pub fn filter(self: World, comptime Components: type) flecs.Filter {
         std.debug.assert(@typeInfo(Components) == .Struct);
         var desc = meta.generateFilterDesc(self, Components);
         return flecs.Filter.init(self, &desc);
     }
 
+    /// creates a Query using the passed in struct
     pub fn query(self: World, comptime Components: type) flecs.Query {
         std.debug.assert(@typeInfo(Components) == .Struct);
         var desc = std.mem.zeroes(flecs.c.ecs_query_desc_t);
@@ -157,6 +161,7 @@ pub const World = struct {
         return flecs.Query.init(self, &desc);
     }
 
+    /// adds a system to the World using the passed in struct
     pub fn system(self: World, comptime Components: type, comptime action: fn (*flecs.Iterator(Components)) void, phase: flecs.Phase) void {
         std.debug.print("me: {any}\n", .{ self, Components, action, phase });
     }

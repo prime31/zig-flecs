@@ -8,9 +8,11 @@ const TermInfo = @import("term_info.zig").TermInfo;
 
 /// asserts with a message
 pub fn assertMsg(ok: bool, comptime msg: []const u8, args: anytype) void {
-    if (!ok) {
-        std.debug.print("Assertion: " ++ msg ++ "\n", args);
-        unreachable;
+    if (@import("builtin").mode == .Debug) {
+        if (!ok) {
+            std.debug.print("Assertion: " ++ msg ++ "\n", args);
+            unreachable;
+        }
     }
 }
 
