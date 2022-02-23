@@ -33,6 +33,18 @@ pub const World = struct {
         _ = flecs.c.ecs_progress(self.world, delta_time);
     }
 
+    pub fn getFullpath(self: World, child: flecs.EntityId) [*c]u8 {
+        return flecs.c.ecs_get_path_w_sep(self.world, 0, child, ".", null);
+    }
+
+    pub fn getType(self: World, entity: flecs.Entity) flecs.c.ecs_type_t {
+        return flecs.c.ecs_get_type(self.world, entity.id);
+    }
+
+    pub fn getTypeStr(self: World, typ: flecs.c.ecs_type_t) [*c]u8 {
+        return flecs.c.ecs_type_str(self.world,typ);
+    }
+
     pub fn newEntity(self: World) Entity {
         return Entity.init(self.world, flecs.c.ecs_new_id(self.world));
     }
