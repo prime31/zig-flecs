@@ -27,7 +27,8 @@ pub const Entity = struct {
         return flecs.c.ecs_get_name(self.world, self.id);
     }
 
-    /// adds a tag to the entity, which is a struct with no values
+    /// add an entity to an entity. This operation adds a single entity to the type of an entity. Type roles may be used in
+    /// combination with the added entity.
     pub fn add(self: Entity, comptime T: type) void {
         _ = flecs.c.ecs_add_id(self.world, self.id, meta.componentId(self.world, T));
     }
