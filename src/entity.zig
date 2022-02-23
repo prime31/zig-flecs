@@ -30,13 +30,13 @@ pub const Entity = struct {
     /// add an entity to an entity. This operation adds a single entity to the type of an entity. Type roles may be used in
     /// combination with the added entity.
     pub fn add(self: Entity, comptime T: type) void {
-        _ = flecs.c.ecs_add_id(self.world, self.id, meta.componentId(self.world, T));
+        flecs.c.ecs_add_id(self.world, self.id, meta.componentId(self.world, T));
     }
 
     /// adds a relation to the object on the entity
     pub fn addPair(self: Entity, comptime Relation: type, object: Entity) void {
         const id = meta.componentId(self.world, Relation);
-        _ = flecs.c.ecs_add_id(self.world, self.id, flecs.c.ECS_PAIR | (id << @as(c_int, 32)) + @intCast(u32, object.id));
+        flecs.c.ecs_add_id(self.world, self.id, flecs.c.ECS_PAIR | (id << @as(c_int, 32)) + @intCast(u32, object.id));
     }
 
     /// returns true if the entity has the relation to the object
