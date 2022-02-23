@@ -17,9 +17,9 @@
             ],
         },
         {
-            "label": "Build and Run Benchmark",
+            "label": "Build and Run Current Example",
             "type": "shell",
-            "command": "zig build benchmark",
+            "command": "zig build ${fileBasenameNoExtension}",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -32,9 +32,9 @@
             }
         },
         {
-            "label": "Build and Run Filters",
+            "label": "Build All Examples",
             "type": "shell",
-            "command": "zig build filters",
+            "command": "zig build all_examples",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -47,99 +47,9 @@
             }
         },
         {
-            "label": "Build and Run Generator",
+            "label": "Update Flecs",
             "type": "shell",
-            "command": "zig build generator",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "clear": true
-            }
-        },
-        {
-            "label": "Build and Run Raw",
-            "type": "shell",
-            "command": "zig build raw",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "clear": true
-            }
-        },
-        {
-            "label": "Build and Run Systems",
-            "type": "shell",
-            "command": "zig build systems",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "clear": true
-            }
-        },
-        {
-            "label": "Build and Run Systems",
-            "type": "shell",
-            "command": "zig build systems",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "clear": true
-            }
-        },
-        {
-            "label": "Build and Run Terms",
-            "type": "shell",
-            "command": "zig build terms",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "clear": true
-            }
-        },
-        {
-            "label": "Build and Run Tester",
-            "type": "shell",
-            "command": "zig build tester",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "clear": true
-            }
-        },
-        {
-            "label": "Build and Run Queries",
-            "type": "shell",
-            "command": "zig build queries",
+            "command": "zig build update_flecs",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -166,6 +76,5 @@
                 "clear": true
             }
         },
-        
     ]
 }
