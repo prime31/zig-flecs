@@ -27,6 +27,12 @@ pub const Entity = struct {
         return flecs.c.ecs_get_name(self.world, self.id);
     }
 
+    /// add an entity to an entity. This operation adds a single entity to the type of an entity. Type roles may be used in
+    /// combination with the added entity.
+    pub fn add(self: Entity, comptime T: type) void {
+        flecs.c.ecs_add_id(self.world, self.id, meta.componentId(self.world, T));
+    }
+
     /// sets a component on entity. Can be either a pointer to a struct or a struct
     pub fn set(self: Entity, ptr_or_struct: anytype) void {
         std.debug.assert(@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer or @typeInfo(@TypeOf(ptr_or_struct)) == .Struct);

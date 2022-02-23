@@ -31,12 +31,17 @@ pub fn componentId(world: *flecs.c.ecs_world_t, comptime T: type) flecs.EntityId
         return handle.*;
     }
 
-    var desc = std.mem.zeroInit(flecs.c.ecs_component_desc_t, .{
-        .entity = std.mem.zeroInit(flecs.c.ecs_entity_desc_t, .{ .name = @typeName(T) }),
-        .size = @sizeOf(T),
-        .alignment = @alignOf(T),
-    });
-    handle.* = flecs.c.ecs_component_init(world, &desc);
+    if (@sizeOf(T) == 0) {
+        var desc = std.mem.zeroInit(flecs.c.ecs_entity_desc_t, .{ .name = @typeName(T) });
+        handle.* = flecs.c.ecs_entity_init(world, &desc);
+    } else {
+        var desc = std.mem.zeroInit(flecs.c.ecs_component_desc_t, .{
+            .entity = std.mem.zeroInit(flecs.c.ecs_entity_desc_t, .{ .name = @typeName(T) }),
+            .size = @sizeOf(T),
+            .alignment = @alignOf(T),
+        });
+        handle.* = flecs.c.ecs_component_init(world, &desc);
+    }
 
     // allow disabling reflection data with a root bool
     if (!@hasDecl(@import("root"), "disable_reflection") or !@as(bool, @field(@import("root"), "disable_reflection")))
@@ -250,6 +255,11 @@ fn registerReflectionData(world: *flecs.c.ecs_world_t, comptime T: type, entity:
 
     switch (@typeInfo(T)) {
         .Struct => |si| {
+            if (@sizeOf(T) == 0) {
+                std.debug.print("attempted to register a TAG for reflection. coming soon...\n", .{});
+                return;
+            }
+
             inline for (si.fields) |field, i| {
                 var member = std.mem.zeroes(flecs.c.ecs_member_t);
                 member.name = field.name.ptr;

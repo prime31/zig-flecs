@@ -2,6 +2,7 @@ const std = @import("std");
 const flecs = @import("flecs");
 const q = flecs.queries;
 
+pub const ZeroSizedTag = struct {};
 pub const Velocity = struct { x: f32, y: f32 };
 pub const Position = struct { x: f32, y: f32 };
 pub const Acceleration = struct { x: f32, y: f32 };
@@ -185,6 +186,8 @@ const TableEachCallbackType = struct {
 pub fn main() !void {
     var world = flecs.World.init();
     defer world.deinit();
+
+    world.registerComponents(.{ ZeroSizedTag });
 
     var f = world.filter(TableEachCallbackType);
     std.debug.print("----- {s}\n", .{f.asString()});
