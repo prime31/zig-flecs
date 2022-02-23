@@ -27,10 +27,21 @@ pub const Entity = struct {
         return flecs.c.ecs_get_name(self.world, self.id);
     }
 
-    /// add an entity to an entity. This operation adds a single entity to the type of an entity. Type roles may be used in
-    /// combination with the added entity.
+    /// adds a tag to the entity, which is a struct with no values
     pub fn add(self: Entity, comptime T: type) void {
-        flecs.c.ecs_add_id(self.world, self.id, meta.componentId(self.world, T));
+        _ = flecs.c.ecs_add_id(self.world, self.id, meta.componentId(self.world, T));
+    }
+
+    /// adds a relation to the object on the entity
+    pub fn addPair(self: Entity, comptime Relation: type, object: Entity) void {
+        const id = meta.componentId(self.world, Relation);
+        _ = flecs.c.ecs_add_id(self.world, self.id, flecs.c.ECS_PAIR | (id << @as(c_int, 32)) + @intCast(u32, object.id));
+    }
+
+    /// returns true if the entity has the relation to the object
+    pub fn hasPair(self: Entity, comptime Relation: type, object: Entity) bool {
+        const id = meta.componentId(self.world, Relation);
+        return flecs.c.ecs_has_id(self.world, self.id, flecs.c.ECS_PAIR | (id << @as(c_int, 32)) + @intCast(u32, object.id));
     }
 
     /// sets a component on entity. Can be either a pointer to a struct or a struct
@@ -40,6 +51,15 @@ pub const Entity = struct {
         const T = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) std.meta.Child(@TypeOf(ptr_or_struct)) else @TypeOf(ptr_or_struct);
         var component = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) ptr_or_struct else &ptr_or_struct;
         _ = flecs.c.ecs_set_id(self.world, self.id, meta.componentId(self.world, T), @sizeOf(T), component);
+    }
+
+    /// gets a pointer to a type if the component is present on the entity
+    pub fn get(self: Entity, comptime T: type) ?*const T {
+        const ptr = flecs.c.ecs_get_id(self.world, self.id, meta.componentId(self.world, T));
+        if (ptr) |p| {
+            return flecs.componentCast(T, p);
+        }
+        return null;
     }
 
     /// removes a component from an Entity

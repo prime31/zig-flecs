@@ -44,10 +44,10 @@ pub fn Term(comptime T: type) type {
             return Iterator.init(flecs.c.ecs_term_iter(self.world.world, &self.term));
         }
 
-        pub fn each(self: *@This(), functin: fn (flecs.Entity, *T) void) void {
+        pub fn each(self: *@This(), function: fn (flecs.Entity, *T) void) void {
             var iter = self.iterator();
             while (iter.next()) |comp| {
-                functin(iter.entity(), comp);
+                function(iter.entity(), comp);
             }
         }
     };

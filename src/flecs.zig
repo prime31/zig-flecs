@@ -19,6 +19,7 @@ pub const Iterator = @import("iterator.zig").Iterator;
 pub const TableIterator = @import("table_iterator.zig").TableIterator;
 
 pub usingnamespace @import("utils.zig");
+pub const meta = @import("meta.zig");
 
 // Builtin pipeline tags
 pub const Phase = enum(c.ecs_id_t) {
@@ -48,9 +49,9 @@ pub const OperKind = enum(c_int) {
 };
 
 pub const InOutKind = enum(c_int) {
-    default = c.EcsInOutDefault,    // in_out for regular terms, in for shared terms
-    filter = c.EcsInOutFilter,      // neither read nor written. Cannot have a query term.
-    in_out = c.EcsInOut,            // read/write
-    in = c.EcsIn,                   // read only. Query term is const.
-    out = c.EcsOut,                 // write only
+    default = c.EcsInOutDefault, // in_out for regular terms, in for shared terms
+    filter = c.EcsInOutFilter, // neither read nor written. Cannot have a query term.
+    in_out = c.EcsInOut, // read/write
+    in = c.EcsIn, // read only. Query term is const.
+    out = c.EcsOut, // write only
 };
