@@ -17,9 +17,9 @@
             ],
         },
         {
-            "label": "Build and Run Project",
+            "label": "Build and Run Current Example",
             "type": "shell",
-            "command": "zig build run",
+            "command": "zig build ${fileBasenameNoExtension}",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -32,9 +32,9 @@
             }
         },
         {
-            "label": "Build and Run Project (release-fast)",
+            "label": "Build All Examples",
             "type": "shell",
-            "command": "zig build run -Drelease-fast",
+            "command": "zig build all_examples",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -47,9 +47,9 @@
             }
         },
         {
-            "label": "Build and Run Project (release-small)",
+            "label": "Update Flecs",
             "type": "shell",
-            "command": "zig build run -Drelease-small",
+            "command": "zig build update_flecs",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -65,6 +65,21 @@
             "label": "Test Project",
             "type": "shell",
             "command": "zig build test",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "clear": true
+            }
+        },
+        {
+            "label": "Build and Run Project",
+            "type": "shell",
+            "command": "zig build run",
             "problemMatcher": [
                 "$gcc"
             ],

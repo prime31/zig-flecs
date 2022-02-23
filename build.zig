@@ -10,18 +10,7 @@ pub const LibType = enum(i32) {
 pub fn build(b: *std.build.Builder) anyerror!void {
     const target = b.standardTargetOptions(.{});
 
-    const examples = [_][2][]const u8{
-        [_][]const u8{ "raw", "examples/raw.zig" },
-        [_][]const u8{ "terms", "examples/terms.zig" },
-        [_][]const u8{ "filters", "examples/filters.zig" },
-        [_][]const u8{ "queries", "examples/queries.zig" },
-        [_][]const u8{ "systems", "examples/systems.zig" },
-        [_][]const u8{ "benchmark", "examples/benchmark.zig" },
-
-        [_][]const u8{ "generator", "examples/generator.zig" },
-        [_][]const u8{ "tester", "examples/tester.zig" },
-        [_][]const u8{ "query_maker", "examples/query_maker.zig" },
-    };
+    const examples = getAllExamples(b, "examples");
 
     const examples_step = b.step("all_examples", "build all examples");
     b.default_step.dependOn(examples_step);
@@ -40,7 +29,7 @@ pub fn build(b: *std.build.Builder) anyerror!void {
             exe.install();
         }
 
-        // for some reason exe_compiled + debug build results in "illegal instruction 4". Investigate at some point.
+        // for some reason exe_compiled + debug build results in "illegal instruction 4" on Windows. Investigate at some point.
         linkArtifact(b, exe, target, if (target.isWindows()) .static else .exe_compiled, "");
 
         const run_cmd = exe.run();
@@ -62,6 +51,36 @@ pub fn build(b: *std.build.Builder) anyerror!void {
 
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&exe_tests.step);
+}
+
+fn getAllExamples(b: *std.build.Builder, root_directory: []const u8) [][2][]const u8 {
+    var list = std.ArrayList([2][]const u8).init(b.allocator);
+
+    var recursor = struct {
+        fn search(alloc: std.mem.Allocator, directory: []const u8, filelist: *std.ArrayList([2][]const u8)) void {
+            var dir = std.fs.cwd().openDir(directory, .{ .iterate = true }) catch unreachable;
+            defer dir.close();
+
+            var iter = dir.iterate();
+            while (iter.next() catch unreachable) |entry| {
+                if (entry.kind == .File) {
+                    if (std.mem.endsWith(u8, entry.name, ".zig")) {
+                        const abs_path = std.fs.path.join(alloc, &[_][]const u8{ directory, entry.name }) catch unreachable;
+                        const name = std.fs.path.basename(abs_path);
+
+                        filelist.append([2][]const u8 {name[0..name.len - 4], abs_path}) catch unreachable;
+                    }
+                } else if (entry.kind == .Directory) {
+                    const abs_path = std.fs.path.join(alloc, &[_][]const u8{ directory, entry.name }) catch unreachable;
+                    search(alloc, abs_path, filelist);
+                }
+            }
+        }
+    }.search;
+
+    recursor(b.allocator, root_directory, &list);
+
+    return list.toOwnedSlice();
 }
 
 /// prefix_path is used to add package paths. It should be the the same path used to include this build file
