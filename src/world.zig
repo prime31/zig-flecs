@@ -33,6 +33,18 @@ pub const World = struct {
         _ = flecs.c.ecs_progress(self.world, delta_time);
     }
 
+    pub fn getFullpath(self: World, child: flecs.EntityId) [*c]u8 {
+        return flecs.c.ecs_get_path_w_sep(self.world, 0, child, ".", null);
+    }
+
+    pub fn getType(self: World, entity: flecs.Entity) flecs.c.ecs_type_t {
+        return flecs.c.ecs_get_type(self.world, entity.id);
+    }
+
+    pub fn getTypeStr(self: World, typ: flecs.c.ecs_type_t) [*c]u8 {
+        return flecs.c.ecs_type_str(self.world,typ);
+    }
+
     pub fn newEntity(self: World) Entity {
         return Entity.init(self.world, flecs.c.ecs_new_id(self.world));
     }
@@ -42,11 +54,12 @@ pub const World = struct {
         return Entity.init(self.world, flecs.c.ecs_entity_init(self.world, &desc));
     }
 
-    pub fn newPrefab(self: World, name: [*c]const u8) flecs.EntityId {
+    pub fn newPrefab(self: World, name: [*c]const u8) flecs.Entity {
         var desc = std.mem.zeroInit(flecs.c.ecs_entity_desc_t, .{
             .name = name,
-            .add = [1]flecs.c.ecs_id_t{flecs.c.EcsPrefab} ++ [_]flecs.c.ecs_id_t{0} ** 31,
+            .add = [_]flecs.c.ecs_id_t{0} ** 32,
         });
+        desc.add[0] = flecs.c.EcsPrefab;
         return Entity.init(self.world, flecs.c.ecs_entity_init(self.world, &desc));
     }
 

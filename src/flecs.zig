@@ -14,6 +14,7 @@ pub const QueryBuilder = @import("query_builder.zig").QueryBuilder;
 pub const Term = @import("term.zig").Term;
 pub const Filter = @import("filter.zig").Filter;
 pub const Query = @import("query.zig").Query;
+pub const Type = @import("type.zig").Type;
 
 pub const Iterator = @import("iterator.zig").Iterator;
 pub const TableIterator = @import("table_iterator.zig").TableIterator;
