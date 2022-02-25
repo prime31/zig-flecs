@@ -255,10 +255,8 @@ fn registerReflectionData(world: *flecs.c.ecs_world_t, comptime T: type, entity:
 
     switch (@typeInfo(T)) {
         .Struct => |si| {
-            if (@sizeOf(T) == 0) {
-                std.debug.print("attempted to register a TAG for reflection. coming soon...\n", .{});
-                return;
-            }
+            // tags have no size so ignore them
+            if (@sizeOf(T) == 0) return;
 
             inline for (si.fields) |field, i| {
                 var member = std.mem.zeroes(flecs.c.ecs_member_t);

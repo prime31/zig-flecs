@@ -26,6 +26,7 @@ const Iterator = struct {
 fn iterateTree(world: flecs.World, e: flecs.Entity, p_parent: Position) void {
     // Print hierarchical name of entity & the entity type
     // TODO: wrap flecs.c.ecs_get_fullpath?
+    std.debug.print("-- path: {s}, type: {s}\n", .{ world.getFullpath(e.id), world.getTypeStr(world.getType(e)) });
 
     // Get entity position
     if (e.get(Position)) |position| {
