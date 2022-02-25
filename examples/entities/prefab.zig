@@ -58,4 +58,22 @@ pub fn main() !void {
     if (inst.get(ImpulseSpeed)) |imp| {
         std.log.debug("Impulse speed: {d}", .{imp.value});
     }
+
+    // Prefab components can be iterated like regular components:
+    var builder = flecs.QueryBuilder.init(world)
+        .with(Position)
+        .withReadonly(ImpulseSpeed);
+    
+    var filter = builder.buildFilter();
+
+    // To select components from a prefab, use SuperSet
+    filter.filter.terms[1].subj.set.mask = flecs.c.EcsSuperSet;
+
+    var it = filter.iterator(struct {position: *Position, ispeed: *const ImpulseSpeed});
+    while (it.next()) |components| {
+        components.position.x += components.ispeed.value;
+        std.log.debug("{s}: {d}", .{it.entity().getName(), components.position});
+    }
+
+    world.deinit();
 }
