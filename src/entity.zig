@@ -84,9 +84,53 @@ pub const Entity = struct {
     }
 
     /// returns true if the entity has the relation to the object
-    pub fn hasPair(self: Entity, comptime Relation: type, object: Entity) bool {
-        const id = meta.componentId(self.world, Relation);
-        return flecs.c.ecs_has_id(self.world, self.id, flecs.c.ECS_PAIR | (id << @as(c_int, 32)) + @intCast(u32, object.id));
+    pub fn hasPair(self: Entity, relation: anytype, object: anytype) bool {
+        const Relation = @TypeOf(relation);
+        const Object = @TypeOf(object);
+
+        const rel_info = @typeInfo(Relation);
+        const obj_info = @typeInfo(Object);
+
+        std.debug.assert(rel_info == .Struct or rel_info == .Type);
+        std.debug.assert(obj_info == .Struct or obj_info == .Type);
+
+        switch (rel_info) {
+            .Struct => {
+                switch (obj_info) {
+                    .Struct => {
+                        const rel_id = @field(relation, "id");
+                        const obj_id = @field(object, "id");
+
+                        return flecs.c.ecs_has_id(self.world, self.id, flecs.c.ECS_PAIR | (rel_id << @as(c_int, 32)) + @intCast(u32, obj_id));
+                    },
+                    .Type => {
+                        const rel_id = @field(relation, "id");
+                        const obj_id = meta.componentId(self.world, object);
+
+                        return flecs.c.ecs_has_id(self.world, self.id, flecs.c.ECS_PAIR | (rel_id << @as(c_int, 32)) + @intCast(u32, obj_id));
+                    },
+                    else => {},
+                }
+            },
+            .Type => {
+                switch (obj_info) {
+                    .Struct => {
+                        const rel_id = meta.componentId(self.world, relation);
+                        const obj_id = @field(object, "id");
+
+                        return flecs.c.ecs_has_id(self.world, self.id, flecs.c.ECS_PAIR | (rel_id << @as(c_int, 32)) + @intCast(u32, obj_id));
+                    },
+                    .Type => {
+                        const rel_id = meta.componentId(self.world, relation);
+                        const obj_id = meta.componentId(self.world, object);
+
+                        return flecs.c.ecs_has_id(self.world, self.id, flecs.c.ECS_PAIR | (rel_id << @as(c_int, 32)) + @intCast(u32, obj_id));
+                    },
+                    else => {},
+                }
+            },
+            else => {},
+        }
     }
 
     /// sets a component on entity. Can be either a pointer to a struct or a struct
