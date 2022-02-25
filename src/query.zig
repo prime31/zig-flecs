@@ -20,6 +20,10 @@ pub const Query = struct {
         return flecs.c.ecs_filter_str(self.world.world, filter);
     }
 
+    pub fn changed (self: *@This()) bool {
+        return flecs.c.ecs_query_changed(self.query, null);
+    }
+
     /// gets an iterator that let you iterate the tables and then it provides an inner iterator to interate entities
     pub fn tableIterator(self: *@This(), comptime Components: type) flecs.TableIterator(Components) {
         return flecs.TableIterator(Components).init(flecs.c.ecs_query_iter(self.world.world, self.query), flecs.c.ecs_query_next);
