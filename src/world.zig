@@ -54,11 +54,12 @@ pub const World = struct {
         return Entity.init(self.world, flecs.c.ecs_entity_init(self.world, &desc));
     }
 
-    pub fn newPrefab(self: World, name: [*c]const u8) flecs.EntityId {
+    pub fn newPrefab(self: World, name: [*c]const u8) flecs.Entity {
         var desc = std.mem.zeroInit(flecs.c.ecs_entity_desc_t, .{
             .name = name,
-            .add = [1]flecs.c.ecs_id_t{flecs.c.EcsPrefab} ++ [_]flecs.c.ecs_id_t{0} ** 31,
+            .add = [_]flecs.c.ecs_id_t{0} ** 32,
         });
+        desc.add[0] = flecs.c.EcsPrefab;
         return Entity.init(self.world, flecs.c.ecs_entity_init(self.world, &desc));
     }
 
