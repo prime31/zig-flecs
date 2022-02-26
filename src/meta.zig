@@ -397,6 +397,12 @@ pub fn generateFilterDesc(world: flecs.World, comptime Components: type) flecs.c
         }
     }
 
+    // optionally add the expression string
+    if (@hasDecl(Components, "expr")) {
+        assertMsg(std.meta.Elem(@TypeOf(Components.expr)) == u8, "expr must be a const string. Found: {s}", .{ std.meta.Elem(@TypeOf(Components.expr)) });
+        desc.expr = Components.expr;
+    }
+
     return desc;
 }
 

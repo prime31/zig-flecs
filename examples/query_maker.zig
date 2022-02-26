@@ -42,6 +42,7 @@ const SystemCallbackType = struct {
     pub const run = system;
     pub const order_by = orderBy;
     pub const name = "SuperSystem";
+    pub const expr = "?PopTart";
 };
 
 pub fn main() !void {
