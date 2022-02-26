@@ -175,8 +175,30 @@ pub const World = struct {
     }
 
     /// adds a system to the World using the passed in struct
-    pub fn system(self: World, comptime Components: type, comptime action: fn (*flecs.Iterator(Components)) void, phase: flecs.Phase) void {
-        std.debug.print("me: {any}\n", .{ self, Components, action, phase });
+    pub fn system(self: World, comptime Components: type, phase: flecs.Phase) void {
+        std.debug.assert(@typeInfo(Components) == .Struct);
+        std.debug.assert(@hasDecl(Components, "run"));
+        std.debug.assert(@hasDecl(Components, "name"));
+
+        var desc = std.mem.zeroes(flecs.c.ecs_system_desc_t);
+        desc.callback = dummyFn;
+        desc.entity.name = Components.name;
+        desc.entity.add[0] = @enumToInt(phase);
+        // desc.multi_threaded = true;
+        desc.run = wrapSystemFn(Components, Components.run);
+        desc.query.filter = meta.generateFilterDesc(self, Components);
+
+        if (@hasDecl(Components, "order_by")) {
+            meta.validateOrderByFn(Components.order_by);
+            const ti = @typeInfo(@TypeOf(Components.order_by));
+            const OrderByType = meta.FinalChild(ti.Fn.args[1].arg_type.?);
+            meta.validateOrderByType(Components, OrderByType);
+
+            desc.query.order_by = wrapOrderByFn(OrderByType, Components.order_by);
+            desc.query.order_by_component = self.componentId(OrderByType);
+        }
+
+        _ = flecs.c.ecs_system_init(self.world, &desc);
     }
 
     pub fn setName(self: World, entity: flecs.EntityId, name: [*c]const u8) void {
