@@ -55,11 +55,32 @@ pub const World = struct {
         return Entity.init(self.world, flecs.c.ecs_entity_init(self.world, &desc));
     }
 
-    /// accepts types or EntityIds in any combination
-    pub fn pair(self: World, pred: anytype, obj: anytype) u64 {
-        const pred_id = if (@TypeOf(pred) == type) self.componentId(pred) else pred;
-        const obj_id = if (@TypeOf(obj) == type) self.componentId(obj) else obj;
-        return flecs.c.ECS_PAIR | (pred_id << @as(u32, 32)) + @truncate(u32, obj_id);
+    /// Allowed params: Entity, EntityId, type
+    pub fn pair(self: World, relation: anytype, object: anytype) u64 {
+        const Relation = @TypeOf(relation);
+        const Object = @TypeOf(object);
+
+        const rel_info = @typeInfo(Relation);
+        const obj_info = @typeInfo(Object);
+
+        std.debug.assert(rel_info == .Struct or rel_info == .Type or Relation == flecs.EntityId);
+        std.debug.assert(obj_info == .Struct or obj_info == .Type or Object == flecs.EntityId);
+
+        const rel_id = switch (Relation) {
+            type => self.componentId(relation),
+            flecs.EntityId => relation,
+            flecs.Entity => relation.id,
+            else => unreachable,
+        };
+
+        const obj_id = switch (Object) {
+            type => self.componentId(object),
+            flecs.EntityId => object,
+            flecs.Entity => object.id,
+            else => unreachable,
+        };
+
+        return flecs.c.ECS_PAIR | (rel_id << @as(u32, 32)) + @truncate(u32, obj_id);
     }
 
     /// bulk registers a tuple of Types

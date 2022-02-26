@@ -178,30 +178,29 @@ pub fn validateIterator(comptime Components: type, iter: *const flecs.c.ecs_iter
         var index: usize = 0;
         const component_info = @typeInfo(Components).Struct;
 
-        // TODO: this is all wrong. currently filters have to be at the end for this to work! use "tester" example to fix
         inline for (component_info.fields) |field| {
             // skip filters since they arent returned when we iterate
-            if (iter.terms[index].inout != flecs.c.EcsInOutFilter) {
-                const is_optional = @typeInfo(field.field_type) == .Optional;
-                const col_type = FinalChild(field.field_type);
-                const type_entity = meta.componentHandle(col_type).*;
+            while (iter.terms[index].inout == flecs.c.EcsInOutFilter) : (index += 1) {}
+            const is_optional = @typeInfo(field.field_type) == .Optional;
+            const col_type = FinalChild(field.field_type);
+            const type_entity = meta.componentHandle(col_type).*;
 
-                // ensure order matches for terms vs struct fields. note that pairs
-                if (flecs.c.ecs_id_is_pair(iter.terms[index].id)) {
-                    assertMsg(flecs.pairFirst(iter.terms[index].id) == type_entity, "Order of struct does not match order of iter.terms! {d} != {d}\n", .{ iter.terms[index].id, type_entity });
-                } else {
-                    assertMsg(iter.terms[index].id == type_entity, "Order of struct does not match order of iter.terms! {d} != {d}. term index: {d}\n", .{ iter.terms[index].id, type_entity, index });
-                }
-
-                // validate readonly (non-ptr types in the struct) matches up with the inout
-                const is_const = isConst(field.field_type);
-                if (is_const) assert(iter.terms[index].inout == flecs.c.EcsIn);
-                if (iter.terms[index].inout == flecs.c.EcsIn) assert(is_const);
-
-                // validate that optionals (?* types in the struct) match up with valid opers
-                if (is_optional) assert(iter.terms[index].oper == flecs.c.EcsOr or iter.terms[index].oper == flecs.c.EcsOptional);
-                if (iter.terms[index].oper == flecs.c.EcsOr or iter.terms[index].oper == flecs.c.EcsOptional) assert(is_optional);
+            // ensure order matches for terms vs struct fields. note that pairs need to have their first term extracted.
+            if (flecs.c.ecs_id_is_pair(iter.terms[index].id)) {
+                assertMsg(flecs.pairFirst(iter.terms[index].id) == type_entity, "Order of struct does not match order of iter.terms! {d} != {d}\n", .{ iter.terms[index].id, type_entity });
+            } else {
+                assertMsg(iter.terms[index].id == type_entity, "Order of struct does not match order of iter.terms! {d} != {d}. term index: {d}\n", .{ iter.terms[index].id, type_entity, index });
             }
+
+            // validate readonly (non-ptr types in the struct) matches up with the inout
+            const is_const = isConst(field.field_type);
+            if (is_const) assert(iter.terms[index].inout == flecs.c.EcsIn);
+            if (iter.terms[index].inout == flecs.c.EcsIn) assert(is_const);
+
+            // validate that optionals (?* types in the struct) match up with valid opers
+            if (is_optional) assert(iter.terms[index].oper == flecs.c.EcsOr or iter.terms[index].oper == flecs.c.EcsOptional);
+            if (iter.terms[index].oper == flecs.c.EcsOr or iter.terms[index].oper == flecs.c.EcsOptional) assert(is_optional);
+
             index += 1;
         }
     }
@@ -405,7 +404,7 @@ pub fn generateFilterDesc(world: flecs.World, comptime Components: type) flecs.c
 
     // optionally add the expression string
     if (@hasDecl(Components, "expr")) {
-        assertMsg(std.meta.Elem(@TypeOf(Components.expr)) == u8, "expr must be a const string. Found: {s}", .{ std.meta.Elem(@TypeOf(Components.expr)) });
+        assertMsg(std.meta.Elem(@TypeOf(Components.expr)) == u8, "expr must be a const string. Found: {s}", .{std.meta.Elem(@TypeOf(Components.expr))});
         desc.expr = Components.expr;
     }
 

@@ -85,10 +85,13 @@ pub fn Iterator(comptime Components: type) type {
 
                 if (is_optional) @field(iter.columns, field.name) = null;
                 const column_index = self.iter.terms[index].index;
-                var skip_term = if (is_optional) meta.componentHandle(col_type).* != flecs.c.ecs_term_id(self.iter, @intCast(usize, column_index + 1)) else false;
+                const raw_term_id = flecs.c.ecs_term_id(self.iter, @intCast(usize, column_index + 1));
+                const term_id = if (flecs.c.ecs_id_is_pair(raw_term_id)) flecs.pairFirst(raw_term_id) else raw_term_id;
+                var skip_term = if (is_optional) meta.componentHandle(col_type).* != term_id else false;
 
                 // note that an OR is actually a single term!
-                // std.debug.print("---- col_type: {any}, optional: {any}, i: {d}, col_index: {d}\n", .{ col_type, is_optional, i, column_index });
+                // std.debug.print("---- col_type: {any}, optional: {any}, i: {d}, col_index: {d}, skip_term: {d}\n", .{ col_type, is_optional, i, column_index, skip_term });
+                // std.debug.print("---- compId: {any}, term_id: {any}\n", .{ meta.componentHandle(col_type).*, flecs.c.ecs_term_id(self.iter, @intCast(usize, column_index + 1)) });
                 if (!skip_term) {
                     if (flecs.columnOpt(self.iter, col_type, column_index + 1)) |col| {
                         @field(iter.columns, field.name) = col;
