@@ -35,7 +35,8 @@ pub fn main() !void {
         .withFilter(Position)
         .with(Velocity)
         .optional(Acceleration)
-        .either(Player, Enemy);
+        .optional(Player)
+        .optional(Enemy);
 
     var filter = builder.buildFilter();
     defer filter.deinit();

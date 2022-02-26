@@ -13,10 +13,18 @@ pub const Entity = struct {
         };
     }
 
+    fn getWorld(self: Entity) flecs.World {
+        return .{ .world = self.world };
+    }
+
     pub fn format(value: Entity, comptime fmt: []const u8, options: std.fmt.FormatOptions, writer: anytype) !void {
         _ = options;
         _ = fmt;
         try std.fmt.format(writer, "Entity{{ {d} }}", .{value.id});
+    }
+
+    pub fn getFullpath(self: Entity) [*c]u8 {
+        return flecs.c.ecs_get_path_w_sep(self.world, 0, self.id, ".", null);
     }
 
     pub fn setName(self: Entity, name: [*c]const u8) void {
@@ -31,6 +39,10 @@ pub const Entity = struct {
     /// combination with the added entity.
     pub fn add(self: Entity, comptime T: type) void {
         flecs.c.ecs_add_id(self.world, self.id, meta.componentId(self.world, T));
+    }
+
+    pub fn childOf(self: Entity) u64 {
+        return self.getWorld().pair(flecs.c.EcsChildOf, self.id);
     }
 
     /// adds a relation to the object on the entity
@@ -50,14 +62,12 @@ pub const Entity = struct {
                     .Struct => {
                         const rel_id = @field(relation, "id");
                         const obj_id = @field(object, "id");
-
-                        flecs.c.ecs_add_id(self.world, self.id, flecs.c.ECS_PAIR | (rel_id << @as(c_int, 32)) + @intCast(u32, obj_id));
+                        flecs.c.ecs_add_id(self.world, self.id, self.getWorld().pair(rel_id, obj_id));
                     },
                     .Type => {
                         const rel_id = @field(relation, "id");
                         const obj_id = meta.componentId(self.world, object);
-
-                        flecs.c.ecs_add_id(self.world, self.id, flecs.c.ECS_PAIR | (rel_id << @as(c_int, 32)) + @intCast(u32, obj_id));
+                        flecs.c.ecs_add_id(self.world, self.id, self.getWorld().pair(rel_id, obj_id));
                     },
                     else => {},
                 }
@@ -67,14 +77,12 @@ pub const Entity = struct {
                     .Struct => {
                         const rel_id = meta.componentId(self.world, relation);
                         const obj_id = @field(object, "id");
-
-                        flecs.c.ecs_add_id(self.world, self.id, flecs.c.ECS_PAIR | (rel_id << @as(c_int, 32)) + @intCast(u32, obj_id));
+                        flecs.c.ecs_add_id(self.world, self.id, self.getWorld().pair(rel_id, obj_id));
                     },
                     .Type => {
                         const rel_id = meta.componentId(self.world, relation);
                         const obj_id = meta.componentId(self.world, object);
-
-                        flecs.c.ecs_add_id(self.world, self.id, flecs.c.ECS_PAIR | (rel_id << @as(c_int, 32)) + @intCast(u32, obj_id));
+                        flecs.c.ecs_add_id(self.world, self.id, self.getWorld().pair(rel_id, obj_id));
                     },
                     else => {},
                 }
@@ -100,14 +108,12 @@ pub const Entity = struct {
                     .Struct => {
                         const rel_id = @field(relation, "id");
                         const obj_id = @field(object, "id");
-
-                        return flecs.c.ecs_has_id(self.world, self.id, flecs.c.ECS_PAIR | (rel_id << @as(c_int, 32)) + @intCast(u32, obj_id));
+                        return flecs.c.ecs_has_id(self.world, self.id, self.getWorld().pair(rel_id, obj_id));
                     },
                     .Type => {
                         const rel_id = @field(relation, "id");
                         const obj_id = meta.componentId(self.world, object);
-
-                        return flecs.c.ecs_has_id(self.world, self.id, flecs.c.ECS_PAIR | (rel_id << @as(c_int, 32)) + @intCast(u32, obj_id));
+                        return flecs.c.ecs_has_id(self.world, self.id, self.getWorld().pair(rel_id, obj_id));
                     },
                     else => {},
                 }
@@ -117,20 +123,24 @@ pub const Entity = struct {
                     .Struct => {
                         const rel_id = meta.componentId(self.world, relation);
                         const obj_id = @field(object, "id");
-
-                        return flecs.c.ecs_has_id(self.world, self.id, flecs.c.ECS_PAIR | (rel_id << @as(c_int, 32)) + @intCast(u32, obj_id));
+                        return flecs.c.ecs_has_id(self.world, self.id, self.getWorld().pair(rel_id, obj_id));
                     },
                     .Type => {
                         const rel_id = meta.componentId(self.world, relation);
                         const obj_id = meta.componentId(self.world, object);
-
-                        return flecs.c.ecs_has_id(self.world, self.id, flecs.c.ECS_PAIR | (rel_id << @as(c_int, 32)) + @intCast(u32, obj_id));
+                        return flecs.c.ecs_has_id(self.world, self.id, self.getWorld().pair(rel_id, obj_id));
                     },
                     else => {},
                 }
             },
             else => {},
         }
+    }
+
+    pub fn setPair(self: Entity, Relation: anytype, object: type, data: Relation) void {
+        const pair = self.getWorld().pair(Relation, object);
+        var component = &data;
+        _ = flecs.c.ecs_set_id(self.world, self.id, pair, @sizeOf(Relation), component);
     }
 
     /// sets a component on entity. Can be either a pointer to a struct or a struct
@@ -184,11 +194,8 @@ pub const Entity = struct {
     }
 
     /// returns the type of the component, which contains all components
-    pub fn getType(self: Entity) ?flecs.Type {
-        if (flecs.c.ecs_get_type(self.world, self.id)) |t|
-            return flecs.Type.init(self.world, t);
-
-        return null;
+    pub fn getType(self: Entity) flecs.Type {
+        return flecs.Type.init(self.world, flecs.c.ecs_get_type(self.world, self.id));
     }
 
     /// prints a json representation of an Entity. Note that world.enable_type_reflection should be true to

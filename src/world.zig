@@ -33,16 +33,8 @@ pub const World = struct {
         _ = flecs.c.ecs_progress(self.world, delta_time);
     }
 
-    pub fn getFullpath(self: World, child: flecs.EntityId) [*c]u8 {
-        return flecs.c.ecs_get_path_w_sep(self.world, 0, child, ".", null);
-    }
-
-    pub fn getType(self: World, entity: flecs.Entity) flecs.c.ecs_type_t {
-        return flecs.c.ecs_get_type(self.world, entity.id);
-    }
-
     pub fn getTypeStr(self: World, typ: flecs.c.ecs_type_t) [*c]u8 {
-        return flecs.c.ecs_type_str(self.world,typ);
+        return flecs.c.ecs_type_str(self.world, typ);
     }
 
     pub fn newEntity(self: World) Entity {
@@ -61,6 +53,13 @@ pub const World = struct {
         });
         desc.add[0] = flecs.c.EcsPrefab;
         return Entity.init(self.world, flecs.c.ecs_entity_init(self.world, &desc));
+    }
+
+    /// accepts types or EntityIds in any combination
+    pub fn pair(self: World, pred: anytype, obj: anytype) u64 {
+        const pred_id = if (@TypeOf(pred) == type) self.componentId(pred) else pred;
+        const obj_id = if (@TypeOf(obj) == type) self.componentId(obj) else obj;
+        return flecs.c.ECS_PAIR | (pred_id << @as(u32, 32)) + @truncate(u32, obj_id);
     }
 
     /// bulk registers a tuple of Types

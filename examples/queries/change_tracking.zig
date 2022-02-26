@@ -79,21 +79,18 @@ pub fn main() !void {
     // iterating the query will write to the dirty state of iterated tables.
     var q_write_it = q_write.tableIterator(QWriteCallback);
     while (q_write_it.next()) |components| {
+        std.log.debug("iterate table [{s}]", .{q_read_it.entity().getType().?.fmt()});
 
-        std.log.debug("iterate table [{s}]", .{ q_read_it.entity().getType().?.fmt() });
-
-        // Because we enforced that Dirty is a shared component, we can check
-        // a single value for the entire table.
-        if (!components.dirty.value) {
-            flecs.c.ecs_query_skip(q_write_it.iter);
-            std.log.debug("it.skip for table [{s}]", .{  flecs.c.ecs_query_changed(q_write.query, q_write_it.iter) });
+        // Because we enforced that Dirty is a shared component, we can check a single value for the entire table.
+        if (!components.data.dirty[0].value) {
+            flecs.c.ecs_query_skip(&q_write_it.iter);
+            std.log.debug("it.skip for table [{s}]", .{flecs.c.ecs_query_changed(q_write.query, &q_write_it.iter)});
             continue;
         }
 
         // For all other tables the dirty state will be set.
-        components.position.x += 1;
-        components.position.y += 1;
-
+        components.data.position[0].x += 1;
+        components.data.position[0].y += 1;
     }
 
     // One of the tables has changed, so q_read.changed() will return true
@@ -110,11 +107,11 @@ pub fn main() !void {
     //  it.changed() for table [Position, (Identifier,Name), (IsA,p1)]: 1
     //  it.changed() for table [Position, (Identifier,Name), (IsA,p2)]: 1
     //  q_read.changed(): 0
-    //  
+    //
     //  iterate table [Position, (Identifier,Name), (IsA,p1)]
     //  it.skip() for table [Position, (Identifier,Name), (IsA,p1)]
     //  iterate table [Position, (Identifier,Name), (IsA,p2)]
-    //  
+    //
     //  q_read.changed(): 1
     //  it.changed() for table [Position, (Identifier,Name), (IsA,p1)]: 0
     //  it.changed() for table [Position, (Identifier,Name), (IsA,p2)]: 1
@@ -122,5 +119,4 @@ pub fn main() !void {
     q_read.deinit();
     q_write.deinit();
     world.deinit();
-
 }

@@ -56,3 +56,11 @@ pub const InOutKind = enum(c_int) {
     in = c.EcsIn, // read only. Query term is const.
     out = c.EcsOut, // write only
 };
+
+pub fn pairFirst(id: EntityId) u32 {
+    return @truncate(u32, (id & c.ECS_COMPONENT_MASK) >> 32);
+}
+
+pub fn pairSecond(id: EntityId) u32 {
+    return @truncate(u32, id);
+}

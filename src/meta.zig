@@ -177,6 +177,8 @@ pub fn validateIterator(comptime Components: type, iter: *const flecs.c.ecs_iter
     if (@import("builtin").mode == .Debug) {
         var index: usize = 0;
         const component_info = @typeInfo(Components).Struct;
+
+        // TODO: this is all wrong. currently filters have to be at the end for this to work! use "tester" example to fix
         inline for (component_info.fields) |field| {
             // skip filters since they arent returned when we iterate
             if (iter.terms[index].inout != flecs.c.EcsInOutFilter) {
@@ -184,8 +186,12 @@ pub fn validateIterator(comptime Components: type, iter: *const flecs.c.ecs_iter
                 const col_type = FinalChild(field.field_type);
                 const type_entity = meta.componentHandle(col_type).*;
 
-                // ensure order matches for terms vs struct fields
-                assertMsg(iter.terms[index].id == type_entity, "Order of struct does not match order of iter.terms! {d} != {d}\n", .{ iter.terms[index].id, type_entity });
+                // ensure order matches for terms vs struct fields. note that pairs
+                if (flecs.c.ecs_id_is_pair(iter.terms[index].id)) {
+                    assertMsg(flecs.pairFirst(iter.terms[index].id) == type_entity, "Order of struct does not match order of iter.terms! {d} != {d}\n", .{ iter.terms[index].id, type_entity });
+                } else {
+                    assertMsg(iter.terms[index].id == type_entity, "Order of struct does not match order of iter.terms! {d} != {d}. term index: {d}\n", .{ iter.terms[index].id, type_entity, index });
+                }
 
                 // validate readonly (non-ptr types in the struct) matches up with the inout
                 const is_const = isConst(field.field_type);

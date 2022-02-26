@@ -11,7 +11,6 @@ comptime {
     _ = @import("meta.zig");
     _ = @import("query_builder.zig");
     _ = @import("query.zig");
-    _ = @import("system_builder.zig");
     _ = @import("term.zig");
     _ = @import("type_store.zig");
     _ = @import("utils.zig");
