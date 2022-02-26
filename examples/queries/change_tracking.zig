@@ -77,7 +77,7 @@ pub fn main() !void {
 
     // Iterate the write query. Because the Position term is InOut (default)
     // iterating the query will write to the dirty state of iterated tables.
-    var q_write_it = q_write.iterator(QWriteCallback);
+    var q_write_it = q_write.tableIterator(QWriteCallback);
     while (q_write_it.next()) |components| {
 
         std.log.debug("iterate table [{s}]", .{ q_read_it.entity().getType().?.fmt() });
@@ -100,7 +100,7 @@ pub fn main() !void {
     std.log.debug("q_read changed: {d}", .{q_read.changed()});
 
     // When we iterate the read query, we'll see that one table has changed.
-    q_read_it = q_read.iterator(QReadCallback);
+    q_read_it = q_read.tableIterator(QReadCallback);
     while (q_read_it.next()) |_| {
         std.log.debug("it.changed for table [{s}]: {d}", .{ q_read_it.entity().getType().?.fmt(), flecs.c.ecs_query_changed(q_read.query, q_read_it.iter) });
     }
