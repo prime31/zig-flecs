@@ -19,7 +19,7 @@ fn iterateTree(world: flecs.World, e: flecs.Entity, p_parent: Position) void {
         std.log.debug("{s}: {d}", .{ e.getName(), p_actual });
 
         // Iterate children recursively
-        var term = flecs.Term({}).initWithPair(world, e.childOf());
+        var term = flecs.Term({}).initWithPair(world, world.pair(flecs.c.EcsChildOf, e.id));
         var iter = term.entityIterator();
         while (iter.next()) |entity| {
             iterateTree(world, entity, p_actual);
