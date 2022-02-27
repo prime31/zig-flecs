@@ -9,6 +9,7 @@ pub const TermInfo = struct {
     or_term_type: ?type = null,
     inout: flecs.c.ecs_inout_kind_t = flecs.c.EcsInOutDefault,
     oper: flecs.c.ecs_oper_kind_t = flecs.c.EcsAnd,
+    mask: u8 = flecs.c.EcsDefaultSet,
 
     pub fn init(comptime T: type) TermInfo {
         var term_info = TermInfo{};
@@ -26,6 +27,10 @@ pub const TermInfo = struct {
             if (@hasDecl(t, "oper")) {
                 if (term_info.oper != 0) @compileError("Bad oper in query. Previous modifier already set oper. " ++ @typeName(T));
                 term_info.oper = @enumToInt(@field(t, "oper"));
+            }
+            if (@hasDecl(t, "mask")) {
+                if (term_info.mask != 0) @compileError("Bad mask in query. Previous modifier already set mask. " ++ @typeName(T));
+                term_info.mask = @field(t, "mask");
             }
 
             t = fi.field_type;
@@ -69,6 +74,6 @@ pub const TermInfo = struct {
             flecs.c.EcsOptional => "Optional",
             else => unreachable,
         };
-        try std.fmt.format(writer, "TermInfo{{ type = {d}, or_type = {d}, inout: {s}, oper: {s} }}", .{ value.term_type, value.or_term_type, inout, oper });
+        try std.fmt.format(writer, "TermInfo{{ type = {d}, or_type = {d}, inout: {s}, oper: {s}, mask: {d} }}", .{ value.term_type, value.or_term_type, inout, oper, value.mask });
     }
 };

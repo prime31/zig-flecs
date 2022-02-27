@@ -42,8 +42,13 @@ pub const Entity = struct {
     }
 
     /// shortcut for addPair(ChildOf, parent). Allowed parent types: Entity, EntityId, type
-    pub fn childOf(self: Entity, parent: anytype) u64 {
+    pub fn childOf(self: Entity, parent: anytype) void {
         self.addPair(flecs.c.EcsChildOf, parent);
+    }
+
+    /// shortcut for addPair(IsA, base). Allowed base types: Entity, EntityId, type
+    pub fn isA(self: Entity, base: anytype) void {
+        self.addPair(flecs.c.EcsIsA, base);
     }
 
     /// adds a relation to the object on the entity. Allowed params: Entity, EntityId, type
@@ -66,7 +71,7 @@ pub const Entity = struct {
     pub fn set(self: Entity, ptr_or_struct: anytype) void {
         std.debug.assert(@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer or @typeInfo(@TypeOf(ptr_or_struct)) == .Struct);
 
-        const T = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) std.meta.Child(@TypeOf(ptr_or_struct)) else @TypeOf(ptr_or_struct);
+        const T = meta.FinalChild(@TypeOf(ptr_or_struct));
         var component = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) ptr_or_struct else &ptr_or_struct;
         _ = flecs.c.ecs_set_id(self.world, self.id, meta.componentId(self.world, T), @sizeOf(T), component);
     }
@@ -75,7 +80,7 @@ pub const Entity = struct {
     pub fn setOverride(self: Entity, ptr_or_struct: anytype) void {
         std.debug.assert(@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer or @typeInfo(@TypeOf(ptr_or_struct)) == .Struct);
 
-        const T = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) std.meta.Child(@TypeOf(ptr_or_struct)) else @TypeOf(ptr_or_struct);
+        const T = meta.FinalChild(@TypeOf(ptr_or_struct));
         var component = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) ptr_or_struct else &ptr_or_struct;
         const id = meta.componentId(self.world, T);
         flecs.c.ecs_add_id(self.world, self.id, flecs.c.ECS_OVERRIDE | id);

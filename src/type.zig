@@ -15,7 +15,7 @@ pub const Type = struct {
     }
 
     /// returns the formatted list of components in the type
-    pub fn fmt(self: Type) []const u8 {
+    pub fn asString(self: Type) []const u8 {
         const str = flecs.c.ecs_type_str(self.world, self.type);
         const len = std.mem.len(str);
         return str[0..len];

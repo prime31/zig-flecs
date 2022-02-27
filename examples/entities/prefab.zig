@@ -49,9 +49,7 @@ pub fn main() !void {
 
     // Inspect the type of the entity. This outputs:
     //    Position,(Identifier,Name),(IsA,MammothFreighter)
-    if (inst.getType()) |inst_type| {
-        std.log.debug("{s}", .{inst_type.fmt()});
-    }
+    std.log.debug("{s}", .{inst.getType().asString()});
 
     // Even though the instance doesn't have a private copy of ImpulseSpeed, we
     // can still get it using the regular API (outputs 50)
@@ -63,16 +61,16 @@ pub fn main() !void {
     var builder = flecs.QueryBuilder.init(world)
         .with(Position)
         .withReadonly(ImpulseSpeed);
-    
+
     var filter = builder.buildFilter();
 
     // To select components from a prefab, use SuperSet
     filter.filter.terms[1].subj.set.mask = flecs.c.EcsSuperSet;
 
-    var it = filter.iterator(struct {position: *Position, ispeed: *const ImpulseSpeed});
+    var it = filter.iterator(struct { position: *Position, ispeed: *const ImpulseSpeed });
     while (it.next()) |components| {
         components.position.x += components.ispeed.value;
-        std.log.debug("{s}: {d}", .{it.entity().getName(), components.position});
+        std.log.debug("{s}: {d}", .{ it.entity().getName(), components.position });
     }
 
     world.deinit();

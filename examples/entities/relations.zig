@@ -30,7 +30,5 @@ pub fn main() !void {
 
     // Print the type of the entity. Should output:
     //   (Identifier,Name),(Eats,Apples),(Eats,Pears),(Grows,Pears)
-    if (bob.getType()) |t| {
-        std.log.debug("Bob's type: {s}", .{t.fmt()});
-    }
+    std.log.debug("Bob's type: {s}", .{bob.getType().asString()});
 }

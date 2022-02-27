@@ -1,5 +1,6 @@
 const std = @import("std");
 const flecs = @import("flecs");
+const q = flecs.queries;
 
 // Queries have a builtin mechanism for tracking changes per matched table. This
 // is a cheap way of eliminating redundant work, as many entities can be skipped
@@ -24,7 +25,12 @@ pub fn main() !void {
     var q_read = world.query(QReadCallback);
 
     // Create a query that writes the component based on a Dirty state.
-    const QWriteCallback = struct { dirty: *const Dirty, position: *Position };
+    const QWriteCallback = struct {
+        dirty: *const Dirty,
+        position: *Position,
+
+        pub var modifiers = .{ q.Mask(Dirty, flecs.c.EcsSuperSet), q.Mask(Dirty, 66) };
+    };
     var q_write = world.query(QWriteCallback);
 
     // Create two prefabs with a Dirty component. We can use this to share a
@@ -37,69 +43,69 @@ pub fn main() !void {
 
     // Create instances of p1 and p2. Because the entities have different
     // prefabs, they end up in different tables.
-    const is_a = flecs.Entity.init(world.world, flecs.c.EcsIsA);
-
     const e1 = world.newEntityWithName("e1");
-    e1.addPair(is_a, p1);
+    e1.isA(p1);
     e1.set(&Position{ .x = 10, .y = 20 });
 
     const e2 = world.newEntityWithName("e2");
-    e2.addPair(is_a, p1);
+    e2.isA(p1);
     e2.set(&Position{ .x = 30, .y = 40 });
 
     const e3 = world.newEntityWithName("e3");
-    e3.addPair(is_a, p2);
+    e3.isA(p2);
     e3.set(&Position{ .x = 50, .y = 60 });
 
     const e4 = world.newEntityWithName("e4");
-    e4.addPair(is_a, p2);
+    e4.isA(p2);
     e4.set(&Position{ .x = 70, .y = 80 });
 
     // We can use the changed() function on the query to check if any of the
     // tables it is matched with has changed. Since this is the first time that
     // we check this and the query is matched with the tables we just created,
     // the function will return true.
-    std.log.debug("q_read changed: {d}", .{q_read.changed()});
+    std.log.debug("q_read changed: {d}", .{q_read.changed(null)});
 
     // The changed state will remain true until we have iterated each table.
-    var q_read_it = q_read.iterator(QReadCallback);
+    var q_read_it = q_read.tableIterator(QReadCallback);
     while (q_read_it.next()) |_| {
-
         // With the it.changed() function we can check if the table we're
         // currently iterating has changed since last iteration.
         // Because this is the first time the query is iterated, all tables
         // will show up as changed.
-        std.log.debug("it.changed for table [{s}]: {d}", .{ q_read_it.entity().getType().?.fmt(), flecs.c.ecs_query_changed(q_read.query, q_read_it.iter) });
+        std.log.debug("it.changed for table [{s}]: {d}", .{ q_read_it.tableType().asString(), flecs.c.ecs_query_changed(q_read.query, q_read_it.iter) });
     }
 
     // Now that we have iterated all tables, the dirty state is reset.
-    std.log.debug("q_read changed: {d}", .{q_read.changed()});
+    std.log.debug("q_read changed: {d}\n", .{q_read.changed(null)});
 
     // Iterate the write query. Because the Position term is InOut (default)
     // iterating the query will write to the dirty state of iterated tables.
     var q_write_it = q_write.tableIterator(QWriteCallback);
     while (q_write_it.next()) |components| {
-        std.log.debug("iterate table [{s}]", .{q_read_it.entity().getType().?.fmt()});
+        std.log.debug("iterate table [{s}]", .{q_write_it.tableType().asString()});
 
         // Because we enforced that Dirty is a shared component, we can check a single value for the entire table.
-        if (!components.data.dirty[0].value) {
-            flecs.c.ecs_query_skip(&q_write_it.iter);
-            std.log.debug("it.skip for table [{s}]", .{flecs.c.ecs_query_changed(q_write.query, &q_write_it.iter)});
+        if (!components.data.dirty.*.value) {
+            q_write_it.skip();
+            std.log.debug("it.skip for table [{s}]", .{q_write_it.tableType().asString()});
             continue;
         }
 
         // For all other tables the dirty state will be set.
-        components.data.position[0].x += 1;
-        components.data.position[0].y += 1;
+        var i: usize = 0;
+        while (i < components.count) : (i += 1) {
+            components.data.position[i].x += 1;
+            components.data.position[i].y += 1;
+        }
     }
 
     // One of the tables has changed, so q_read.changed() will return true
-    std.log.debug("q_read changed: {d}", .{q_read.changed()});
+    std.log.debug("\nq_read changed: {d}", .{q_read.changed(null)});
 
     // When we iterate the read query, we'll see that one table has changed.
     q_read_it = q_read.tableIterator(QReadCallback);
     while (q_read_it.next()) |_| {
-        std.log.debug("it.changed for table [{s}]: {d}", .{ q_read_it.entity().getType().?.fmt(), flecs.c.ecs_query_changed(q_read.query, q_read_it.iter) });
+        std.log.debug("it.changed for table [{s}]: {d}", .{ q_read_it.tableType().asString(), q_read.changed(q_read_it.iter) });
     }
 
     // Output:

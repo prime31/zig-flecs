@@ -50,7 +50,7 @@ pub fn componentId(world: *flecs.c.ecs_world_t, comptime T: type) flecs.EntityId
     return handle.*;
 }
 
-/// given a pointer or optional pointer returns the element type
+/// given a pointer or optional pointer returns the base struct type.
 pub fn FinalChild(comptime T: type) type {
     switch (@typeInfo(T)) {
         .Pointer => |info| switch (info.size) {
@@ -62,6 +62,7 @@ pub fn FinalChild(comptime T: type) type {
             else => {},
         },
         .Optional => |info| return FinalChild(info.child),
+        .Struct => return T,
         else => {},
     }
     @compileError("Expected pointer or optional pointer, found '" ++ @typeName(T) ++ "'");

@@ -36,6 +36,15 @@ pub fn Iterator(comptime Components: type) type {
             return .{ .world = self.iter.world.? };
         }
 
+        pub fn tableType(self: *@This()) flecs.Type {
+            return flecs.Type.init(self.iter.world.?, self.iter.type);
+        }
+
+        pub fn skip(self: *@This()) void {
+            meta.assertMsg(self.nextFn == flecs.c.ecs_query_next, "skip only valid on Queries!", .{});
+            flecs.c.ecs_query_skip(&self.iter);
+        }
+
         /// gets the next Entity from the query results if one is available
         pub inline fn next(self: *@This()) ?Components {
             // outer check for when we need to see if there is another table to iterate

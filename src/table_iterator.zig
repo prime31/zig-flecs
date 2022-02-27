@@ -13,19 +13,28 @@ pub fn TableIterator(comptime Components: type) type {
             count: i32,
         };
 
-        iter: flecs.c.ecs_iter_t,
+        iter: *flecs.c.ecs_iter_t,
         nextFn: fn ([*c]flecs.c.ecs_iter_t) callconv(.C) bool,
 
-        pub fn init(iter: flecs.c.ecs_iter_t, nextFn: fn ([*c]flecs.c.ecs_iter_t) callconv(.C) bool) @This() {
-            meta.validateIterator(Components, &iter);
+        pub fn init(iter: *flecs.c.ecs_iter_t, nextFn: fn ([*c]flecs.c.ecs_iter_t) callconv(.C) bool) @This() {
+            meta.validateIterator(Components, iter);
             return .{
                 .iter = iter,
                 .nextFn = nextFn,
             };
         }
 
+        pub fn tableType(self: *@This()) flecs.Type {
+            return flecs.Type.init(self.iter.world.?, self.iter.type);
+        }
+
+        pub fn skip(self: *@This()) void {
+            meta.assertMsg(self.nextFn == flecs.c.ecs_query_next, "skip only valid on Queries!", .{});
+            flecs.c.ecs_query_skip(self.iter);
+        }
+
         pub fn next(self: *@This()) ?InnerIterator {
-            if (!self.nextFn(&self.iter)) return null;
+            if (!self.nextFn(self.iter)) return null;
 
             var iter: InnerIterator = .{ .count = self.iter.count };
             var index: usize = 0;
@@ -35,7 +44,7 @@ pub fn TableIterator(comptime Components: type) type {
 
                 const is_optional = @typeInfo(field.field_type) == .Optional;
                 const col_type = meta.FinalChild(field.field_type);
-                if (meta.isConst(field.field_type)) std.debug.assert(flecs.c.ecs_term_is_readonly(&self.iter, i + 1));
+                if (meta.isConst(field.field_type)) std.debug.assert(flecs.c.ecs_term_is_readonly(self.iter, i + 1));
 
                 if (is_optional) @field(iter.data, field.name) = null;
                 const column_index = self.iter.terms[index].index;
@@ -44,7 +53,7 @@ pub fn TableIterator(comptime Components: type) type {
                 // note that an OR is actually a single term!
                 // std.debug.print("---- col_type: {any}, optional: {any}, i: {d}, col_index: {d}\n", .{ col_type, is_optional, i, column_index });
                 if (!skip_term) {
-                    if (flecs.columnOpt(&self.iter, col_type, column_index + 1)) |col| {
+                    if (flecs.columnOpt(self.iter, col_type, column_index + 1)) |col| {
                         @field(iter.data, field.name) = col;
                     }
                 }

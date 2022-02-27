@@ -6,7 +6,6 @@ pub const Query = struct {
     world: flecs.World,
     query: *flecs.c.ecs_query_t,
 
-
     pub fn init(world: flecs.World, desc: *flecs.c.ecs_query_desc_t) @This() {
         return .{ .world = world, .query = flecs.c.ecs_query_init(world.world, desc).? };
     }
@@ -20,13 +19,15 @@ pub const Query = struct {
         return flecs.c.ecs_filter_str(self.world.world, filter);
     }
 
-    pub fn changed (self: *@This()) bool {
+    pub fn changed(self: *@This(), iter: ?*flecs.c.ecs_iter_t) bool {
+        if (iter) |it| return flecs.c.ecs_query_changed(self.query, it);
         return flecs.c.ecs_query_changed(self.query, null);
     }
 
     /// gets an iterator that let you iterate the tables and then it provides an inner iterator to interate entities
     pub fn tableIterator(self: *@This(), comptime Components: type) flecs.TableIterator(Components) {
-        return flecs.TableIterator(Components).init(flecs.c.ecs_query_iter(self.world.world, self.query), flecs.c.ecs_query_next);
+        temp_iter_storage = flecs.c.ecs_query_iter(self.world.world, self.query);
+        return flecs.TableIterator(Components).init(&temp_iter_storage, flecs.c.ecs_query_next);
     }
 
     // storage for the iterator so it can be passed by reference. Do not in-flight two Queries at once!

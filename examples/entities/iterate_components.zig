@@ -10,23 +10,21 @@ const Apples = struct {};
 fn iterateComponents(world: flecs.World, entity: flecs.Entity) void {
 
     // First get the entity's type, which is a vector of (component) ids.
-    if (entity.getType()) |entity_type| {
+    const entity_type = entity.getType();
 
-        // 1. The easiest way to print the components is to use ecs_type_str
-        std.log.debug("{s}", .{entity_type.fmt()});
+    // 1. The easiest way to print the components is to use ecs_type_str
+    std.log.debug("{s}", .{entity_type.asString()});
 
-        // 2. To print individual ids, iterate the type array with ecs_id_str
-        for (entity_type.toArray()) |id| {
-            std.log.debug("{d} : {s}", .{ id, flecs.c.ecs_id_str(world.world, id) });
-        }
-
-        // 3. We can also inspect and print the ids in our own way. This is a
-        // bit more complicated as we need to handle the edge cases of what can be
-        // encoded in an id, but provides the most flexibility.
-
-        // TODO
-
+    // 2. To print individual ids, iterate the type array with ecs_id_str
+    for (entity_type.toArray()) |id| {
+        std.log.debug("{d} : {s}", .{ id, flecs.c.ecs_id_str(world.world, id) });
     }
+
+    // 3. We can also inspect and print the ids in our own way. This is a
+    // bit more complicated as we need to handle the edge cases of what can be
+    // encoded in an id, but provides the most flexibility.
+
+    // TODO
 }
 
 pub fn main() !void {

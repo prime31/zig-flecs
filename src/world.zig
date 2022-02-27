@@ -233,7 +233,7 @@ pub const World = struct {
     pub fn set(self: *World, entity: flecs.EntityId, ptr_or_struct: anytype) void {
         std.debug.assert(@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer or @typeInfo(@TypeOf(ptr_or_struct)) == .Struct);
 
-        const T = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) std.meta.Child(@TypeOf(ptr_or_struct)) else @TypeOf(ptr_or_struct);
+        const T = meta.FinalChild(@TypeOf(ptr_or_struct));
         var component = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) ptr_or_struct else &ptr_or_struct;
         _ = flecs.c.ecs_set_id(self.world, entity, self.componentId(T), @sizeOf(T), component);
     }
@@ -266,7 +266,7 @@ pub const World = struct {
     pub fn setSingleton(self: World, ptr_or_struct: anytype) void {
         std.debug.assert(@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer or @typeInfo(@TypeOf(ptr_or_struct)) == .Struct);
 
-        const T = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) std.meta.Child(@TypeOf(ptr_or_struct)) else @TypeOf(ptr_or_struct);
+        const T = meta.FinalChild(@TypeOf(ptr_or_struct));
         var component = if (@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer) ptr_or_struct else &ptr_or_struct;
         _ = flecs.c.ecs_set_id(self.world, self.componentId(T), self.componentId(T), @sizeOf(T), component);
     }

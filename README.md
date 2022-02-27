@@ -3,6 +3,7 @@ Flecs v3's node system is still under development so the code in this repository
 
 #### TODO:
 - add multi world support. `meta.componentId` needs to somehow get scoped to a world without having to resport to `World(store_id: u8)` as the type
+- query maker struct needs to support `instanced`, `pairs` (including multiple of same type), `terms[n].subj.set.mask`
 
 
 ### New Iterator API and Query Builder
