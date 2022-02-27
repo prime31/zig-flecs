@@ -1,5 +1,6 @@
 const std = @import("std");
 const flecs = @import("flecs");
+const q = flecs.queries;
 
 const Position = struct { x: f32, y: f32 };
 const Local = struct {};
@@ -52,11 +53,27 @@ pub fn main() !void {
     query_t.filter.terms[2].subj.set.mask = flecs.c.EcsParent | flecs.c.EcsCascade;
 
     const QCallback = struct { local: *const Position, world: *Position, parent: ?*const Position };
-    var q = flecs.Query.init(world, &query_t);
-    defer q.deinit();
+    var query = flecs.Query.init(world, &query_t);
+    defer query.deinit();
+
+    {
+        // tester to show the same as above with struct query format
+        const Funky = struct {
+            pos_local: *const Position,
+            pos_world: *Position,
+            pos_parent: ?*const Position,
+
+            pub var instanced = true; // required due to having shared components
+            pub var modifiers = .{ q.PairI(Position, Local, "pos_local"), q.WriteonlyI(q.Pair(Position, World), "pos_world"), q.MaskI(q.Pair(Position, World), flecs.c.EcsParent | flecs.c.EcsCascade, "pos_parent") };
+        };
+        var q2 = world.query(Funky);
+        defer q2.deinit();
+        std.debug.print("\n------ {s}\n", .{query.asString()});
+        std.debug.print("------ {s}\n\n", .{q2.asString()});
+    }
 
     // Do the transform
-    var it = q.iterator(QCallback);
+    var it = query.iterator(QCallback);
     while (it.next()) |comps| {
         std.debug.print("-- path: {s}, type: {s}\n", .{ it.entity().getFullpath(), world.getTypeStr(it.entity().getType().type) });
         comps.world.x = comps.local.x;

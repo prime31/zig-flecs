@@ -16,6 +16,14 @@ pub fn Writeonly(comptime T: type) type {
     };
 }
 
+pub fn WriteonlyI(comptime T: type, field: []const u8) type {
+    return struct {
+        pub const inout: flecs.InOutKind = .out;
+        pub const field = field;
+        term_type: T,
+    };
+}
+
 // opers
 pub fn Or(comptime T1: type, comptime T2: type) type {
     return struct {
@@ -60,7 +68,28 @@ pub fn Mask(comptime T: type, mask: u8) type {
     return struct {
         pub const mask: u8 = mask;
         term_type: T,
-        // mask: u8 = mask, // default value access causes zig compiler crash
-        // mask: [mask]u1, // HACK: use an array so we can pull out the len until above crasher is fixed
+    };
+}
+
+pub fn MaskI(comptime T: type, mask: u8, field: []const u8) type {
+    return struct {
+        pub const field = field;
+        pub const mask: u8 = mask;
+        term_type: T,
+    };
+}
+
+pub fn Pair(comptime RelationT: type, comptime ObjectT: type) type {
+    return struct {
+        relation_type: RelationT,
+        obj_type: ObjectT,
+    };
+}
+
+pub fn PairI(comptime RelationT: type, comptime ObjectT: type, field: []const u8) type {
+    return struct {
+        pub const field = field;
+        relation_type: RelationT,
+        obj_type: ObjectT,
     };
 }

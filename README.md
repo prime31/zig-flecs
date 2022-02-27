@@ -3,16 +3,16 @@ Flecs v3's node system is still under development so the code in this repository
 
 #### TODO:
 - add multi world support. `meta.componentId` needs to somehow get scoped to a world without having to resport to `World(store_id: u8)` as the type
-- query maker struct: needs to support `instanced`, `pairs` (including multiple of same type), `terms[n].subj.set.mask`
 - consider making `TermInfo` fields optional and use that optionality instead of the default value to determine which are set
 - query maker struct: consider making the `order_by`, `instanced` and all other options match the exactly layout of `ecs_query_desc_t` so we can just overlay it directly similar to how `mem.zeroInit` does it. If too many things need to be configurable this will be necessary.
+- switch support
 
 
 ### New Iterator API and Query Builder
 An expermiental filter/query/system builder + iterator builder in once concept is now in the codebase. You define a struct (`MoveSystemData` below) with
 the fields being the terms you want from the query returned to you. Flecs allows some more complex features that you can access by providing data in the
 `modifiers` static. Terms that arent actually returned (such as filters and not terms) can be defined here. You can also annotate the fields in the struct
-with additional modifiers to make them part of an `or` term or mark them as writeonly.
+with additional modifiers to make them part of an `Or` term or mark them as writeonly.
 
 ```zig
 const q = flecs.queries;
@@ -23,7 +23,7 @@ const MoveSystemData = struct {
     player: ?*Player,
     enemy: ?*Enemy,
 
-    // allowed modifiers: Filter, Not, WriteOnly, Or (soon AndFrom, OrFrom, NotFrom for using type collections)
+    // allowed modifiers: Filter, Not, WriteOnly, Or, Mask, Pair (soon AndFrom, OrFrom, NotFrom for using type collections)
     pub const modifiers = .{ q.Filter(PopTart), q.Filter(q.Or(Player, Enemy)), q.Writeonly(Acceleration), q.Not(SomethingWeDontWantMatching) };
     pub const order_by = orderBy; // used only by systems and queries
     pub const name = "SuperSystem";
@@ -31,6 +31,21 @@ const MoveSystemData = struct {
 
 var filter = world.filter(MoveSystemData);
 // iterate filter as below
+```
+
+Note that there are some special modifiers, mainly `Or` and `Pair`. When nesting these types they must be the _innermost modifier_. For example, if you want to have a `Pair` with its relation being writeonly the `Pair` must be nested inside the `Writeonly` modifier. The following would make the `Position` component writeonly: `q.Writeonly(q.Pair(Position, World))`.
+
+There are times when you may have the same component type as multiple fields in your query struct. For example, you may have an object with a local `Position` and a world `Position`. By default, modifiers act on the first component that matches their type. For cases where you want to add a modifier to a different term there are modifiers with the `I` suffix that let you pass in a field name to target the field you want to.
+
+A slightly more complex example is below to illustrate this. The positions are defined as `Pairs` using the `Local` and `World` tag structs (zero-field structs). This example also illustrates nested modifiers for a `Pair`. The second modifier makes the `pos_world` field writeonly. Note that the `Pair` is the innermost modifier and the field name only needs to be present on the outermost modifier.
+
+```zig
+const DoublePosition = struct {
+    pos_local: *const Position,
+    pos_world: *Position,
+
+    pub var modifiers = .{ q.PairI(Position, Local, "pos_local"), q.WriteonlyI(q.Pair(Position, World), "pos_world") };
+};
 ```
 
 

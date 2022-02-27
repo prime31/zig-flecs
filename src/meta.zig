@@ -343,7 +343,7 @@ pub fn generateFilterDesc(world: flecs.World, comptime Components: type) flecs.c
             const ti = TermInfo.init(inout_tuple);
             // std.debug.print("{any}: {any}\n", .{ inout_tuple, ti });
 
-            if (getTermIndex(ti.term_type, &desc, component_info.fields.len)) |term_index| {
+            if (getTermIndex(ti.term_type, ti.field, &desc, component_info.fields)) |term_index| {
                 // Not terms should not be present in the Components struct
                 assert(ti.oper != flecs.c.EcsNot);
 
@@ -354,7 +354,7 @@ pub fn generateFilterDesc(world: flecs.World, comptime Components: type) flecs.c
                     if (ti.or_term_type) |or_term_type| {
                         // ensure the term is optional. If the second Or term is present ensure it is optional as well.
                         assert(desc.terms[term_index].oper == flecs.c.EcsOptional);
-                        if (getTermIndex(or_term_type, &desc, component_info.fields.len)) |or_term_index| {
+                        if (getTermIndex(or_term_type, null, &desc, component_info.fields)) |or_term_index| {
                             assert(desc.terms[or_term_index].oper == flecs.c.EcsOptional);
                         }
 
@@ -378,12 +378,21 @@ pub fn generateFilterDesc(world: flecs.World, comptime Components: type) flecs.c
                     if (ti.oper == flecs.c.EcsOr) {
                         assert(desc.terms[term_index].oper == flecs.c.EcsOptional);
 
-                        if (getTermIndex(ti.or_term_type.?, &desc, component_info.fields.len)) |or_term_index| {
+                        if (getTermIndex(ti.or_term_type.?, null, &desc, component_info.fields)) |or_term_index| {
                             assert(desc.terms[or_term_index].oper == flecs.c.EcsOptional);
                             desc.terms[or_term_index].oper = ti.oper;
                         } else unreachable;
                         desc.terms[term_index].oper = ti.oper;
                     }
+                }
+
+                if (ti.mask != 0) {
+                    assert(desc.terms[term_index].subj.set.mask == 0);
+                    desc.terms[term_index].subj.set.mask = ti.mask;
+                }
+
+                if (ti.obj_type) |obj_type| {
+                    desc.terms[term_index].id = world.pair(ti.relation_type.?, obj_type);
                 }
             } else {
                 // the term wasnt found so we must have either a Filter or a Not
@@ -413,11 +422,26 @@ pub fn generateFilterDesc(world: flecs.World, comptime Components: type) flecs.c
 }
 
 /// gets the index into the terms array of this type or null if it isnt found (likely a new filter term)
-pub fn getTermIndex(comptime T: type, filter: *flecs.c.ecs_filter_desc_t, term_count: usize) ?usize {
+pub fn getTermIndex(comptime T: type, field_name: ?[]const u8, filter: *flecs.c.ecs_filter_desc_t, fields: []const std.builtin.TypeInfo.StructField) ?usize {
     const comp_id = meta.componentHandle(T).*;
+
+    // if we have a field_name get the index of it so we can match it up to the term index and double check the type matches
+    const named_field_index: ?usize = if (field_name) |fname| blk: {
+        const f_idx = inline for (fields) |field, field_index| {
+            if (std.mem.eql(u8, field.name, fname))
+                break field_index;
+        };
+        break :blk f_idx;
+    } else null;
+
     var i: usize = 0;
-    while (i < term_count) : (i += 1) {
-        if (filter.terms[i].id == comp_id) return i;
+    while (i < fields.len) : (i += 1) {
+        if (filter.terms[i].id == comp_id) {
+            if (named_field_index == null) return i;
+
+            // we have a field_name so make sure the term index matches the named field index
+            if (named_field_index == i) return i;
+        }
     }
     return null;
 }

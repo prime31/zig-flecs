@@ -7,9 +7,12 @@ const assert = std.debug.assert;
 pub const TermInfo = struct {
     term_type: type = undefined,
     or_term_type: ?type = null,
+    obj_type: ?type = null,
+    relation_type: ?type = null,
     inout: flecs.c.ecs_inout_kind_t = flecs.c.EcsInOutDefault,
     oper: flecs.c.ecs_oper_kind_t = flecs.c.EcsAnd,
     mask: u8 = flecs.c.EcsDefaultSet,
+    field: ?[]const u8 = null,
 
     pub fn init(comptime T: type) TermInfo {
         var term_info = TermInfo{};
@@ -32,6 +35,10 @@ pub const TermInfo = struct {
                 if (term_info.mask != 0) @compileError("Bad mask in query. Previous modifier already set mask. " ++ @typeName(T));
                 term_info.mask = @field(t, "mask");
             }
+            if (@hasDecl(t, "field")) {
+                if (term_info.field != null) @compileError("Bad field in query. Previous modifier already set field. " ++ @typeName(T));
+                term_info.field = @field(t, "field");
+            }
 
             t = fi.field_type;
         }
@@ -44,6 +51,25 @@ pub const TermInfo = struct {
 
             if (term_info.oper != 0) @compileError("Bad oper in query. Previous modifier already set oper. " ++ @typeName(T));
             term_info.oper = flecs.c.EcsOr;
+        }
+
+        // Pairs will have an obj_type as well
+        if (std.meta.fieldIndex(t, "obj_type")) |obj_idx| {
+            const fields = std.meta.fields(t);
+            if (term_info.obj_type != null) @compileError("Bad obj_type in query. Previous modifier already set obj_type. " ++ @typeName(T));
+            term_info.obj_type = fields[obj_idx].field_type;
+
+            if (std.meta.fieldIndex(t, "relation_type")) |relation_idx| {
+                term_info.relation_type = fields[relation_idx].field_type;
+            } else unreachable;
+
+            if (@hasDecl(t, "field")) {
+                // TODO: this is to prevent multiple nested "I" types (WriteonlyI(PairI)) setting different names but it always triggers even if term_info.field is null
+                // if (term_info.field == null) @compileError("Bad field in query. Previous modifier already set field. " ++ @typeName(T));
+                term_info.field = @field(t, "field");
+            }
+
+            t = fields[0].field_type;
         }
 
         assert(!@hasDecl(t, "term_type") and !@hasDecl(t, "term_type1"));
@@ -74,6 +100,6 @@ pub const TermInfo = struct {
             flecs.c.EcsOptional => "Optional",
             else => unreachable,
         };
-        try std.fmt.format(writer, "TermInfo{{ type = {d}, or_type = {d}, inout: {s}, oper: {s}, mask: {d} }}", .{ value.term_type, value.or_term_type, inout, oper, value.mask });
+        try std.fmt.format(writer, "TermInfo{{ type = {d}, or_type = {d}, inout: {s}, oper: {s}, mask: {d}, obj_type: {any}, relation_type: {any}, field_name: {s} }}", .{ value.term_type, value.or_term_type, inout, oper, value.mask, value.obj_type, value.relation_type, value.field });
     }
 };
