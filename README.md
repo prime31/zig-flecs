@@ -3,7 +3,9 @@ Flecs v3's node system is still under development so the code in this repository
 
 #### TODO:
 - add multi world support. `meta.componentId` needs to somehow get scoped to a world without having to resport to `World(store_id: u8)` as the type
-- query maker struct needs to support `instanced`, `pairs` (including multiple of same type), `terms[n].subj.set.mask`
+- query maker struct: needs to support `instanced`, `pairs` (including multiple of same type), `terms[n].subj.set.mask`
+- consider making `TermInfo` fields optional and use that optionality instead of the default value to determine which are set
+- query maker struct: consider making the `order_by`, `instanced` and all other options match the exactly layout of `ecs_query_desc_t` so we can just overlay it directly similar to how `mem.zeroInit` does it. If too many things need to be configurable this will be necessary.
 
 
 ### New Iterator API and Query Builder

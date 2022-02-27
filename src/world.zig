@@ -191,6 +191,9 @@ pub const World = struct {
             desc.order_by = wrapOrderByFn(OrderByType, Components.order_by);
             desc.order_by_component = self.componentId(OrderByType);
         }
+
+        if (@hasDecl(Components, "instanced") and Components.instanced) desc.filter.instanced = true;
+
         return flecs.Query.init(self, &desc);
     }
 
@@ -217,6 +220,8 @@ pub const World = struct {
             desc.query.order_by = wrapOrderByFn(OrderByType, Components.order_by);
             desc.query.order_by_component = self.componentId(OrderByType);
         }
+
+        if (@hasDecl(Components, "instanced") and Components.instanced) desc.filter.instanced = true;
 
         _ = flecs.c.ecs_system_init(self.world, &desc);
     }

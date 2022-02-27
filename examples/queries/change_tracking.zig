@@ -21,7 +21,7 @@ pub fn main() !void {
     // when query::changed() is called.
     // Each query has its own private dirty state which is reset only when the
     // query is iterated.
-    const QReadCallback = struct { position: *const Position };
+    const QReadCallback = struct { position: *const Position, pub var instanced = true; };
     var q_read = world.query(QReadCallback);
 
     // Create a query that writes the component based on a Dirty state.
@@ -29,7 +29,7 @@ pub fn main() !void {
         dirty: *const Dirty,
         position: *Position,
 
-        pub var modifiers = .{ q.Mask(Dirty, flecs.c.EcsSuperSet), q.Mask(Dirty, 66) };
+        pub var instanced = true; // required due to having shared components
     };
     var q_write = world.query(QWriteCallback);
 
