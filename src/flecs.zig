@@ -39,6 +39,21 @@ pub const Phase = enum(c.ecs_id_t) {
     post_frame = c.ECS_HI_COMPONENT_ID + 74,
 };
 
+pub const Event = enum(c.ecs_id_t) {
+    // Event. Triggers when an id (component, tag, pair) is added to an entity
+    on_add = c.ECS_HI_COMPONENT_ID + 30,
+    // Event. Triggers when an id (component, tag, pair) is removed from an entity
+    on_remove = c.ECS_HI_COMPONENT_ID + 31,
+    // Event. Triggers when a component is set for an entity
+    on_set = c.ECS_HI_COMPONENT_ID + 32,
+    // Event. Triggers when a component is unset for an entity 
+    un_set = c.ECS_HI_COMPONENT_ID + 33,
+    // Event. Triggers when an entity is deleted.
+    on_delete = c.ECS_HI_COMPONENT_ID + 34,
+    // Event. Exactly-once trigger for when an entity matches/unmatches a filter
+    monitor = c.ECS_HI_COMPONENT_ID + 61,
+};
+
 pub const OperKind = enum(c_int) {
     and_ = c.EcsAnd,
     or_ = c.EcsOr,

@@ -109,7 +109,11 @@ pub const Entity = struct {
     /// removes the entity from the world. Do not use this Entity after calling this!
     pub fn delete(self: Entity) void {
         flecs.c.ecs_delete(self.world, self.id);
-        self.id = 0;
+    }
+
+    /// returns true if the entity is alive
+    pub fn isAlive(self: Entity) bool {
+        return flecs.c.ecs_is_alive(self.world, self.id);
     }
 
     /// returns true if the entity has a matching component type

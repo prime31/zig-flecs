@@ -226,6 +226,25 @@ pub const World = struct {
         _ = flecs.c.ecs_system_init(self.world, &desc);
     }
 
+    /// adds an observer system to the World using the passed in struct (see systems)
+    pub fn observer(self: World, comptime Components: type, event: flecs.Event) void {
+        std.debug.assert(@typeInfo(Components) == .Struct);
+        std.debug.assert(@hasDecl(Components, "run"));
+        std.debug.assert(@hasDecl(Components, "name"));
+
+        var desc = std.mem.zeroes(flecs.c.ecs_observer_desc_t);
+        desc.callback = dummyFn;
+        desc.entity.name = Components.name;
+        desc.events[0] = @enumToInt(event);
+
+        desc.run = wrapSystemFn(Components, Components.run);
+        desc.filter = meta.generateFilterDesc(self, Components);
+
+        if (@hasDecl(Components, "instanced") and Components.instanced) desc.filter.instanced = true;
+
+        _ = flecs.c.ecs_observer_init(self.world, &desc);
+    }
+
     pub fn setName(self: World, entity: flecs.EntityId, name: [*c]const u8) void {
         _ = flecs.c.ecs_set_name(self.world, entity, name);
     }
