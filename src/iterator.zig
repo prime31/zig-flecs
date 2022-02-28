@@ -47,8 +47,8 @@ pub fn Iterator(comptime Components: type) type {
 
         /// gets the next Entity from the query results if one is available
         pub inline fn next(self: *@This()) ?Components {
-            // special case observers. iter.next will be null so we do _not_ want to call nextTable which calls nextFn (ecs_iter_next usually).
-            // it will assert because iter.next is null! Instead we force a single iteration here then return null.
+            // special case observers. iter.next will be null so we cant rely on nextTable to return null.
+            // Instead we force a single iteration here then return null.
             if (self.iter.next == null and self.index > 0) return null;
 
             // outer check for when we need to see if there is another table to iterate
