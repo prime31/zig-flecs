@@ -47,6 +47,10 @@ pub fn Iterator(comptime Components: type) type {
 
         /// gets the next Entity from the query results if one is available
         pub inline fn next(self: *@This()) ?Components {
+            // special case observers. iter.next will be null so we do _not_ want to call nextTable which calls nextFn (ecs_iter_next usually).
+            // it will assert because iter.next is null! Instead we force a single iteration here then return null.
+            if (self.iter.next == null and self.index > 0) return null;
+
             // outer check for when we need to see if there is another table to iterate
             if (self.inner_iter == null) {
                 self.inner_iter = self.nextTable();
@@ -80,7 +84,9 @@ pub fn Iterator(comptime Components: type) type {
 
         /// gets the next table from the query results if one is available. Fills the iterator with the columns from the table.
         inline fn nextTable(self: *@This()) ?TableColumns {
-            if (!self.nextFn(self.iter)) return null;
+            // special case observers. iter.next will be null so we do _not_ want to call nextFn (ecs_iter_next usually).
+            // it will assert because iter.next is null! Instead we fill the TableColumns and let next() handle when to exit.
+            if (self.iter.next != null and !self.nextFn(self.iter)) return null;
 
             var iter: TableColumns = .{ .count = self.iter.count };
             var index: usize = 0;
