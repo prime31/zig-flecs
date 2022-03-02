@@ -2,6 +2,7 @@
 Flecs v3's node system is still under development so the code in this repository is likely to change over time to match the latest Flecs changes.
 
 #### TODO:
+- `[out] Velocity()` means "WriteOnly and don't match the term". Internally this may work to be `Filter(WriteOnly(T))`. Need to check with Sander...
 - add multi world support. `meta.componentId` needs to somehow get scoped to a world without having to resport to `World(store_id: u8)` as the type
 - consider making `TermInfo` fields optional and use that optionality instead of the default value to determine which are set
 - query maker struct: consider making the `order_by`, `instanced` and all other options match the exactly layout of `ecs_query_desc_t` so we can just overlay it directly similar to how `mem.zeroInit` does it. If too many things need to be configurable this will be necessary.
