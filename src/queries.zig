@@ -64,6 +64,15 @@ fn NotFrom(comptime T1: type, comptime T2: type) type {
     };
 }
 
+/// Non matching term. T should not be present in the query unless it should also match for some reason.
+/// Same thing as `Mark(EcsNothing)`.
+pub fn NoMatch(comptime T: type) type {
+    return struct {
+        pub const mask: u8 = flecs.c.EcsNothing;
+        term_type: T,
+    };
+}
+
 pub fn Mask(comptime T: type, mask: u8) type {
     return struct {
         pub const mask: u8 = mask;
