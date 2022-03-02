@@ -234,6 +234,18 @@ pub fn validateOrderByType(comptime Components: type, comptime T: type) void {
                 valid = true;
             }
         }
+
+        // allow types in Filter with no fields
+        if (@hasDecl(Components, "modifiers")) {
+            inline for (Components.modifiers) |inout_tuple| {
+                const ti = TermInfo.init(inout_tuple);
+                if (ti.inout == flecs.c.EcsInOutFilter) {
+                    if (ti.term_type == T)
+                        valid = true;
+                }
+            }
+        }
+
         assertMsg(valid, "type {any} was not found in the struct!", .{T});
     }
 }
