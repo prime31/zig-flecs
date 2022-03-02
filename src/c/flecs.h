@@ -538,19 +538,39 @@ extern "C" {
 //// Tracing
 ////////////////////////////////////////////////////////////////////////////////
 
-
 FLECS_API
 void _ecs_deprecated(
     const char *file, 
     int32_t line, 
     const char *msg);
 
+/** Increase log stack.
+ * This operation increases the indent_ value of the OS API and can be useful to
+ * make nested behavior more visible.
+ * 
+ * @param level The log level.
+ */
 FLECS_API
-void ecs_log_push(void);
+void _ecs_log_push(int32_t level);
 
+/** Decrease log stack.
+ * This operation decreases the indent_ value of the OS API and can be useful to
+ * make nested behavior more visible.
+ * 
+ * @param level The log level.
+ */
 FLECS_API
-void ecs_log_pop(void);
+void _ecs_log_pop(int32_t level);
 
+/** Should current level be logged.
+ * This operation returns true when the specified log level should be logged 
+ * with the current log level.
+ *
+ * @param level The log level to check for.
+ * @return Whether logging is enabled for the current level.
+ */
+FLECS_API
+bool ecs_should_log(int32_t level);
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Error reporting
@@ -572,8 +592,9 @@ const char* ecs_strerror(
     (void)line;\
     (void)msg
 
-#define ecs_log_push()
-#define ecs_log_pop()
+#define _ecs_log_push(level)
+#define _ecs_log_pop(level)
+#define ecs_should_log(level) false
 
 #define ecs_strerror(error_code)\
     (void)error_code
@@ -691,20 +712,77 @@ void _ecs_parser_errorv(
 #define ecs_dbg_2(...) ecs_log(2, __VA_ARGS__);
 #define ecs_dbg_3(...) ecs_log(3, __VA_ARGS__);
 
+#define ecs_log_push_1() _ecs_log_push(1);
+#define ecs_log_push_2() _ecs_log_push(2);
+#define ecs_log_push_3() _ecs_log_push(3);
+
+#define ecs_log_pop_1() _ecs_log_pop(1);
+#define ecs_log_pop_2() _ecs_log_pop(2);
+#define ecs_log_pop_3() _ecs_log_pop(3);
+
+#define ecs_should_log_1() ecs_should_log(1)
+#define ecs_should_log_2() ecs_should_log(2)
+#define ecs_should_log_3() ecs_should_log(3)
+
+#define ECS_TRACE_2
+#define ECS_TRACE_1
+#define ECS_TRACE_0
+
 #elif defined(ECS_TRACE_2) /* Level 2 and below debug tracing enabled */
 #define ecs_dbg_1(...) ecs_log(1, __VA_ARGS__);
 #define ecs_dbg_2(...) ecs_log(2, __VA_ARGS__);
 #define ecs_dbg_3(...)
+
+#define ecs_log_push_1() _ecs_log_push(1);
+#define ecs_log_push_2() _ecs_log_push(2);
+#define ecs_log_push_3()
+
+#define ecs_log_pop_1() _ecs_log_pop(1);
+#define ecs_log_pop_2() _ecs_log_pop(2);
+#define ecs_log_pop_3()
+
+#define ecs_should_log_1() ecs_should_log(1)
+#define ecs_should_log_2() ecs_should_log(2)
+#define ecs_should_log_3() false
+
+#define ECS_TRACE_1
+#define ECS_TRACE_0
 
 #elif defined(ECS_TRACE_1) /* Level 1 debug tracing enabled */
 #define ecs_dbg_1(...) ecs_log(1, __VA_ARGS__);
 #define ecs_dbg_2(...)
 #define ecs_dbg_3(...)
 
+#define ecs_log_push_1() _ecs_log_push(1);
+#define ecs_log_push_2()
+#define ecs_log_push_3()
+
+#define ecs_log_pop_1() _ecs_log_pop(1);
+#define ecs_log_pop_2()
+#define ecs_log_pop_3()
+
+#define ecs_should_log_1() ecs_should_log(1)
+#define ecs_should_log_2() false
+#define ecs_should_log_3() false
+
+#define ECS_TRACE_0
+
 #elif defined(ECS_TRACE_0) /* No debug tracing enabled */
 #define ecs_dbg_1(...)
 #define ecs_dbg_2(...)
 #define ecs_dbg_3(...)
+
+#define ecs_log_push_1()
+#define ecs_log_push_2()
+#define ecs_log_push_3()
+
+#define ecs_log_pop_1()
+#define ecs_log_pop_2()
+#define ecs_log_pop_3()
+
+#define ecs_should_log_1() false
+#define ecs_should_log_2() false
+#define ecs_should_log_3() false
 
 #else /* No tracing enabled */
 #undef ecs_trace
@@ -713,9 +791,22 @@ void _ecs_parser_errorv(
 #define ecs_dbg_2(...)
 #define ecs_dbg_3(...)
 
+#define ecs_log_push_1()
+#define ecs_log_push_2()
+#define ecs_log_push_3()
+
+#define ecs_log_pop_1()
+#define ecs_log_pop_2()
+#define ecs_log_pop_3()
+
 #endif // defined(ECS_TRACE_3)
 
-#define ecs_dbg ecs_dbg_1 /* Default debug tracing is at level 1 */
+/* Default debug tracing is at level 1 */
+#define ecs_dbg ecs_dbg_1
+
+/* Default level for push/pop is 0 */
+#define ecs_log_push() _ecs_log_push(0)
+#define ecs_log_pop() _ecs_log_pop(0)
 
 /** Abort 
  * Unconditionally aborts process. */
@@ -1536,7 +1627,10 @@ void* _ecs_map_set(
     const void *payload);
 
 #define ecs_map_set(map, key, payload)\
-    _ecs_map_set(map, sizeof(*payload), (ecs_map_key_t)key, payload);
+    _ecs_map_set(map, sizeof(*payload), (ecs_map_key_t)key, payload)
+
+#define ecs_map_set_ptr(map, key, payload)\
+    _ecs_map_set(map, sizeof(payload), (ecs_map_key_t)key, &payload)
 
 /** Free map. */
 FLECS_API
@@ -2826,6 +2920,11 @@ typedef struct ecs_worker_iter_t {
     int32_t count;
 } ecs_worker_iter_t;
 
+/* Convenience struct to iterate table array for id */
+typedef struct ecs_table_cache_iter_t {
+    struct ecs_table_cache_hdr_t *cur, *next;
+} ecs_table_cache_iter_t;
+
 /** Term-iterator specific data */
 typedef struct ecs_term_iter_t {
     ecs_term_t term;
@@ -2833,6 +2932,7 @@ typedef struct ecs_term_iter_t {
     ecs_id_record_t *set_index;
 
     ecs_id_record_t *cur;
+    ecs_table_cache_iter_t it;
     int32_t index;
     
     ecs_table_t *table;
@@ -4175,6 +4275,9 @@ FLECS_API extern const ecs_entity_t EcsIsA;
 
 /* Tag added to module entities */
 FLECS_API extern const ecs_entity_t EcsModule;
+
+/* Tag to indicate an entity/component/system is private to a module */
+FLECS_API extern const ecs_entity_t EcsPrivate;
 
 /* Tag added to prefab entities. Any entity with this tag is automatically
  * ignored by filters/queries, unless EcsPrefab is explicitly added. */
@@ -7521,6 +7624,10 @@ int ecs_app_set_frame_action(
  *      Add component values.
  *        Default: true
  * 
+ *    - private : bool
+ *      Add private components.
+ *        Default: false
+ * 
  *    - type_info : bool
  *      Add reflection data for component types. Requires values=true.
  *        Default: false
@@ -8717,12 +8824,13 @@ int ecs_type_info_to_json_buf(
 typedef struct ecs_entity_to_json_desc_t {
     bool serialize_path;       /* Serialize full pathname */
     bool serialize_base;       /* Serialize base components */
+    bool serialize_private;    /* Serialize private components */
     bool serialize_values;     /* Serialize component values */
     bool serialize_type_info;  /* Serialize type info (requires serialize_values) */
 } ecs_entity_to_json_desc_t;
 
 #define ECS_ENTITY_TO_JSON_INIT (ecs_entity_to_json_desc_t) {\
-    true, true, true, false }
+    true, true, false, true, false }
 
 /** Serialize entity into JSON string.
  * This creates a JSON object with the entity's (path) name, which components
@@ -11123,11 +11231,8 @@ ecs_entity_t ecs_module_init(
 
 /* -- Queries -- */
 
-#define ecs_query_table_count(query)\
-    ecs_vector_count(query->cache.tables)
-
-#define ecs_query_empty_table_count(query)\
-    ecs_vector_count(query->cache.empty_tables)
+#define ecs_query_table_count(query) query->cache.tables.count
+#define ecs_query_empty_table_count(query) query->cache.empty_tables.count
 
 /* -- Iterators -- */
 
@@ -11321,7 +11426,8 @@ ecs_entity_t ecs_cpp_component_register_explicit(
     const char *type_name,
     const char *symbol,
     size_t size,
-    size_t alignment);
+    size_t alignment,
+    bool is_component);
 
 FLECS_API
 ecs_entity_t ecs_cpp_enum_constant_register(
@@ -11458,6 +11564,7 @@ static const uint8_t Nothing = EcsNothing;
 static const uint8_t Parent = EcsParent;
 
 /* Builtin tag ids */
+static const flecs::entity_t Private = EcsPrivate;
 static const flecs::entity_t Module = EcsModule;
 static const flecs::entity_t Prefab = EcsPrefab;
 static const flecs::entity_t Disabled = EcsDisabled;
@@ -11719,9 +11826,22 @@ struct array<T, Size, enable_if_t<Size != 0> > final {
     T* ptr() {
         return m_array;
     }
+
+    template <typename Func>
+    void each(const Func& func) {
+        for (auto& elem : *this) {
+            func(elem);
+        }
+    }
+
 private:
     T m_array[Size];
 };
+
+template<typename T, size_t Size>
+array<T, Size> to_array(const T (&elems)[Size]) {
+    return array<T, Size>(elems);
+}
 
 // Specialized class for zero-sized array
 template <typename T, size_t Size>
@@ -12916,6 +13036,66 @@ using entity_to_json_desc_t = ecs_entity_to_json_desc_t;
 using iter_to_json_desc_t = ecs_iter_to_json_desc_t;
 
 }
+
+#endif
+#ifdef FLECS_APP
+#pragma once
+
+#pragma once
+
+namespace flecs {
+
+// App builder interface
+struct app_builder {
+    app_builder(flecs::world_t *world)
+        : m_world(world)
+        , m_desc{}
+    {
+        m_desc.target_fps = 60;
+    }
+
+    app_builder& target_fps(FLECS_FLOAT value) {
+        m_desc.target_fps = value;
+        return *this;
+    }
+
+    app_builder& delta_time(FLECS_FLOAT value) {
+        m_desc.delta_time = value;
+        return *this;
+    }
+
+    app_builder& threads(int32_t value) {
+        m_desc.threads = value;
+        return *this;
+    }
+
+    app_builder& enable_rest(bool value = true) {
+        m_desc.enable_rest = value;
+        return *this;
+    }
+
+    app_builder& init(ecs_app_init_action_t value) {
+        m_desc.init = value;
+        return *this;
+    }
+
+    app_builder& ctx(void *value) {
+        m_desc.ctx = value;
+        return *this;
+    }
+
+    int run() {
+        return ecs_app_run(m_world, &m_desc);
+    }
+
+private:
+    flecs::world_t *m_world;
+    ecs_app_desc_t m_desc;
+};
+
+}
+
+
 
 #endif
 
@@ -14134,11 +14314,50 @@ struct world {
 
     /** Count entities matching a component.
      *
-     * @tparam T The component to use for matching.
+     * @param component_id The component id.
+     */
+    int count(flecs::id_t component_id) const {
+        return ecs_count_id(m_world, component_id);
+    }
+
+    /** Count entities matching a pair.
+     *
+     * @param rel The relation id.
+     * @param obj The object id.
+     */
+    int count(flecs::entity_t rel, flecs::entity_t obj) const {
+        return ecs_count_id(m_world, ecs_pair(rel, obj));
+    }
+
+    /** Count entities matching a component.
+     *
+     * @tparam T The component type.
      */
     template <typename T>
     int count() const {
-        return ecs_count_id(m_world, _::cpp_type<T>::id(m_world));
+        return count(_::cpp_type<T>::id(m_world));
+    }
+
+    /** Count entities matching a pair.
+     *
+     * @tparam Rel The relation type.
+     * @param obj The object id.
+     */
+    template <typename Rel>
+    int count(flecs::entity_t obj) const {
+        return count(_::cpp_type<Rel>::id(m_world), obj);
+    }
+
+    /** Count entities matching a pair.
+     *
+     * @tparam Rel The relation type.
+     * @tparam Obj The object type.
+     */
+    template <typename Rel, typename Obj>
+    int count() const {
+        return count( 
+            _::cpp_type<Rel>::id(m_world),
+            _::cpp_type<Obj>::id(m_world));
     }
 
     /** Enable locking.
@@ -14704,6 +14923,13 @@ template <typename T>
 flecs::string to_json(const T* value) {
     flecs::entity_t tid = _::cpp_type<T>::id(m_world);
     return to_json(tid, value);
+}
+
+#   endif
+#   ifdef FLECS_APP
+
+flecs::app_builder app() const {
+    return flecs::app_builder(m_world);
 }
 
 #   endif
@@ -15373,16 +15599,23 @@ struct entity_view : public id {
 
     /** Return the entity name.
      *
-     * @return The entity name, or an empty string if the entity has no name.
+     * @return The entity name.
      */
     flecs::string_view name() const {
         return flecs::string_view(ecs_get_name(m_world, m_id));
     }
 
+    /** Return the entity symbol.
+     *
+     * @return The entity symbol.
+     */
+    flecs::string_view symbol() const {
+        return flecs::string_view(ecs_get_symbol(m_world, m_id));
+    }
+
     /** Return the entity path.
      *
-     * @return The hierarchical entity path, or an empty string if the entity 
-     *         has no name.
+     * @return The hierarchical entity path.
      */
     flecs::string path(const char *sep = "::", const char *init_sep = "::") const {
         char *path = ecs_get_path_w_sep(m_world, 0, m_id, sep, init_sep);
@@ -15908,6 +16141,25 @@ struct entity_view : public id {
 flecs::string to_json(const flecs::entity_to_json_desc_t *desc = nullptr) {
     char *json = ecs_entity_to_json(m_world, m_id, desc);
     return flecs::string(json);
+}
+
+#   endif
+#   ifdef FLECS_DOC
+
+const char* doc_name() {
+    return ecs_doc_get_name(m_world, m_id);
+}
+
+const char* doc_brief() {
+    return ecs_doc_get_brief(m_world, m_id);
+}
+
+const char* doc_detail() {
+    return ecs_doc_get_detail(m_world, m_id);
+}
+
+const char* doc_link() {
+    return ecs_doc_get_link(m_world, m_id);
 }
 
 #   endif
@@ -16519,6 +16771,30 @@ struct entity_builder : entity_view {
         return to_base();
     }
 
+#   ifdef FLECS_DOC
+
+Self& set_doc_name(const char *name) {
+    ecs_doc_set_name(m_world, m_id, name);
+    return to_base();
+}
+
+Self& set_doc_brief(const char *brief) {
+    ecs_doc_set_brief(m_world, m_id, brief);
+    return to_base();
+}
+
+Self& set_doc_detail(const char *detail) {
+    ecs_doc_set_detail(m_world, m_id, detail);
+    return to_base();
+}
+
+Self& set_doc_link(const char *link) {
+    ecs_doc_set_link(m_world, m_id, link);
+    return to_base();
+}
+
+#   endif
+
 protected:
     Self& to_base() {
         return *static_cast<Self*>(this);
@@ -16575,6 +16851,7 @@ struct entity : entity_builder<entity>
         ecs_entity_desc_t desc = {};
         desc.name = name;
         desc.sep = "::";
+        desc.root_sep = "::";
         m_id = ecs_entity_init(world, &desc);
     }
 
@@ -17709,7 +17986,8 @@ struct cpp_type_impl {
 
     // Obtain a component identifier for explicit component registration.
     static entity_t id_explicit(world_t *world = nullptr, 
-        const char *name = nullptr, bool allow_tag = true, flecs::id_t id = 0)
+        const char *name = nullptr, bool allow_tag = true, flecs::id_t id = 0,
+        bool is_component = true)
     {
         if (!s_id) {
             // If no world was provided the component cannot be registered
@@ -17733,8 +18011,8 @@ struct cpp_type_impl {
             init(world, s_id, allow_tag);
 
             entity_t entity = ecs_cpp_component_register_explicit(
-                world, s_id, id, name, type_name<T>(), symbol_name<T>(), 
-                    s_size, s_alignment);
+                    world, s_id, id, name, type_name<T>(), symbol_name<T>(), 
+                        s_size, s_alignment, is_component);
 
             s_id = entity;
 
@@ -17756,7 +18034,7 @@ struct cpp_type_impl {
     // state of the world, so that the component is not implicitly created with
     // the scope/with of the code it happens to be first used by.
     static id_t id(world_t *world = nullptr, const char *name = nullptr, 
-        bool allow_tag = true) 
+        bool allow_tag = true)
     {
         // If no id has been registered yet, do it now.
         if (!registered() || (world && !ecs_exists(world, s_id))) {
@@ -18550,7 +18828,8 @@ inline flecs::entity world::id(E value) const {
 
 template <typename T>
 inline flecs::entity world::entity(const char *name) const {
-    return flecs::component<T>(m_world, name, true);
+    return flecs::entity(m_world, 
+        _::cpp_type<T>::id_explicit(m_world, name, true, 0, false) );
 }
 
 template <typename... Args>
