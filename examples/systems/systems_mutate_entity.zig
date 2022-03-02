@@ -57,7 +57,7 @@ const ObserverCallback = struct {
 // Observer that triggers when the component is actually removed
 fn expired(it: *flecs.Iterator(ObserverCallback)) void {
     while (it.next()) |_| {
-        std.log.debug("Expired: {s} actually deleted", .{ it.entity().getName() });
+        std.log.debug("Expired: {s} actually deleted", .{it.entity().getName()});
     }
 }
 
@@ -77,9 +77,6 @@ pub fn main() !void {
     while (progress) {
         world.progress(0);
 
-        if (!e.isAlive()) {
-            break;
-        }
-
+        if (!e.isAlive()) break;
     }
 }

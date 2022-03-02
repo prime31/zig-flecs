@@ -5,7 +5,7 @@ const q = flecs.queries;
 const Position = struct { x: f32, y: f32 };
 const Velocity = struct { x: f32, y: f32 };
 
-const SetVelocityCallback = struct{
+const SetVelocityCallback = struct {
     pub const name = "SetVelocity";
     pub const run = setVelocity;
     pub const modifiers = .{ q.Filter(Position), q.DontMatch(q.Writeonly(Velocity)) };
@@ -27,8 +27,8 @@ const PrintCallback = struct {
 };
 
 fn setVelocity(iter: *flecs.Iterator(SetVelocityCallback)) void {
-    while(iter.next()) |_| {
-        iter.entity().set(&Velocity{.x = 1, .y = 2});
+    while (iter.next()) |_| {
+        iter.entity().set(&Velocity{ .x = 1, .y = 2 });
     }
 }
 
