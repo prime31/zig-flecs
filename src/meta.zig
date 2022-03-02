@@ -395,8 +395,8 @@ pub fn generateFilterDesc(world: flecs.World, comptime Components: type) flecs.c
                     desc.terms[term_index].id = world.pair(ti.relation_type.?, obj_type);
                 }
             } else {
-                // the term wasnt found so we must have either a Filter or a Not
-                if (ti.inout != flecs.c.EcsInOutFilter and ti.oper != flecs.c.EcsNot) std.debug.print("invalid inout found! No matching type found in the Components struct. Only Not and Filters are valid for types not in the struct. This should assert/panic but a zig bug lets us only print it.\n", .{});
+                // the term wasnt found so we must have either a Filter, Not or EcsNothing mask
+                if (ti.inout != flecs.c.EcsInOutFilter and ti.oper != flecs.c.EcsNot and ti.mask != flecs.c.EcsNothing) std.debug.print("invalid inout found! No matching type found in the Components struct. Only Not and Filters are valid for types not in the struct. This should assert/panic but a zig bug lets us only print it.\n", .{});
                 if (ti.inout == flecs.c.EcsInOutFilter) {
                     desc.terms[next_term_index].id = world.componentId(ti.term_type);
                     desc.terms[next_term_index].inout = ti.inout;
@@ -404,6 +404,11 @@ pub fn generateFilterDesc(world: flecs.World, comptime Components: type) flecs.c
                 } else if (ti.oper == flecs.c.EcsNot) {
                     desc.terms[next_term_index].id = world.componentId(ti.term_type);
                     desc.terms[next_term_index].oper = ti.oper;
+                    next_term_index += 1;
+                } else if (ti.mask == flecs.c.EcsNothing) {
+                    desc.terms[next_term_index].id = world.componentId(ti.term_type);
+                    desc.terms[next_term_index].inout = ti.inout;
+                    desc.terms[next_term_index].subj.set.mask = ti.mask;
                     next_term_index += 1;
                 } else {
                     std.debug.print("invalid inout applied to a term not in the query. only Not and Filter are allowed for terms not present.\n", .{});
@@ -423,6 +428,7 @@ pub fn generateFilterDesc(world: flecs.World, comptime Components: type) flecs.c
 
 /// gets the index into the terms array of this type or null if it isnt found (likely a new filter term)
 pub fn getTermIndex(comptime T: type, field_name: ?[]const u8, filter: *flecs.c.ecs_filter_desc_t, fields: []const std.builtin.TypeInfo.StructField) ?usize {
+    if (fields.len == 0) return null;
     const comp_id = meta.componentHandle(T).*;
 
     // if we have a field_name get the index of it so we can match it up to the term index and double check the type matches

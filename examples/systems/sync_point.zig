@@ -1,15 +1,14 @@
 const std = @import("std");
 const flecs = @import("flecs");
+const q = flecs.queries;
 
 const Position = struct { x: f32, y: f32 };
 const Velocity = struct { x: f32, y: f32 };
 
 const SetVelocityCallback = struct{
-    velocity: *const Velocity,
     pub const name = "SetVelocity";
     pub const run = setVelocity;
-    pub const modifiers = .{ flecs.queries.Filter(Position) };
-    pub const expr = "[out] Velocity()";
+    pub const modifiers = .{ q.Filter(Position), q.DontMatch(q.Writeonly(Velocity)) };
 };
 
 const MoveCallback = struct {
@@ -18,6 +17,13 @@ const MoveCallback = struct {
 
     pub const name = "Move";
     pub const run = move;
+};
+
+const PrintCallback = struct {
+    position: *const Position,
+
+    pub const name = "PrintPosition";
+    pub const run = print;
 };
 
 fn setVelocity(iter: *flecs.Iterator(SetVelocityCallback)) void {
@@ -30,6 +36,11 @@ fn move(iter: *flecs.Iterator(MoveCallback)) void {
     while (iter.next()) |components| {
         components.position.x += components.velocity.x;
         components.position.y += components.velocity.y;
+    }
+}
+
+fn print(iter: *flecs.Iterator(PrintCallback)) void {
+    while (iter.next()) |components| {
         std.log.debug("{s}: {d}", .{ iter.entity().getName(), components.position });
     }
 }
@@ -37,7 +48,7 @@ fn move(iter: *flecs.Iterator(MoveCallback)) void {
 pub fn main() !void {
     var world = flecs.World.init();
 
-    world.registerComponents(.{ Velocity });
+    world.registerComponents(.{ Position, Velocity });
 
     // System that sets velocity using set<T> for entities with Position.
     // While systems are progressing, operations like set<T> are deferred until
@@ -62,6 +73,9 @@ pub fn main() !void {
 
     // This system reads Velocity, which causes the insertion of a sync point.
     world.system(MoveCallback, .on_update);
+
+    // Print resulting Position
+    world.system(PrintCallback, .post_update);
 
     // Create a few test entities for a Position, Velocity query
     const e1 = world.newEntityWithName("e1");
@@ -97,14 +111,14 @@ pub fn main() !void {
     // To create the same system with ecs_system_init, do:
     //  ecs_system_init(ecs, &(ecs_system_desc_t) {
     //      .query.filter.terms = {
-    //          { 
-    //              .id = ecs_id(Position), 
-    //              .inout = EcsInOutFilter 
+    //          {
+    //              .id = ecs_id(Position),
+    //              .inout = EcsInOutFilter
     //          },
-    //          { 
-    //              .id = ecs_id(Velocity), 
-    //              .inout = EcsOut, 
-    //              .subj.set.mask = EcsNothing 
+    //          {
+    //              .id = ecs_id(Velocity),
+    //              .inout = EcsOut,
+    //              .subj.set.mask = EcsNothing
     //          }
     //      },
     //      .entity = {
