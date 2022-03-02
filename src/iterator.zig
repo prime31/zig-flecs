@@ -85,8 +85,8 @@ pub fn Iterator(comptime Components: type) type {
             var iter: TableColumns = .{ .count = self.iter.count };
             var index: usize = 0;
             inline for (@typeInfo(Components).Struct.fields) |field, i| {
-                // skip filters since they arent returned when we iterate
-                while (self.iter.terms[index].inout == flecs.c.EcsInOutFilter) : (index += 1) {}
+                // skip filters and EcsNothing masks since they arent returned when we iterate
+                while (self.iter.terms[index].inout == flecs.c.EcsInOutFilter or self.iter.terms[index].subj.set.mask == flecs.c.EcsNothing) : (index += 1) {}
 
                 const is_optional = @typeInfo(field.field_type) == .Optional;
                 const col_type = meta.FinalChild(field.field_type);
