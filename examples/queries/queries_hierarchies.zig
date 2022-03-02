@@ -14,8 +14,6 @@ pub fn main() !void {
     // Create a simple hierarchy.
     // Hierarchies use ECS relations and the builtin flecs::ChildOf relation to
     // create entities as children of other entities.
-    const child_of = flecs.Entity.init(world.world, flecs.c.EcsChildOf);
-
     const sun = world.newEntityWithName("Sun");
     sun.addPair(Position, World);
     sun.setPair(Position, Local, .{ .x = 1, .y = 1 });
@@ -26,17 +24,17 @@ pub fn main() !void {
     mercury.setPair(Position, Local, .{ .x = 1, .y = 1 });
 
     const venus = world.newEntityWithName("Venus");
-    venus.addPair(child_of, sun);
+    venus.addPair(flecs.c.EcsChildOf, sun);
     venus.addPair(Position, World);
     venus.setPair(Position, Local, .{ .x = 2, .y = 2 });
 
     const earth = world.newEntityWithName("Earth");
-    earth.addPair(child_of, sun);
+    earth.addPair(flecs.c.EcsChildOf, sun);
     earth.addPair(Position, World);
     earth.setPair(Position, Local, .{ .x = 3, .y = 3 });
 
     const moon = world.newEntityWithName("Moon");
-    moon.addPair(child_of, earth);
+    moon.addPair(flecs.c.EcsChildOf, earth);
     moon.addPair(Position, World);
     moon.setPair(Position, Local, .{ .x = 0.1, .y = 0.1 });
 
@@ -63,7 +61,6 @@ pub fn main() !void {
             pos_world: *Position,
             pos_parent: ?*const Position,
 
-            pub var instanced = true; // required due to having shared components
             pub var modifiers = .{ q.PairI(Position, Local, "pos_local"), q.WriteonlyI(q.Pair(Position, World), "pos_world"), q.MaskI(q.Pair(Position, World), flecs.c.EcsParent | flecs.c.EcsCascade, "pos_parent") };
         };
         var q2 = world.query(Funky);
