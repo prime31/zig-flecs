@@ -29,6 +29,12 @@ pub const World = struct {
         _ = flecs.c.ecs_set_id(self.world, flecs.c.FLECS__EEcsRest, flecs.c.FLECS__EEcsRest, @sizeOf(flecs.c.EcsRest), &std.mem.zeroes(flecs.c.EcsRest));
     }
 
+    /// -1 log level turns off logging
+    pub fn setLogLevel(_: World, level: c_int, enable_colors: bool) void {
+        _ = flecs.c.ecs_log_set_level(level);
+        _ = flecs.c.ecs_log_enable_colors(enable_colors);
+    }
+
     pub fn progress(self: World, delta_time: f32) void {
         _ = flecs.c.ecs_progress(self.world, delta_time);
     }
