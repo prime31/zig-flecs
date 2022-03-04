@@ -96,6 +96,15 @@ pub const Entity = struct {
         return null;
     }
 
+    pub fn getMut (self: Entity, comptime T: type) ?*T {
+        var is_added = false;
+        var ptr = flecs.c.ecs_get_mut_id(self.world, self.id, meta.componentId(self.world, T), &is_added);
+        if (ptr) |p| {
+            return @ptrCast(*T, @alignCast(@alignOf(T), p));
+        }
+        return null;
+    }
+
     /// removes a component from an Entity
     pub fn remove(self: Entity, comptime T: type) void {
         flecs.c.ecs_remove_id(self.world, self.id, meta.componentId(self.world, T));
