@@ -336,8 +336,6 @@ fn wrapSystemFn(comptime T: type, comptime cb: fn (*flecs.Iterator(T)) void) fn 
 
 fn wrapOrderByFn(comptime T: type, comptime cb: fn (flecs.EntityId, *const T, flecs.EntityId, *const T) c_int) FlecsOrderByAction {
     const Closure = struct {
-        pub var callback: fn (flecs.Entity, T, flecs.Entity, T) c_int = cb;
-
         pub fn closure(e1: flecs.EntityId, c1: ?*const anyopaque, e2: flecs.EntityId, c2: ?*const anyopaque) callconv(.C) c_int {
             return @call(.{ .modifier = .always_inline }, cb, .{ e1, utils.componentCast(T, c1), e2, utils.componentCast(T, c2) });
         }
