@@ -61,11 +61,18 @@ pub const Entity = struct {
         return flecs.c.ecs_has_id(self.world, self.id, self.getWorld().pair(relation, object));
     }
 
+    /// removes a relation to the object from the entity.
+    pub fn removePair (self: Entity, relation: anytype, object: anytype) void {
+        return flecs.c.ecs_remove_id(self.world, self.id, self.getWorld().pair(relation, object));
+    }
+
     pub fn setPair(self: Entity, Relation: anytype, object: type, data: Relation) void {
         const pair = self.getWorld().pair(Relation, object);
         var component = &data;
         _ = flecs.c.ecs_set_id(self.world, self.id, pair, @sizeOf(Relation), component);
     }
+
+    
 
     /// sets a component on entity. Can be either a pointer to a struct or a struct
     pub fn set(self: Entity, ptr_or_struct: anytype) void {
