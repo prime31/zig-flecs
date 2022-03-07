@@ -612,6 +612,7 @@ pub const struct_ecs_query_iter_t = extern struct {
     sparse_smallest: i32,
     sparse_first: i32,
     bitset_first: i32,
+    skip_count: i32,
 };
 pub const ecs_query_iter_t = struct_ecs_query_iter_t;
 pub const struct_ecs_rule_t = opaque {};
@@ -677,6 +678,7 @@ pub const struct_ecs_iter_private_t = extern struct {
 };
 pub const ecs_iter_private_t = struct_ecs_iter_private_t;
 pub const ecs_iter_next_action_t = ?fn ([*c]ecs_iter_t) callconv(.C) bool;
+pub const ecs_iter_action_t = ?fn ([*c]ecs_iter_t) callconv(.C) void;
 pub const ecs_iter_fini_action_t = ?fn ([*c]ecs_iter_t) callconv(.C) void;
 pub const struct_ecs_iter_t = extern struct {
     world: ?*ecs_world_t,
@@ -720,6 +722,7 @@ pub const struct_ecs_iter_t = extern struct {
     interrupted_by: ecs_entity_t,
     priv: ecs_iter_private_t,
     next: ecs_iter_next_action_t,
+    callback: ecs_iter_action_t,
     fini: ecs_iter_fini_action_t,
     chain_it: [*c]ecs_iter_t,
 };
@@ -748,7 +751,6 @@ pub const struct_ecs_filter_t = extern struct {
     expr: [*c]u8,
     iterable: ecs_iterable_t,
 };
-pub const ecs_iter_action_t = ?fn ([*c]ecs_iter_t) callconv(.C) void;
 pub const ecs_ctx_free_t = ?fn (?*anyopaque) callconv(.C) void;
 pub const struct_ecs_sparse_t = opaque {};
 pub const ecs_sparse_t = struct_ecs_sparse_t;
@@ -1279,6 +1281,7 @@ pub extern fn ecs_worker_iter(it: [*c]const ecs_iter_t, index: i32, count: i32) 
 pub extern fn ecs_worker_next(it: [*c]ecs_iter_t) bool;
 pub extern fn ecs_term_w_size(it: [*c]const ecs_iter_t, size: usize, index: i32) ?*anyopaque;
 pub extern fn ecs_term_is_readonly(it: [*c]const ecs_iter_t, index: i32) bool;
+pub extern fn ecs_term_is_writeonly(it: [*c]const ecs_iter_t, index: i32) bool;
 pub extern fn ecs_term_is_set(it: [*c]const ecs_iter_t, index: i32) bool;
 pub extern fn ecs_term_is_owned(it: [*c]const ecs_iter_t, index: i32) bool;
 pub extern fn ecs_iter_str(it: [*c]const ecs_iter_t) [*c]u8;
@@ -1474,6 +1477,201 @@ pub const struct_ecs_iter_to_json_desc_t = extern struct {
 pub const ecs_iter_to_json_desc_t = struct_ecs_iter_to_json_desc_t;
 pub extern fn ecs_iter_to_json(world: ?*const ecs_world_t, iter: [*c]ecs_iter_t, desc: [*c]const ecs_iter_to_json_desc_t) [*c]u8;
 pub extern fn ecs_iter_to_json_buf(world: ?*const ecs_world_t, iter: [*c]ecs_iter_t, buf_out: [*c]ecs_strbuf_t, desc: [*c]const ecs_iter_to_json_desc_t) c_int;
+pub extern var EcsUnitPrefixes: ecs_entity_t;
+pub extern var FLECS__EEcsUnitPrefixes: ecs_entity_t;
+pub extern var EcsYocto: ecs_entity_t;
+pub extern var FLECS__EEcsYocto: ecs_entity_t;
+pub extern var EcsZepto: ecs_entity_t;
+pub extern var FLECS__EEcsZepto: ecs_entity_t;
+pub extern var EcsAtto: ecs_entity_t;
+pub extern var FLECS__EEcsAtto: ecs_entity_t;
+pub extern var EcsFemto: ecs_entity_t;
+pub extern var FLECS__EEcsFemto: ecs_entity_t;
+pub extern var EcsPico: ecs_entity_t;
+pub extern var FLECS__EEcsPico: ecs_entity_t;
+pub extern var EcsNano: ecs_entity_t;
+pub extern var FLECS__EEcsNano: ecs_entity_t;
+pub extern var EcsMicro: ecs_entity_t;
+pub extern var FLECS__EEcsMicro: ecs_entity_t;
+pub extern var EcsMilli: ecs_entity_t;
+pub extern var FLECS__EEcsMilli: ecs_entity_t;
+pub extern var EcsCenti: ecs_entity_t;
+pub extern var FLECS__EEcsCenti: ecs_entity_t;
+pub extern var EcsDeci: ecs_entity_t;
+pub extern var FLECS__EEcsDeci: ecs_entity_t;
+pub extern var EcsDeca: ecs_entity_t;
+pub extern var FLECS__EEcsDeca: ecs_entity_t;
+pub extern var EcsHecto: ecs_entity_t;
+pub extern var FLECS__EEcsHecto: ecs_entity_t;
+pub extern var EcsKilo: ecs_entity_t;
+pub extern var FLECS__EEcsKilo: ecs_entity_t;
+pub extern var EcsMega: ecs_entity_t;
+pub extern var FLECS__EEcsMega: ecs_entity_t;
+pub extern var EcsGiga: ecs_entity_t;
+pub extern var FLECS__EEcsGiga: ecs_entity_t;
+pub extern var EcsTera: ecs_entity_t;
+pub extern var FLECS__EEcsTera: ecs_entity_t;
+pub extern var EcsPeta: ecs_entity_t;
+pub extern var FLECS__EEcsPeta: ecs_entity_t;
+pub extern var EcsExa: ecs_entity_t;
+pub extern var FLECS__EEcsExa: ecs_entity_t;
+pub extern var EcsZetta: ecs_entity_t;
+pub extern var FLECS__EEcsZetta: ecs_entity_t;
+pub extern var EcsYotta: ecs_entity_t;
+pub extern var FLECS__EEcsYotta: ecs_entity_t;
+pub extern var EcsKibi: ecs_entity_t;
+pub extern var FLECS__EEcsKibi: ecs_entity_t;
+pub extern var EcsMebi: ecs_entity_t;
+pub extern var FLECS__EEcsMebi: ecs_entity_t;
+pub extern var EcsGibi: ecs_entity_t;
+pub extern var FLECS__EEcsGibi: ecs_entity_t;
+pub extern var EcsTebi: ecs_entity_t;
+pub extern var FLECS__EEcsTebi: ecs_entity_t;
+pub extern var EcsPebi: ecs_entity_t;
+pub extern var FLECS__EEcsPebi: ecs_entity_t;
+pub extern var EcsExbi: ecs_entity_t;
+pub extern var FLECS__EEcsExbi: ecs_entity_t;
+pub extern var EcsZebi: ecs_entity_t;
+pub extern var FLECS__EEcsZebi: ecs_entity_t;
+pub extern var EcsYobi: ecs_entity_t;
+pub extern var FLECS__EEcsYobi: ecs_entity_t;
+pub extern var EcsDuration: ecs_entity_t;
+pub extern var FLECS__EEcsDuration: ecs_entity_t;
+pub extern var EcsPicoSeconds: ecs_entity_t;
+pub extern var FLECS__EEcsPicoSeconds: ecs_entity_t;
+pub extern var EcsNanoSeconds: ecs_entity_t;
+pub extern var FLECS__EEcsNanoSeconds: ecs_entity_t;
+pub extern var EcsMicroSeconds: ecs_entity_t;
+pub extern var FLECS__EEcsMicroSeconds: ecs_entity_t;
+pub extern var EcsMilliSeconds: ecs_entity_t;
+pub extern var FLECS__EEcsMilliSeconds: ecs_entity_t;
+pub extern var EcsSeconds: ecs_entity_t;
+pub extern var FLECS__EEcsSeconds: ecs_entity_t;
+pub extern var EcsMinutes: ecs_entity_t;
+pub extern var FLECS__EEcsMinutes: ecs_entity_t;
+pub extern var EcsHours: ecs_entity_t;
+pub extern var FLECS__EEcsHours: ecs_entity_t;
+pub extern var EcsDays: ecs_entity_t;
+pub extern var FLECS__EEcsDays: ecs_entity_t;
+pub extern var EcsTime: ecs_entity_t;
+pub extern var FLECS__EEcsTime: ecs_entity_t;
+pub extern var EcsDate: ecs_entity_t;
+pub extern var FLECS__EEcsDate: ecs_entity_t;
+pub extern var EcsMass: ecs_entity_t;
+pub extern var FLECS__EEcsMass: ecs_entity_t;
+pub extern var EcsGrams: ecs_entity_t;
+pub extern var FLECS__EEcsGrams: ecs_entity_t;
+pub extern var EcsKiloGrams: ecs_entity_t;
+pub extern var FLECS__EEcsKiloGrams: ecs_entity_t;
+pub extern var EcsElectricCurrent: ecs_entity_t;
+pub extern var FLECS__EEcsElectricCurrent: ecs_entity_t;
+pub extern var EcsAmpere: ecs_entity_t;
+pub extern var FLECS__EEcsAmpere: ecs_entity_t;
+pub extern var EcsAmount: ecs_entity_t;
+pub extern var FLECS__EEcsAmount: ecs_entity_t;
+pub extern var EcsMole: ecs_entity_t;
+pub extern var FLECS__EEcsMole: ecs_entity_t;
+pub extern var EcsLuminousIntensity: ecs_entity_t;
+pub extern var FLECS__EEcsLuminousIntensity: ecs_entity_t;
+pub extern var EcsCandela: ecs_entity_t;
+pub extern var FLECS__EEcsCandela: ecs_entity_t;
+pub extern var EcsForce: ecs_entity_t;
+pub extern var FLECS__EEcsForce: ecs_entity_t;
+pub extern var EcsNewton: ecs_entity_t;
+pub extern var FLECS__EEcsNewton: ecs_entity_t;
+pub extern var EcsLength: ecs_entity_t;
+pub extern var FLECS__EEcsLength: ecs_entity_t;
+pub extern var EcsMeters: ecs_entity_t;
+pub extern var FLECS__EEcsMeters: ecs_entity_t;
+pub extern var EcsPicoMeters: ecs_entity_t;
+pub extern var FLECS__EEcsPicoMeters: ecs_entity_t;
+pub extern var EcsNanoMeters: ecs_entity_t;
+pub extern var FLECS__EEcsNanoMeters: ecs_entity_t;
+pub extern var EcsMicroMeters: ecs_entity_t;
+pub extern var FLECS__EEcsMicroMeters: ecs_entity_t;
+pub extern var EcsMilliMeters: ecs_entity_t;
+pub extern var FLECS__EEcsMilliMeters: ecs_entity_t;
+pub extern var EcsCentiMeters: ecs_entity_t;
+pub extern var FLECS__EEcsCentiMeters: ecs_entity_t;
+pub extern var EcsKiloMeters: ecs_entity_t;
+pub extern var FLECS__EEcsKiloMeters: ecs_entity_t;
+pub extern var EcsMiles: ecs_entity_t;
+pub extern var FLECS__EEcsMiles: ecs_entity_t;
+pub extern var EcsPressure: ecs_entity_t;
+pub extern var FLECS__EEcsPressure: ecs_entity_t;
+pub extern var EcsPascal: ecs_entity_t;
+pub extern var FLECS__EEcsPascal: ecs_entity_t;
+pub extern var EcsBar: ecs_entity_t;
+pub extern var FLECS__EEcsBar: ecs_entity_t;
+pub extern var EcsSpeed: ecs_entity_t;
+pub extern var FLECS__EEcsSpeed: ecs_entity_t;
+pub extern var EcsMetersPerSecond: ecs_entity_t;
+pub extern var FLECS__EEcsMetersPerSecond: ecs_entity_t;
+pub extern var EcsKiloMetersPerHour: ecs_entity_t;
+pub extern var FLECS__EEcsKiloMetersPerHour: ecs_entity_t;
+pub extern var EcsMilesPerHour: ecs_entity_t;
+pub extern var FLECS__EEcsMilesPerHour: ecs_entity_t;
+pub extern var EcsTemperature: ecs_entity_t;
+pub extern var FLECS__EEcsTemperature: ecs_entity_t;
+pub extern var EcsKelvin: ecs_entity_t;
+pub extern var FLECS__EEcsKelvin: ecs_entity_t;
+pub extern var EcsCelsius: ecs_entity_t;
+pub extern var FLECS__EEcsCelsius: ecs_entity_t;
+pub extern var EcsFahrenheit: ecs_entity_t;
+pub extern var FLECS__EEcsFahrenheit: ecs_entity_t;
+pub extern var EcsAcceleration: ecs_entity_t;
+pub extern var FLECS__EEcsAcceleration: ecs_entity_t;
+pub extern var EcsData: ecs_entity_t;
+pub extern var FLECS__EEcsData: ecs_entity_t;
+pub extern var EcsBits: ecs_entity_t;
+pub extern var FLECS__EEcsBits: ecs_entity_t;
+pub extern var EcsKiloBits: ecs_entity_t;
+pub extern var FLECS__EEcsKiloBits: ecs_entity_t;
+pub extern var EcsMegaBits: ecs_entity_t;
+pub extern var FLECS__EEcsMegaBits: ecs_entity_t;
+pub extern var EcsGigaBits: ecs_entity_t;
+pub extern var FLECS__EEcsGigaBits: ecs_entity_t;
+pub extern var EcsBytes: ecs_entity_t;
+pub extern var FLECS__EEcsBytes: ecs_entity_t;
+pub extern var EcsKiloBytes: ecs_entity_t;
+pub extern var FLECS__EEcsKiloBytes: ecs_entity_t;
+pub extern var EcsMegaBytes: ecs_entity_t;
+pub extern var FLECS__EEcsMegaBytes: ecs_entity_t;
+pub extern var EcsGigaBytes: ecs_entity_t;
+pub extern var FLECS__EEcsGigaBytes: ecs_entity_t;
+pub extern var EcsKibiBytes: ecs_entity_t;
+pub extern var FLECS__EEcsKibiBytes: ecs_entity_t;
+pub extern var EcsMebiBytes: ecs_entity_t;
+pub extern var FLECS__EEcsMebiBytes: ecs_entity_t;
+pub extern var EcsGibiBytes: ecs_entity_t;
+pub extern var FLECS__EEcsGibiBytes: ecs_entity_t;
+pub extern var EcsDataRate: ecs_entity_t;
+pub extern var FLECS__EEcsDataRate: ecs_entity_t;
+pub extern var EcsBitsPerSecond: ecs_entity_t;
+pub extern var FLECS__EEcsBitsPerSecond: ecs_entity_t;
+pub extern var EcsKiloBitsPerSecond: ecs_entity_t;
+pub extern var FLECS__EEcsKiloBitsPerSecond: ecs_entity_t;
+pub extern var EcsMegaBitsPerSecond: ecs_entity_t;
+pub extern var FLECS__EEcsMegaBitsPerSecond: ecs_entity_t;
+pub extern var EcsGigaBitsPerSecond: ecs_entity_t;
+pub extern var FLECS__EEcsGigaBitsPerSecond: ecs_entity_t;
+pub extern var EcsBytesPerSecond: ecs_entity_t;
+pub extern var FLECS__EEcsBytesPerSecond: ecs_entity_t;
+pub extern var EcsKiloBytesPerSecond: ecs_entity_t;
+pub extern var FLECS__EEcsKiloBytesPerSecond: ecs_entity_t;
+pub extern var EcsMegaBytesPerSecond: ecs_entity_t;
+pub extern var FLECS__EEcsMegaBytesPerSecond: ecs_entity_t;
+pub extern var EcsGigaBytesPerSecond: ecs_entity_t;
+pub extern var FLECS__EEcsGigaBytesPerSecond: ecs_entity_t;
+pub extern var EcsPercentage: ecs_entity_t;
+pub extern var FLECS__EEcsPercentage: ecs_entity_t;
+pub extern var EcsAngle: ecs_entity_t;
+pub extern var FLECS__EEcsAngle: ecs_entity_t;
+pub extern var EcsRadians: ecs_entity_t;
+pub extern var FLECS__EEcsRadians: ecs_entity_t;
+pub extern var EcsDegrees: ecs_entity_t;
+pub extern var FLECS__EEcsDegrees: ecs_entity_t;
+pub extern fn FlecsUnitsImport(world: ?*ecs_world_t) void;
 pub const ptrdiff_t = c_long;
 pub const wchar_t = c_int;
 pub const max_align_t = c_longdouble;
@@ -1502,7 +1700,10 @@ pub extern const FLECS__EEcsMember: ecs_entity_t;
 pub extern const FLECS__EEcsStruct: ecs_entity_t;
 pub extern const FLECS__EEcsArray: ecs_entity_t;
 pub extern const FLECS__EEcsVector: ecs_entity_t;
+pub extern const FLECS__EEcsUnit: ecs_entity_t;
+pub extern const FLECS__EEcsUnitPrefix: ecs_entity_t;
 pub extern const EcsConstant: ecs_entity_t;
+pub extern const EcsQuantity: ecs_entity_t;
 pub extern const FLECS__Eecs_bool_t: ecs_entity_t;
 pub extern const FLECS__Eecs_char_t: ecs_entity_t;
 pub extern const FLECS__Eecs_byte_t: ecs_entity_t;
@@ -1560,6 +1761,7 @@ pub const EcsPrimitive = struct_EcsPrimitive;
 pub const struct_EcsMember = extern struct {
     type: ecs_entity_t,
     count: i32,
+    unit: ecs_entity_t,
 };
 pub const EcsMember = struct_EcsMember;
 pub const struct_ecs_member_t = extern struct {
@@ -1567,6 +1769,7 @@ pub const struct_ecs_member_t = extern struct {
     type: ecs_entity_t,
     count: i32,
     offset: i32,
+    unit: ecs_entity_t,
     size: ecs_size_t,
     member: ecs_entity_t,
 };
@@ -1604,6 +1807,24 @@ pub const struct_EcsVector = extern struct {
     type: ecs_entity_t,
 };
 pub const EcsVector = struct_EcsVector;
+pub const struct_ecs_unit_translation_t = extern struct {
+    factor: i32,
+    power: i32,
+};
+pub const ecs_unit_translation_t = struct_ecs_unit_translation_t;
+pub const struct_EcsUnit = extern struct {
+    symbol: [*c]u8,
+    prefix: ecs_entity_t,
+    base: ecs_entity_t,
+    over: ecs_entity_t,
+    translation: ecs_unit_translation_t,
+};
+pub const EcsUnit = struct_EcsUnit;
+pub const struct_EcsUnitPrefix = extern struct {
+    symbol: [*c]u8,
+    translation: ecs_unit_translation_t,
+};
+pub const EcsUnitPrefix = struct_EcsUnitPrefix;
 pub const EcsOpArray: c_int = 0;
 pub const EcsOpVector: c_int = 1;
 pub const EcsOpPush: c_int = 2;
@@ -1639,6 +1860,7 @@ pub const struct_ecs_meta_type_op_t = extern struct {
     op_count: i32,
     size: ecs_size_t,
     type: ecs_entity_t,
+    unit: ecs_entity_t,
     members: [*c]ecs_hashmap_t,
 };
 pub const ecs_meta_type_op_t = struct_ecs_meta_type_op_t;
@@ -1678,6 +1900,8 @@ pub extern fn ecs_meta_push(cursor: [*c]ecs_meta_cursor_t) c_int;
 pub extern fn ecs_meta_pop(cursor: [*c]ecs_meta_cursor_t) c_int;
 pub extern fn ecs_meta_is_collection(cursor: [*c]ecs_meta_cursor_t) bool;
 pub extern fn ecs_meta_get_type(cursor: [*c]ecs_meta_cursor_t) ecs_entity_t;
+pub extern fn ecs_meta_get_unit(cursor: [*c]ecs_meta_cursor_t) ecs_entity_t;
+pub extern fn ecs_meta_get_member(cursor: [*c]ecs_meta_cursor_t) [*c]const u8;
 pub extern fn ecs_meta_set_bool(cursor: [*c]ecs_meta_cursor_t, value: bool) c_int;
 pub extern fn ecs_meta_set_char(cursor: [*c]ecs_meta_cursor_t, value: u8) c_int;
 pub extern fn ecs_meta_set_int(cursor: [*c]ecs_meta_cursor_t, value: i64) c_int;
@@ -1724,6 +1948,25 @@ pub const struct_ecs_struct_desc_t = extern struct {
 };
 pub const ecs_struct_desc_t = struct_ecs_struct_desc_t;
 pub extern fn ecs_struct_init(world: ?*ecs_world_t, desc: [*c]const ecs_struct_desc_t) ecs_entity_t;
+pub const struct_ecs_unit_desc_t = extern struct {
+    entity: ecs_entity_desc_t,
+    symbol: [*c]const u8,
+    quantity: ecs_entity_t,
+    base: ecs_entity_t,
+    over: ecs_entity_t,
+    translation: ecs_unit_translation_t,
+    prefix: ecs_entity_t,
+};
+pub const ecs_unit_desc_t = struct_ecs_unit_desc_t;
+pub extern fn ecs_unit_init(world: ?*ecs_world_t, desc: [*c]const ecs_unit_desc_t) ecs_entity_t;
+pub const struct_ecs_unit_prefix_desc_t = extern struct {
+    entity: ecs_entity_desc_t,
+    symbol: [*c]const u8,
+    translation: ecs_unit_translation_t,
+};
+pub const ecs_unit_prefix_desc_t = struct_ecs_unit_prefix_desc_t;
+pub extern fn ecs_unit_prefix_init(world: ?*ecs_world_t, desc: [*c]const ecs_unit_prefix_desc_t) ecs_entity_t;
+pub extern fn ecs_quantity_init(world: ?*ecs_world_t, desc: [*c]const ecs_entity_desc_t) ecs_entity_t;
 pub extern fn FlecsMetaImport(world: ?*ecs_world_t) void;
 pub extern fn ecs_chresc(out: [*c]u8, in: u8, delimiter: u8) [*c]u8;
 pub extern fn ecs_chrparse(in: [*c]const u8, out: [*c]u8) [*c]const u8;
@@ -1913,10 +2156,10 @@ pub extern fn ecs_cpp_reset_count_inc() i32;
 pub const __block = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // (no file):27:9
 pub const __INTMAX_C_SUFFIX__ = @compileError("unable to translate macro: undefined identifier `L`"); // (no file):69:9
 pub const __UINTMAX_C_SUFFIX__ = @compileError("unable to translate macro: undefined identifier `UL`"); // (no file):75:9
-pub const __FLT16_DENORM_MIN__ = @compileError("unable to translate C expr: unexpected token 'IntegerLiteral'"); // (no file):106:9
-pub const __FLT16_EPSILON__ = @compileError("unable to translate C expr: unexpected token 'IntegerLiteral'"); // (no file):110:9
-pub const __FLT16_MAX__ = @compileError("unable to translate C expr: unexpected token 'IntegerLiteral'"); // (no file):116:9
-pub const __FLT16_MIN__ = @compileError("unable to translate C expr: unexpected token 'IntegerLiteral'"); // (no file):119:9
+pub const __FLT16_DENORM_MIN__ = @compileError("unable to translate C expr: unexpected token .IntegerLiteral"); // (no file):106:9
+pub const __FLT16_EPSILON__ = @compileError("unable to translate C expr: unexpected token .IntegerLiteral"); // (no file):110:9
+pub const __FLT16_MAX__ = @compileError("unable to translate C expr: unexpected token .IntegerLiteral"); // (no file):116:9
+pub const __FLT16_MIN__ = @compileError("unable to translate C expr: unexpected token .IntegerLiteral"); // (no file):119:9
 pub const __INT64_C_SUFFIX__ = @compileError("unable to translate macro: undefined identifier `LL`"); // (no file):179:9
 pub const __UINT32_C_SUFFIX__ = @compileError("unable to translate macro: undefined identifier `U`"); // (no file):201:9
 pub const __UINT64_C_SUFFIX__ = @compileError("unable to translate macro: undefined identifier `ULL`"); // (no file):209:9
@@ -1925,995 +2168,995 @@ pub const __nonnull = @compileError("unable to translate macro: undefined identi
 pub const __null_unspecified = @compileError("unable to translate macro: undefined identifier `_Null_unspecified`"); // (no file):323:9
 pub const __nullable = @compileError("unable to translate macro: undefined identifier `_Nullable`"); // (no file):324:9
 pub const __weak = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // (no file):382:9
-pub const __CONCAT = @compileError("unable to translate C expr: unexpected token '##'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:113:9
-pub const __STRING = @compileError("unable to translate C expr: unexpected token '#'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:114:9
-pub const __const = @compileError("unable to translate C expr: unexpected token 'const'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:116:9
-pub const __volatile = @compileError("unable to translate C expr: unexpected token 'volatile'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:118:9
-pub const __dead2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:162:9
-pub const __pure2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:163:9
-pub const __stateful_pure = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:164:9
-pub const __unused = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:169:9
-pub const __used = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:174:9
-pub const __cold = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:180:9
-pub const __exported = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:190:9
-pub const __exported_push = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:191:9
-pub const __exported_pop = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:192:9
-pub const __deprecated = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:204:9
-pub const __deprecated_msg = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:208:10
-pub const __kpi_deprecated = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:219:9
-pub const __unavailable = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:225:9
-pub const __restrict = @compileError("unable to translate C expr: unexpected token 'restrict'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:247:9
-pub const __disable_tail_calls = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:280:9
-pub const __not_tail_called = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:292:9
-pub const __result_use_check = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:303:9
-pub const __swift_unavailable = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:313:9
-pub const __header_inline = @compileError("unable to translate C expr: unexpected token 'inline'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:347:10
-pub const __header_always_inline = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:360:10
-pub const __unreachable_ok_push = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:373:10
-pub const __unreachable_ok_pop = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:376:10
-pub const __printflike = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:397:9
-pub const __printf0like = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:399:9
-pub const __scanflike = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:401:9
-pub const __IDSTRING = @compileError("unable to translate C expr: unexpected token 'static'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:404:9
-pub const __COPYRIGHT = @compileError("unable to translate macro: undefined identifier `copyright`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:407:9
-pub const __RCSID = @compileError("unable to translate macro: undefined identifier `rcsid`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:411:9
-pub const __SCCSID = @compileError("unable to translate macro: undefined identifier `sccsid`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:415:9
-pub const __PROJECT_VERSION = @compileError("unable to translate macro: undefined identifier `project_version`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:419:9
-pub const __FBSDID = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:424:9
-pub const __DECONST = @compileError("unable to translate C expr: unexpected token 'const'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:428:9
-pub const __DEVOLATILE = @compileError("unable to translate C expr: unexpected token 'volatile'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:432:9
-pub const __DEQUALIFY = @compileError("unable to translate C expr: unexpected token 'const'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:436:9
-pub const __alloc_size = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:454:9
-pub const __DARWIN_ALIAS = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:639:9
-pub const __DARWIN_ALIAS_C = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:640:9
-pub const __DARWIN_ALIAS_I = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:641:9
-pub const __DARWIN_NOCANCEL = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:642:9
-pub const __DARWIN_INODE64 = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:643:9
-pub const __DARWIN_1050 = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:645:9
-pub const __DARWIN_1050ALIAS = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:646:9
-pub const __DARWIN_1050ALIAS_C = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:647:9
-pub const __DARWIN_1050ALIAS_I = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:648:9
-pub const __DARWIN_1050INODE64 = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:649:9
-pub const __DARWIN_EXTSN = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:651:9
-pub const __DARWIN_EXTSN_C = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:652:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_2_0 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:35:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_2_1 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:41:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_2_2 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:47:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_3_0 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:53:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_3_1 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:59:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_3_2 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:65:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_4_0 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:71:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_4_1 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:77:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_4_2 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:83:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_4_3 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:89:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_5_0 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:95:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_5_1 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:101:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_6_0 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:107:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_6_1 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:113:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_7_0 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:119:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_7_1 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:125:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_8_0 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:131:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_8_1 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:137:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_8_2 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:143:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_8_3 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:149:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_8_4 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:155:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_9_0 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:161:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_9_1 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:167:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_9_2 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:173:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_9_3 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:179:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_10_0 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:185:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_10_1 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:191:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_10_2 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:197:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_10_3 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:203:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_11_0 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:209:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_11_1 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:215:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_11_2 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:221:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_11_3 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:227:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_11_4 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:233:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_12_0 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:239:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_12_1 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:245:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_12_2 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:251:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_12_3 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:257:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_12_4 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:263:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_0 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:269:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_1 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:275:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_2 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:281:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_3 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:287:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_4 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:293:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_5 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:299:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_6 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:305:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_7 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:311:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_14_0 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:317:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_14_1 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:323:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_14_2 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:329:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_14_3 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:335:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_14_5 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:341:9
-pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_15_0 = @compileError("unable to translate C expr: unexpected token 'Eof'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:347:9
-pub const __DARWIN_ALIAS_STARTING = @compileError("unable to translate macro: undefined identifier `__DARWIN_ALIAS_STARTING_MAC_`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:662:9
-pub const __POSIX_C_DEPRECATED = @compileError("unable to translate macro: undefined identifier `___POSIX_C_DEPRECATED_STARTING_`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:725:9
-pub const __XNU_PRIVATE_EXTERN = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:825:9
-pub const __compiler_barrier = @compileError("unable to translate macro: undefined identifier `__asm__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:842:9
-pub const __enum_open = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:845:9
-pub const __enum_closed = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:846:9
-pub const __enum_options = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:853:9
-pub const __enum_decl = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:866:9
-pub const __enum_closed_decl = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:868:9
-pub const __options_decl = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:870:9
-pub const __options_closed_decl = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/sys/cdefs.h:872:9
-pub const __ASSERT_FILE_NAME = @compileError("unable to translate macro: undefined identifier `__FILE_NAME__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/assert.h:60:9
-pub const __assert = @compileError("unable to translate C expr: unexpected token 'const'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/assert.h:93:9
-pub const assert = @compileError("unable to translate macro: undefined identifier `__func__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/assert.h:98:9
-pub const static_assert = @compileError("unable to translate C expr: unexpected token '_Static_assert'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/assert.h:113:9
-pub const va_start = @compileError("unable to translate macro: undefined identifier `__builtin_va_start`"); // /Users/desaro/zig/lib/zig/include/stdarg.h:17:9
-pub const va_end = @compileError("unable to translate macro: undefined identifier `__builtin_va_end`"); // /Users/desaro/zig/lib/zig/include/stdarg.h:18:9
-pub const va_arg = @compileError("unable to translate macro: undefined identifier `__builtin_va_arg`"); // /Users/desaro/zig/lib/zig/include/stdarg.h:19:9
-pub const __va_copy = @compileError("unable to translate macro: undefined identifier `__builtin_va_copy`"); // /Users/desaro/zig/lib/zig/include/stdarg.h:24:9
-pub const va_copy = @compileError("unable to translate macro: undefined identifier `__builtin_va_copy`"); // /Users/desaro/zig/lib/zig/include/stdarg.h:27:9
-pub const __offsetof = @compileError("unable to translate macro: undefined identifier `__builtin_offsetof`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/sys/_types.h:83:9
-pub const __strfmonlike = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/_types.h:31:9
-pub const __strftimelike = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/_types.h:33:9
-pub const __AVAILABILITY_INTERNAL_DEPRECATED = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:109:9
-pub const __AVAILABILITY_INTERNAL_DEPRECATED_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:112:17
-pub const __AVAILABILITY_INTERNAL_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:121:9
-pub const __AVAILABILITY_INTERNAL_WEAK_IMPORT = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:122:9
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2922:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2923:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2924:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2926:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2930:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2932:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2937:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2941:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2942:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2944:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2948:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2950:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2954:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2956:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2961:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2965:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2966:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2968:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2972:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2974:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2978:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2980:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2985:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2990:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2994:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:2996:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3000:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3002:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3006:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3008:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_5 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3012:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_5_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3014:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3018:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_6_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3020:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3024:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3026:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3030:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3032:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3036:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3038:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3042:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3043:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3044:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3045:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3046:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3047:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3049:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3053:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3055:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3060:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3064:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3065:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3067:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3071:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3073:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3077:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3079:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3084:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3088:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3089:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3091:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3095:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3097:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3101:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3103:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3108:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3112:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3113:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3115:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3119:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3121:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3125:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3127:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_5 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3131:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_5_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3133:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3137:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_6_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3139:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3143:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3145:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3149:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3151:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3155:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3157:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3161:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3162:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3163:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3164:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3165:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3166:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3168:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3172:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3174:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3179:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3183:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3184:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3186:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3190:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3192:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3196:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3198:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3203:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3207:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3208:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3210:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3214:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3216:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3220:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3222:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3227:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3231:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3232:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3234:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3238:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3240:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_5 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3244:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_5_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3246:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3250:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_6_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3252:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3256:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3258:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3262:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3264:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3268:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3270:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3274:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3275:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3276:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3277:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3278:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3279:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3281:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3285:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3287:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3292:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3296:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3297:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3299:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3303:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3305:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3309:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3311:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3316:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3320:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3321:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3323:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3327:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3329:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3333:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3335:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3340:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3344:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3345:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3347:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_5 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3351:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_5_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3353:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3357:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_6_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3359:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3363:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3365:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3369:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3371:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3375:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3377:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3381:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3382:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3383:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEPRECATED__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3384:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3385:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3386:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3387:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3389:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3393:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3395:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3400:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3404:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3405:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3407:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3411:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3413:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3417:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3419:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3424:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3428:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3429:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3431:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3435:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3437:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3441:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3443:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3448:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_5 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3452:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_5_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3454:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3458:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_6_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3460:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3464:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3466:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3470:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3472:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3476:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3478:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3482:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3483:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3484:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3485:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3486:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3487:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3489:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3493:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3495:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3500:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3504:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3505:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3507:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3511:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3513:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3517:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3519:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3524:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3528:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3529:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3531:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3535:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3537:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3541:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3543:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3548:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3552:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3553:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_6_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3555:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3559:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3561:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3565:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3567:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3571:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3573:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3577:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3578:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3579:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3580:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3581:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3582:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3584:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3588:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3590:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3595:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3599:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3600:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3602:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3606:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3608:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3612:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3614:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3619:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3623:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3624:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3626:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3630:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3632:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3636:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3638:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3643:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_13_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3647:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3648:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3650:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3654:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3656:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3660:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3662:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3666:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3667:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3668:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3669:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3670:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3671:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3673:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3677:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3679:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3684:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3688:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3689:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3691:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3695:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3697:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3701:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3703:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3708:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3712:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3713:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3715:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3719:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3721:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3725:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3727:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3732:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3736:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3737:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3739:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3743:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3745:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3749:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3750:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3751:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3752:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3753:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3754:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3756:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3760:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3762:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3767:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3771:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3772:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3774:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3778:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3780:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3784:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3786:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3791:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3795:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3796:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3798:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3802:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3804:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3808:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3810:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3815:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3819:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_14 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3820:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3821:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3823:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3827:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3828:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3829:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_0 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3830:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_0_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3832:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3836:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3837:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3838:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3840:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3844:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3846:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3851:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3855:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3856:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3858:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3862:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3864:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3868:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3870:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3875:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3879:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3880:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3882:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3886:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3888:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3892:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3894:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3899:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3903:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3905:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3909:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3911:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3915:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3917:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3921:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3923:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_5 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3927:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_5_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3929:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3933:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_6_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3935:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3939:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3941:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3945:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3947:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3951:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3953:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_13_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3958:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3962:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3963:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3964:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3965:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3966:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3967:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3969:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3973:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3975:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3979:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3980:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3982:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3986:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3988:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3992:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3994:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:3999:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4003:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4004:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4006:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4010:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4012:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4016:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4018:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4023:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4027:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4028:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4029:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4030:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4032:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4036:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4037:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4039:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4043:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4045:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4049:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4051:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4056:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4060:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4061:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4063:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4067:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4069:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4073:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4075:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4080:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4084:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4085:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4086:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4087:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4088:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4090:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4094:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4096:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4101:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4105:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4106:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4108:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4112:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4114:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4118:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4120:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4125:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4129:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4130:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4132:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4136:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4138:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4142:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4144:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4149:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4153:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_13_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4155:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_13_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4159:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4160:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4161:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4162:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4163:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4164:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4166:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4170:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4172:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4176:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4178:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4182:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4183:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4185:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4189:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4191:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4195:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4197:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4202:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4206:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4207:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4208:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4209:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4211:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4215:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4217:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4221:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4222:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4224:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4228:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4230:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4234:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4236:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4241:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4245:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4246:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4247:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4248:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4250:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4254:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4255:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4257:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4261:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4263:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4267:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4269:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4274:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4278:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4279:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4280:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4281:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4282:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4284:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4288:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4290:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4294:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4296:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4301:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4305:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4306:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4308:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4312:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4314:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4318:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4320:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4325:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4329:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4330:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4331:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4332:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4333:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4335:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4339:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4341:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4345:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4347:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4351:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4352:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4353:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_2_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4354:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_2_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4356:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_2_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4360:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_2_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4362:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_2_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4366:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_2_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4367:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4368:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_4_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4369:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_4_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4371:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_4_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4375:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_4_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4376:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4377:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4378:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4380:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4384:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4386:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4390:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4392:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4397:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4401:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_13_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4403:25
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_13_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4407:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_14 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4408:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4409:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4410:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4411:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_13_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4412:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_14 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4413:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_14_DEP__MAC_10_14 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4414:21
-pub const __AVAILABILITY_INTERNAL__MAC_10_15 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4415:21
-pub const __AVAILABILITY_INTERNAL__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4417:21
-pub const __AVAILABILITY_INTERNAL__MAC_NA_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4418:21
-pub const __AVAILABILITY_INTERNAL__MAC_NA_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4419:21
-pub const __AVAILABILITY_INTERNAL__IPHONE_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4421:21
-pub const __AVAILABILITY_INTERNAL__IPHONE_NA__IPHONE_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4422:21
-pub const __AVAILABILITY_INTERNAL__IPHONE_NA_DEP__IPHONE_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4423:21
-pub const __AVAILABILITY_INTERNAL__IPHONE_NA_DEP__IPHONE_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4424:21
-pub const __AVAILABILITY_INTERNAL__IPHONE_COMPAT_VERSION = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4427:22
-pub const __AVAILABILITY_INTERNAL__IPHONE_COMPAT_VERSION_DEP__IPHONE_COMPAT_VERSION = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4428:22
-pub const __AVAILABILITY_INTERNAL__IPHONE_COMPAT_VERSION_DEP__IPHONE_COMPAT_VERSION_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4429:22
-pub const __API_AVAILABLE_PLATFORM_macos = @compileError("unable to translate macro: undefined identifier `macos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4445:13
-pub const __API_AVAILABLE_PLATFORM_macosx = @compileError("unable to translate macro: undefined identifier `macosx`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4446:13
-pub const __API_AVAILABLE_PLATFORM_ios = @compileError("unable to translate macro: undefined identifier `ios`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4447:13
-pub const __API_AVAILABLE_PLATFORM_watchos = @compileError("unable to translate macro: undefined identifier `watchos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4448:13
-pub const __API_AVAILABLE_PLATFORM_tvos = @compileError("unable to translate macro: undefined identifier `tvos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4449:13
-pub const __API_AVAILABLE_PLATFORM_macCatalyst = @compileError("unable to translate macro: undefined identifier `macCatalyst`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4451:13
-pub const __API_AVAILABLE_PLATFORM_uikitformac = @compileError("unable to translate macro: undefined identifier `uikitformac`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4454:14
-pub const __API_AVAILABLE_PLATFORM_driverkit = @compileError("unable to translate macro: undefined identifier `driverkit`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4456:13
-pub const __API_A = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4460:17
-pub const __API_AVAILABLE2 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4469:13
-pub const __API_AVAILABLE3 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4470:13
-pub const __API_AVAILABLE4 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4471:13
-pub const __API_AVAILABLE5 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4472:13
-pub const __API_AVAILABLE6 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4473:13
-pub const __API_AVAILABLE7 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4474:13
-pub const __API_AVAILABLE_GET_MACRO = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4475:13
-pub const __API_APPLY_TO = @compileError("unable to translate macro: undefined identifier `any`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4477:13
-pub const __API_RANGE_STRINGIFY2 = @compileError("unable to translate C expr: unexpected token '#'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4479:13
-pub const __API_A_BEGIN = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4481:13
-pub const __API_AVAILABLE_BEGIN2 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4484:13
-pub const __API_AVAILABLE_BEGIN3 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4485:13
-pub const __API_AVAILABLE_BEGIN4 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4486:13
-pub const __API_AVAILABLE_BEGIN5 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4487:13
-pub const __API_AVAILABLE_BEGIN6 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4488:13
-pub const __API_AVAILABLE_BEGIN7 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4489:13
-pub const __API_AVAILABLE_BEGIN_GET_MACRO = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4490:13
-pub const __API_DEPRECATED_PLATFORM_macos = @compileError("unable to translate macro: undefined identifier `macos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4493:13
-pub const __API_DEPRECATED_PLATFORM_macosx = @compileError("unable to translate macro: undefined identifier `macosx`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4494:13
-pub const __API_DEPRECATED_PLATFORM_ios = @compileError("unable to translate macro: undefined identifier `ios`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4495:13
-pub const __API_DEPRECATED_PLATFORM_watchos = @compileError("unable to translate macro: undefined identifier `watchos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4496:13
-pub const __API_DEPRECATED_PLATFORM_tvos = @compileError("unable to translate macro: undefined identifier `tvos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4497:13
-pub const __API_DEPRECATED_PLATFORM_macCatalyst = @compileError("unable to translate macro: undefined identifier `macCatalyst`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4499:13
-pub const __API_DEPRECATED_PLATFORM_uikitformac = @compileError("unable to translate macro: undefined identifier `uikitformac`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4502:14
-pub const __API_DEPRECATED_PLATFORM_driverkit = @compileError("unable to translate macro: undefined identifier `driverkit`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4504:13
-pub const __API_D = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4508:17
-pub const __API_DEPRECATED_MSG3 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4517:13
-pub const __API_DEPRECATED_MSG4 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4518:13
-pub const __API_DEPRECATED_MSG5 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4519:13
-pub const __API_DEPRECATED_MSG6 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4520:13
-pub const __API_DEPRECATED_MSG7 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4521:13
-pub const __API_DEPRECATED_MSG8 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4522:13
-pub const __API_DEPRECATED_MSG_GET_MACRO = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4523:13
-pub const __API_D_BEGIN = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4525:13
-pub const __API_DEPRECATED_BEGIN_MSG3 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4528:13
-pub const __API_DEPRECATED_BEGIN_MSG4 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4529:13
-pub const __API_DEPRECATED_BEGIN_MSG5 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4530:13
-pub const __API_DEPRECATED_BEGIN_MSG6 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4531:13
-pub const __API_DEPRECATED_BEGIN_MSG7 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4532:13
-pub const __API_DEPRECATED_BEGIN_MSG8 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4533:13
-pub const __API_DEPRECATED_BEGIN_MSG_GET_MACRO = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4534:13
-pub const __API_R = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4537:17
-pub const __API_DEPRECATED_REP3 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4543:13
-pub const __API_DEPRECATED_REP4 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4544:13
-pub const __API_DEPRECATED_REP5 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4545:13
-pub const __API_DEPRECATED_REP6 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4546:13
-pub const __API_DEPRECATED_REP7 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4547:13
-pub const __API_DEPRECATED_REP8 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4548:13
-pub const __API_DEPRECATED_REP_GET_MACRO = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4549:13
-pub const __API_R_BEGIN = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4552:17
-pub const __API_DEPRECATED_BEGIN_REP3 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4558:13
-pub const __API_DEPRECATED_BEGIN_REP4 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4559:13
-pub const __API_DEPRECATED_BEGIN_REP5 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4560:13
-pub const __API_DEPRECATED_BEGIN_REP6 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4561:13
-pub const __API_DEPRECATED_BEGIN_REP7 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4562:13
-pub const __API_DEPRECATED_BEGIN_REP8 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4563:13
-pub const __API_DEPRECATED_BEGIN_REP_GET_MACRO = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4564:13
-pub const __API_UNAVAILABLE_PLATFORM_macos = @compileError("unable to translate macro: undefined identifier `macos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4574:13
-pub const __API_UNAVAILABLE_PLATFORM_macosx = @compileError("unable to translate macro: undefined identifier `macosx`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4575:13
-pub const __API_UNAVAILABLE_PLATFORM_ios = @compileError("unable to translate macro: undefined identifier `ios`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4576:13
-pub const __API_UNAVAILABLE_PLATFORM_watchos = @compileError("unable to translate macro: undefined identifier `watchos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4577:13
-pub const __API_UNAVAILABLE_PLATFORM_tvos = @compileError("unable to translate macro: undefined identifier `tvos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4578:13
-pub const __API_UNAVAILABLE_PLATFORM_macCatalyst = @compileError("unable to translate macro: undefined identifier `macCatalyst`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4580:13
-pub const __API_UNAVAILABLE_PLATFORM_uikitformac = @compileError("unable to translate macro: undefined identifier `uikitformac`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4583:14
-pub const __API_UNAVAILABLE_PLATFORM_driverkit = @compileError("unable to translate macro: undefined identifier `driverkit`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4585:13
-pub const __API_U = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4589:17
-pub const __API_UNAVAILABLE2 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4598:13
-pub const __API_UNAVAILABLE3 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4599:13
-pub const __API_UNAVAILABLE4 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4600:13
-pub const __API_UNAVAILABLE5 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4601:13
-pub const __API_UNAVAILABLE6 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4602:13
-pub const __API_UNAVAILABLE7 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4603:13
-pub const __API_UNAVAILABLE_GET_MACRO = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4604:13
-pub const __API_U_BEGIN = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4606:13
-pub const __API_UNAVAILABLE_BEGIN2 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4609:13
-pub const __API_UNAVAILABLE_BEGIN3 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4610:13
-pub const __API_UNAVAILABLE_BEGIN4 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4611:13
-pub const __API_UNAVAILABLE_BEGIN5 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4612:13
-pub const __API_UNAVAILABLE_BEGIN6 = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4613:13
-pub const __API_UNAVAILABLE_BEGIN7 = @compileError("unable to translate macro: undefined identifier `g`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4614:13
-pub const __API_UNAVAILABLE_BEGIN_GET_MACRO = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4615:13
-pub const __swift_compiler_version_at_least = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4664:13
-pub const __SPI_AVAILABLE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos.12-any/AvailabilityInternal.h:4672:11
-pub const __OSX_AVAILABLE_STARTING = @compileError("unable to translate macro: undefined identifier `__AVAILABILITY_INTERNAL`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:172:17
-pub const __OSX_AVAILABLE_BUT_DEPRECATED = @compileError("unable to translate macro: undefined identifier `__AVAILABILITY_INTERNAL`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:173:17
-pub const __OSX_AVAILABLE_BUT_DEPRECATED_MSG = @compileError("unable to translate macro: undefined identifier `__AVAILABILITY_INTERNAL`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:175:17
-pub const __OS_AVAILABILITY = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:198:13
-pub const __OS_AVAILABILITY_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:199:13
-pub const __OSX_EXTENSION_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `macosx_app_extension`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:216:13
-pub const __IOS_EXTENSION_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `ios_app_extension`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:217:13
-pub const __OS_EXTENSION_UNAVAILABLE = @compileError("unable to translate C expr: unexpected token 'Identifier'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:227:9
-pub const __OSX_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `macosx`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:234:13
-pub const __OSX_AVAILABLE = @compileError("unable to translate macro: undefined identifier `macosx`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:235:13
-pub const __OSX_DEPRECATED = @compileError("unable to translate macro: undefined identifier `macosx`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:236:13
-pub const __IOS_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `ios`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:256:13
-pub const __IOS_PROHIBITED = @compileError("unable to translate macro: undefined identifier `ios`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:257:13
-pub const __IOS_AVAILABLE = @compileError("unable to translate macro: undefined identifier `ios`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:258:13
-pub const __IOS_DEPRECATED = @compileError("unable to translate macro: undefined identifier `ios`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:259:13
-pub const __TVOS_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `tvos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:283:13
-pub const __TVOS_PROHIBITED = @compileError("unable to translate macro: undefined identifier `tvos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:284:13
-pub const __TVOS_AVAILABLE = @compileError("unable to translate macro: undefined identifier `tvos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:285:13
-pub const __TVOS_DEPRECATED = @compileError("unable to translate macro: undefined identifier `tvos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:286:13
-pub const __WATCHOS_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `watchos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:310:13
-pub const __WATCHOS_PROHIBITED = @compileError("unable to translate macro: undefined identifier `watchos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:311:13
-pub const __WATCHOS_AVAILABLE = @compileError("unable to translate macro: undefined identifier `watchos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:312:13
-pub const __WATCHOS_DEPRECATED = @compileError("unable to translate macro: undefined identifier `watchos`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:313:13
-pub const __SWIFT_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `swift`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:337:13
-pub const __SWIFT_UNAVAILABLE_MSG = @compileError("unable to translate macro: undefined identifier `swift`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:338:13
-pub const __API_AVAILABLE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:381:13
-pub const __API_AVAILABLE_BEGIN = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:383:13
-pub const __API_AVAILABLE_END = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:384:13
-pub const __API_DEPRECATED = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:402:13
-pub const __API_DEPRECATED_WITH_REPLACEMENT = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:403:13
-pub const __API_DEPRECATED_BEGIN = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:405:13
-pub const __API_DEPRECATED_END = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:406:13
-pub const __API_DEPRECATED_WITH_REPLACEMENT_BEGIN = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:408:13
-pub const __API_DEPRECATED_WITH_REPLACEMENT_END = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:409:13
-pub const __API_UNAVAILABLE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:419:13
-pub const __API_UNAVAILABLE_BEGIN = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:421:13
-pub const __API_UNAVAILABLE_END = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:422:13
-pub const __SPI_DEPRECATED = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:475:11
-pub const __SPI_DEPRECATED_WITH_REPLACEMENT = @compileError("unable to translate C expr: expected ')' instead got '...'"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/Availability.h:479:11
-pub const ECS_ALIGNOF = @compileError("unable to translate macro: undefined identifier `__alignof__`"); // flecs.h:222:9
-pub const ECS_UNUSED = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // flecs.h:228:9
-pub const ECS_DEPRECATED = @compileError("unable to translate C expr: unexpected token 'Eof'"); // flecs.h:242:9
-pub const ECS_HAS_ROLE = @compileError("unable to translate macro: undefined identifier `ECS_`"); // flecs.h:280:9
-pub const ECS_HAS_RELATION = @compileError("unable to translate macro: undefined identifier `PAIR`"); // flecs.h:285:9
-pub const ECS_ID_ON_DELETE = @compileError("unable to translate C expr: expected ')' instead got '['"); // flecs.h:316:9
-pub const ecs_id = @compileError("unable to translate macro: undefined identifier `FLECS__E`"); // flecs.h:329:9
-pub const ecs_iter_action = @compileError("unable to translate macro: undefined identifier `FLECS__F`"); // flecs.h:332:9
-pub const ECS_XTOR_IMPL = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:372:9
-pub const ECS_COPY_IMPL = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:399:9
-pub const ECS_MOVE_IMPL = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:434:9
-pub const ECS_ON_SET_IMPL = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:469:9
-pub const ecs_log = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:667:9
-pub const ecs_logv = @compileError("unable to translate macro: undefined identifier `__FILE__`"); // flecs.h:670:9
-pub const _ecs_trace = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:674:9
-pub const ecs_trace = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:675:9
-pub const _ecs_warn = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:678:9
-pub const ecs_warn = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:679:9
-pub const _ecs_err = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:682:9
-pub const ecs_err = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:683:9
-pub const _ecs_fatal = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:686:9
-pub const ecs_fatal = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:687:9
-pub const ecs_deprecated = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:694:9
-pub const ecs_dbg_1 = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:711:9
-pub const ecs_dbg_2 = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:712:9
-pub const ecs_dbg_3 = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:713:9
-pub const ecs_log_push_1 = @compileError("unable to translate C expr: unexpected token ';'"); // flecs.h:715:9
-pub const ecs_log_push_2 = @compileError("unable to translate C expr: unexpected token ';'"); // flecs.h:716:9
-pub const ecs_log_push_3 = @compileError("unable to translate C expr: unexpected token ';'"); // flecs.h:717:9
-pub const ecs_log_pop_1 = @compileError("unable to translate C expr: unexpected token ';'"); // flecs.h:719:9
-pub const ecs_log_pop_2 = @compileError("unable to translate C expr: unexpected token ';'"); // flecs.h:720:9
-pub const ecs_log_pop_3 = @compileError("unable to translate C expr: unexpected token ';'"); // flecs.h:721:9
-pub const ecs_abort = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:813:9
-pub const ecs_assert = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:822:9
-pub const ecs_dbg_assert = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:832:9
-pub const ecs_dummy_check = @compileError("unable to translate macro: undefined identifier `error`"); // flecs.h:838:9
-pub const ecs_check = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:854:9
-pub const ecs_throw = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:870:9
-pub const ecs_parser_error = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:877:9
-pub const ECS_VECTOR_VALUE = @compileError("unable to translate C expr: unexpected token '{'"); // flecs.h:1047:9
-pub const ECS_VECTOR_DECL = @compileError("unable to translate macro: undefined identifier `vector`"); // flecs.h:1061:9
-pub const ECS_VECTOR_IMPL = @compileError("unable to translate macro: undefined identifier `__`"); // flecs.h:1073:9
-pub const ECS_VECTOR_STACK = @compileError("unable to translate C expr: unexpected token ';'"); // flecs.h:1076:9
-pub const ecs_vector_add = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1143:9
-pub const ecs_vector_insert_at = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1157:9
-pub const ecs_vector_addn = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1171:9
-pub const ecs_vector_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1185:9
-pub const ecs_vector_last = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1198:9
-pub const ecs_vector_first = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1343:9
-pub const ecs_vector_each = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:1389:9
-pub const ecs_map_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1590:9
-pub const ecs_map_ensure = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1618:9
-pub const ecs_map_set = @compileError("unable to translate C expr: unexpected token '*'"); // flecs.h:1629:9
-pub const ecs_map_next = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:1675:9
-pub const ecs_map_each = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:1712:9
-pub const __alloca = @compileError("unable to translate macro: undefined identifier `__builtin_alloca`"); // /Users/desaro/zig/lib/zig/libc/include/any-macos-any/alloca.h:40:9
-pub const ecs_os_malloc_t = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2238:9
-pub const ecs_os_malloc_n = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2239:9
-pub const ecs_os_calloc_t = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2240:9
-pub const ecs_os_calloc_n = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2241:9
-pub const ecs_os_realloc_t = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2242:9
-pub const ecs_os_realloc_n = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2243:9
-pub const ecs_os_alloca_t = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2244:9
-pub const ecs_os_alloca_n = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2245:9
-pub const ecs_os_strset = @compileError("unable to translate C expr: unexpected token ';'"); // flecs.h:2252:9
-pub const ecs_offset = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:2282:9
-pub const ecs_os_sprintf = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:2297:9
-pub const ecs_os_vsprintf = @compileError("unable to translate macro: undefined identifier `vsprintf`"); // flecs.h:2298:9
-pub const ecs_os_fopen = @compileError("unable to translate macro: undefined identifier `fopen`"); // flecs.h:2311:9
-pub const flecs_sparse_add = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3343:9
-pub const flecs_sparse_remove_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3377:9
-pub const flecs_sparse_get_dense = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3406:9
-pub const flecs_sparse_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3427:9
-pub const flecs_sparse_get_any = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3437:9
-pub const flecs_sparse_ensure = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3447:9
-pub const flecs_sparse_set = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3458:9
-pub const flecs_sparse_each = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:3499:9
-pub const ecs_sparse_add = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3525:9
-pub const ecs_sparse_get_dense = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3548:9
-pub const ecs_sparse_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3557:9
-pub const flecs_hashmap_get = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3623:9
-pub const flecs_hashmap_next = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3683:9
-pub const flecs_hashmap_next_w_key = @compileError("unable to translate C expr: unexpected token ')'"); // flecs.h:3686:9
-pub const EcsLastInternalComponentId = @compileError("unable to translate macro: undefined identifier `EcsSystem`"); // flecs.h:4379:9
-pub const ECS_PIPELINE_DEFINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:8032:9
-pub const ECS_PIPELINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:8042:9
-pub const ECS_SYSTEM_DEFINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:8330:9
-pub const ECS_SYSTEM = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:8341:9
-pub const offsetof = @compileError("unable to translate macro: undefined identifier `__builtin_offsetof`"); // /Users/desaro/zig/lib/zig/include/stddef.h:104:9
-pub const ECS_META_COMPONENT = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:9692:9
-pub const ECS_STRUCT = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9698:9
-pub const ECS_ENUM = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9703:9
-pub const ECS_BITMASK = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9708:9
-pub const ECS_META_IMPL_CALL_INNER = @compileError("unable to translate C expr: unexpected token '##'"); // flecs.h:9727:9
-pub const ECS_STRUCT_TYPE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9734:9
-pub const ECS_STRUCT_IMPL = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:9739:9
-pub const ECS_STRUCT_DECLARE = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9745:9
-pub const ECS_STRUCT_EXTERN = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9749:9
-pub const ECS_ENUM_TYPE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9754:9
-pub const ECS_ENUM_IMPL = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:9759:9
-pub const ECS_ENUM_DECLARE = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9765:9
-pub const ECS_ENUM_EXTERN = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9769:9
-pub const ECS_BITMASK_TYPE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:9774:9
-pub const ECS_BITMASK_IMPL = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:9779:9
-pub const ECS_BITMASK_DECLARE = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9785:9
-pub const ECS_BITMASK_EXTERN = @compileError("unable to translate C expr: unexpected token 'extern'"); // flecs.h:9789:9
-pub const FLECS_META_C_EXPORT = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // flecs.h:9798:9
-pub const ECS_MODULE = @compileError("unable to translate C expr: unexpected token '='"); // flecs.h:10874:9
-pub const ECS_IMPORT = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:10896:9
-pub const ECS_ENTITY_DEFINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10929:9
-pub const ECS_ENTITY = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10941:9
-pub const ECS_PREFAB_DEFINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10949:9
-pub const ECS_PREFAB = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10950:9
-pub const ECS_COMPONENT_DEFINE = @compileError("unable to translate macro: undefined identifier `desc`"); // flecs.h:10954:9
-pub const ECS_COMPONENT = @compileError("unable to translate C expr: unexpected token '='"); // flecs.h:10966:9
-pub const ECS_TRIGGER_DEFINE = @compileError("unable to translate macro: undefined identifier `desc`"); // flecs.h:10975:9
-pub const ECS_TRIGGER = @compileError("unable to translate C expr: unexpected token '='"); // flecs.h:10987:9
-pub const ECS_OBSERVER_DEFINE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:10995:9
-pub const ECS_OBSERVER = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11007:9
-pub const ecs_set_component_actions = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11025:9
-pub const ecs_new_entity = @compileError("unable to translate C expr: expected '.' instead got '}'"); // flecs.h:11038:9
-pub const ecs_new_prefab = @compileError("unable to translate C expr: unexpected token '{'"); // flecs.h:11043:9
-pub const ecs_set = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11078:9
-pub const ecs_set_pair = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11081:9
-pub const ecs_set_pair_object = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11086:9
-pub const ecs_set_override = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11091:9
-pub const ecs_emplace = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11097:9
-pub const ecs_get_ref = @compileError("unable to translate C expr: unexpected token 'const'"); // flecs.h:11103:9
-pub const ecs_get = @compileError("unable to translate C expr: unexpected token 'const'"); // flecs.h:11106:9
-pub const ecs_get_pair = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11109:9
-pub const ecs_get_pair_object = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11113:9
-pub const ecs_get_mut = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11120:9
-pub const ecs_get_mut_pair = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11123:9
-pub const ecs_get_mut_pair_object = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11127:9
-pub const ecs_singleton_set = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11149:9
-pub const ecs_term = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11251:9
-pub const ecs_iter_column = @compileError("unable to translate C expr: unexpected token ','"); // flecs.h:11254:9
-pub const ECS_CTOR = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11279:9
-pub const ECS_DTOR = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11286:9
-pub const ECS_COPY = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11293:9
-pub const ECS_MOVE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11300:9
-pub const ECS_ON_SET = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11307:9
-pub const ecs_ctor = @compileError("unable to translate macro: undefined identifier `_ctor`"); // flecs.h:11311:9
-pub const ecs_dtor = @compileError("unable to translate macro: undefined identifier `_dtor`"); // flecs.h:11312:9
-pub const ecs_copy = @compileError("unable to translate macro: undefined identifier `_copy`"); // flecs.h:11313:9
-pub const ecs_move = @compileError("unable to translate macro: undefined identifier `_move`"); // flecs.h:11314:9
-pub const ecs_on_set = @compileError("unable to translate macro: undefined identifier `_on_set`"); // flecs.h:11315:9
-pub const ecs_query_new = @compileError("unable to translate C expr: expected '=' instead got '.'"); // flecs.h:11317:9
-pub const ECS_TYPE = @compileError("unable to translate C expr: expected ')' instead got '...'"); // flecs.h:11327:9
-pub const ECS_FUNC_NAME_FRONT = @compileError("unable to translate C expr: unexpected token '#'"); // flecs.h:11361:9
-pub const ECS_FUNC_NAME_BACK = @compileError("unable to translate C expr: unexpected token 'StringLiteral'"); // flecs.h:11362:9
-pub const ECS_FUNC_NAME = @compileError("unable to translate macro: undefined identifier `__PRETTY_FUNCTION__`"); // flecs.h:11363:9
-pub const ECS_FUNC_TYPE_LEN = @compileError("unable to translate macro: undefined identifier `flecs`"); // flecs.h:11376:9
+pub const __CONCAT = @compileError("unable to translate C expr: unexpected token .HashHash"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:113:9
+pub const __STRING = @compileError("unable to translate C expr: unexpected token .Hash"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:114:9
+pub const __const = @compileError("unable to translate C expr: unexpected token .Keyword_const"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:116:9
+pub const __volatile = @compileError("unable to translate C expr: unexpected token .Keyword_volatile"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:118:9
+pub const __dead2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:162:9
+pub const __pure2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:163:9
+pub const __stateful_pure = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:164:9
+pub const __unused = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:169:9
+pub const __used = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:174:9
+pub const __cold = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:180:9
+pub const __exported = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:190:9
+pub const __exported_push = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:191:9
+pub const __exported_pop = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:192:9
+pub const __deprecated = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:204:9
+pub const __deprecated_msg = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:208:10
+pub const __kpi_deprecated = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:219:9
+pub const __unavailable = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:225:9
+pub const __restrict = @compileError("unable to translate C expr: unexpected token .Keyword_restrict"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:247:9
+pub const __disable_tail_calls = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:280:9
+pub const __not_tail_called = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:292:9
+pub const __result_use_check = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:303:9
+pub const __swift_unavailable = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:313:9
+pub const __header_inline = @compileError("unable to translate C expr: unexpected token .Keyword_inline"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:347:10
+pub const __header_always_inline = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:360:10
+pub const __unreachable_ok_push = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:373:10
+pub const __unreachable_ok_pop = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:376:10
+pub const __printflike = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:397:9
+pub const __printf0like = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:399:9
+pub const __scanflike = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:401:9
+pub const __IDSTRING = @compileError("unable to translate C expr: unexpected token .Keyword_static"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:404:9
+pub const __COPYRIGHT = @compileError("unable to translate macro: undefined identifier `copyright`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:407:9
+pub const __RCSID = @compileError("unable to translate macro: undefined identifier `rcsid`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:411:9
+pub const __SCCSID = @compileError("unable to translate macro: undefined identifier `sccsid`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:415:9
+pub const __PROJECT_VERSION = @compileError("unable to translate macro: undefined identifier `project_version`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:419:9
+pub const __FBSDID = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:424:9
+pub const __DECONST = @compileError("unable to translate C expr: unexpected token .Keyword_const"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:428:9
+pub const __DEVOLATILE = @compileError("unable to translate C expr: unexpected token .Keyword_volatile"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:432:9
+pub const __DEQUALIFY = @compileError("unable to translate C expr: unexpected token .Keyword_const"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:436:9
+pub const __alloc_size = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:454:9
+pub const __DARWIN_ALIAS = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:639:9
+pub const __DARWIN_ALIAS_C = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:640:9
+pub const __DARWIN_ALIAS_I = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:641:9
+pub const __DARWIN_NOCANCEL = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:642:9
+pub const __DARWIN_INODE64 = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:643:9
+pub const __DARWIN_1050 = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:645:9
+pub const __DARWIN_1050ALIAS = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:646:9
+pub const __DARWIN_1050ALIAS_C = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:647:9
+pub const __DARWIN_1050ALIAS_I = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:648:9
+pub const __DARWIN_1050INODE64 = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:649:9
+pub const __DARWIN_EXTSN = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:651:9
+pub const __DARWIN_EXTSN_C = @compileError("unable to translate macro: undefined identifier `__asm`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:652:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_2_0 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:35:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_2_1 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:41:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_2_2 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:47:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_3_0 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:53:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_3_1 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:59:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_3_2 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:65:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_4_0 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:71:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_4_1 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:77:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_4_2 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:83:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_4_3 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:89:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_5_0 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:95:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_5_1 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:101:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_6_0 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:107:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_6_1 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:113:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_7_0 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:119:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_7_1 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:125:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_8_0 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:131:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_8_1 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:137:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_8_2 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:143:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_8_3 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:149:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_8_4 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:155:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_9_0 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:161:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_9_1 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:167:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_9_2 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:173:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_9_3 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:179:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_10_0 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:185:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_10_1 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:191:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_10_2 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:197:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_10_3 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:203:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_11_0 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:209:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_11_1 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:215:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_11_2 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:221:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_11_3 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:227:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_11_4 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:233:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_12_0 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:239:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_12_1 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:245:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_12_2 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:251:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_12_3 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:257:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_12_4 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:263:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_0 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:269:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_1 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:275:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_2 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:281:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_3 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:287:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_4 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:293:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_5 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:299:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_6 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:305:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_13_7 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:311:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_14_0 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:317:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_14_1 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:323:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_14_2 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:329:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_14_3 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:335:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_14_5 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:341:9
+pub const __DARWIN_ALIAS_STARTING_IPHONE___IPHONE_15_0 = @compileError("unable to translate C expr: unexpected token .Eof"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/_symbol_aliasing.h:347:9
+pub const __DARWIN_ALIAS_STARTING = @compileError("unable to translate macro: undefined identifier `__DARWIN_ALIAS_STARTING_MAC_`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:662:9
+pub const __POSIX_C_DEPRECATED = @compileError("unable to translate macro: undefined identifier `___POSIX_C_DEPRECATED_STARTING_`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:725:9
+pub const __XNU_PRIVATE_EXTERN = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:825:9
+pub const __compiler_barrier = @compileError("unable to translate macro: undefined identifier `__asm__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:842:9
+pub const __enum_open = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:845:9
+pub const __enum_closed = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:846:9
+pub const __enum_options = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:853:9
+pub const __enum_decl = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:866:9
+pub const __enum_closed_decl = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:868:9
+pub const __options_decl = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:870:9
+pub const __options_closed_decl = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/sys/cdefs.h:872:9
+pub const __ASSERT_FILE_NAME = @compileError("unable to translate macro: undefined identifier `__FILE_NAME__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/assert.h:60:9
+pub const __assert = @compileError("unable to translate C expr: unexpected token .Keyword_const"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/assert.h:93:9
+pub const assert = @compileError("unable to translate macro: undefined identifier `__func__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/assert.h:98:9
+pub const static_assert = @compileError("unable to translate C expr: unexpected token .Keyword_static_assert"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/assert.h:113:9
+pub const va_start = @compileError("unable to translate macro: undefined identifier `__builtin_va_start`"); // /Users/foxnne/dev/lang/zig/lib/include/stdarg.h:17:9
+pub const va_end = @compileError("unable to translate macro: undefined identifier `__builtin_va_end`"); // /Users/foxnne/dev/lang/zig/lib/include/stdarg.h:18:9
+pub const va_arg = @compileError("unable to translate macro: undefined identifier `__builtin_va_arg`"); // /Users/foxnne/dev/lang/zig/lib/include/stdarg.h:19:9
+pub const __va_copy = @compileError("unable to translate macro: undefined identifier `__builtin_va_copy`"); // /Users/foxnne/dev/lang/zig/lib/include/stdarg.h:24:9
+pub const va_copy = @compileError("unable to translate macro: undefined identifier `__builtin_va_copy`"); // /Users/foxnne/dev/lang/zig/lib/include/stdarg.h:27:9
+pub const __offsetof = @compileError("unable to translate macro: undefined identifier `__builtin_offsetof`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/sys/_types.h:83:9
+pub const __strfmonlike = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/_types.h:31:9
+pub const __strftimelike = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/_types.h:33:9
+pub const __AVAILABILITY_INTERNAL_DEPRECATED = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:109:9
+pub const __AVAILABILITY_INTERNAL_DEPRECATED_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:112:17
+pub const __AVAILABILITY_INTERNAL_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:121:9
+pub const __AVAILABILITY_INTERNAL_WEAK_IMPORT = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:122:9
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2922:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2923:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2924:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2926:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2930:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2932:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2937:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2941:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2942:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2944:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2948:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2950:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2954:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2956:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2961:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2965:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2966:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2968:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2972:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2974:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2978:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2980:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2985:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2990:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2994:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:2996:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3000:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3002:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3006:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3008:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_5 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3012:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_5_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3014:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3018:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_6_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3020:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3024:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3026:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3030:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3032:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3036:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3038:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3042:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3043:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3044:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3045:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3046:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3047:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3049:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3053:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3055:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3060:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3064:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3065:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3067:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3071:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3073:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3077:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3079:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3084:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3088:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3089:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3091:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3095:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3097:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3101:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3103:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3108:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3112:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3113:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3115:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3119:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3121:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3125:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3127:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_5 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3131:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_5_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3133:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3137:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_6_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3139:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3143:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3145:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3149:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3151:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3155:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3157:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3161:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_2_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3162:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3163:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3164:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3165:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3166:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3168:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3172:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3174:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3179:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3183:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3184:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3186:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3190:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3192:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3196:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3198:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3203:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3207:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3208:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3210:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3214:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3216:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3220:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3222:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3227:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3231:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3232:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3234:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3238:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3240:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_5 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3244:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_5_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3246:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3250:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_6_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3252:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3256:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3258:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3262:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3264:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3268:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3270:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3274:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_3_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3275:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3276:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3277:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3278:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3279:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3281:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3285:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3287:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3292:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3296:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3297:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3299:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3303:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3305:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3309:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3311:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3316:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3320:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3321:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3323:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3327:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3329:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3333:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3335:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3340:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3344:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3345:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3347:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_5 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3351:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_5_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3353:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3357:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_6_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3359:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3363:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3365:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3369:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3371:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3375:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3377:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3381:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3382:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3383:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEPRECATED__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3384:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3385:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3386:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3387:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3389:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3393:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3395:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3400:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3404:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3405:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3407:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3411:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3413:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3417:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3419:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3424:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3428:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3429:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3431:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3435:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3437:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3441:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3443:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3448:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_5 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3452:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_5_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3454:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3458:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_6_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3460:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3464:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3466:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3470:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3472:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3476:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3478:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3482:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_5_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3483:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3484:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3485:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3486:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3487:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3489:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3493:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3495:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3500:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3504:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3505:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3507:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3511:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3513:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3517:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3519:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3524:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3528:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3529:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3531:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3535:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3537:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3541:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3543:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3548:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3552:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3553:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_6_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3555:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3559:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3561:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3565:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3567:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3571:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3573:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3577:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_6_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3578:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3579:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3580:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3581:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3582:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3584:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3588:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3590:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3595:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3599:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3600:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3602:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3606:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3608:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3612:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3614:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3619:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3623:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3624:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3626:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3630:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3632:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3636:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3638:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3643:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_13_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3647:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3648:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3650:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3654:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3656:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3660:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3662:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3666:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_7_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3667:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3668:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3669:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3670:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3671:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3673:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3677:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3679:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3684:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3688:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3689:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3691:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3695:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3697:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3701:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3703:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3708:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3712:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3713:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3715:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3719:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3721:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3725:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3727:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3732:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3736:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3737:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3739:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3743:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3745:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3749:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_8_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3750:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3751:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3752:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3753:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3754:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3756:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3760:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3762:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3767:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3771:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3772:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3774:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3778:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3780:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3784:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3786:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3791:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3795:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3796:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3798:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3802:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3804:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3808:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3810:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3815:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3819:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_14 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3820:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3821:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3823:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3827:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_9_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3828:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3829:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_0 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3830:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_0_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3832:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3836:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3837:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3838:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3840:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3844:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3846:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3851:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3855:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3856:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3858:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3862:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3864:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3868:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3870:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3875:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3879:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3880:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3882:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3886:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3888:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3892:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3894:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3899:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3903:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3905:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3909:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3911:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3915:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3917:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3921:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3923:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_5 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3927:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_5_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3929:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_6 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3933:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_6_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3935:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_7 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3939:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_7_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3941:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_8 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3945:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_8_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3947:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_9 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3951:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_9_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3953:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_10_13_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3958:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3962:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_0_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3963:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3964:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3965:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3966:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3967:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3969:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3973:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3975:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3979:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3980:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3982:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3986:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3988:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3992:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3994:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:3999:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4003:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4004:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4006:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4010:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4012:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4016:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4018:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4023:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4027:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_2_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4028:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4029:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4030:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4032:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4036:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4037:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4039:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4043:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4045:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4049:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4051:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4056:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4060:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4061:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4063:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4067:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4069:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4073:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4075:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4080:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4084:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_3_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4085:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4086:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_10 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4087:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_10_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4088:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_10_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4090:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_10_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4094:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_10_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4096:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_10_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4101:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4105:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4106:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4108:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4112:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4114:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4118:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4120:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4125:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4129:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4130:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4132:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4136:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4138:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4142:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4144:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4149:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4153:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_13_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4155:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_10_13_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4159:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4160:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_10_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4161:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4162:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4163:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4164:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4166:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4170:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4172:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4176:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4178:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4182:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4183:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4185:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4189:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4191:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4195:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4197:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4202:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4206:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_2_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4207:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4208:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4209:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4211:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4215:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4217:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4221:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4222:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4224:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4228:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4230:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4234:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4236:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4241:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4245:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_3_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4246:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4247:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4248:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4250:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4254:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4255:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4257:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4261:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4263:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4267:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4269:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4274:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4278:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_4_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4279:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4280:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4281:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4282:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4284:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11_3 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4288:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11_3_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4290:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4294:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4296:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_11_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4301:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4305:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4306:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4308:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4312:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4314:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4318:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4320:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4325:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4329:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_11_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4330:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4331:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4332:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4333:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4335:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4339:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4341:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4345:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4347:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4351:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_1_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4352:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4353:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_2_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4354:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_2_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4356:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_2_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4360:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_2_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4362:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_2_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4366:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_2_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4367:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4368:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_4_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4369:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_4_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4371:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_4_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4375:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_4_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4376:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4377:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12_1 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4378:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12_1_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4380:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12_2 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4384:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12_2_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4386:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4390:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12_4_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4392:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_12_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4397:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4401:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_13_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4403:25
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_13_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4407:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_10_14 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4408:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4409:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_12_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4410:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_13 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4411:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_13_4 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4412:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_14 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4413:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_14_DEP__MAC_10_14 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4414:21
+pub const __AVAILABILITY_INTERNAL__MAC_10_15 = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4415:21
+pub const __AVAILABILITY_INTERNAL__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4417:21
+pub const __AVAILABILITY_INTERNAL__MAC_NA_DEP__MAC_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4418:21
+pub const __AVAILABILITY_INTERNAL__MAC_NA_DEP__MAC_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4419:21
+pub const __AVAILABILITY_INTERNAL__IPHONE_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4421:21
+pub const __AVAILABILITY_INTERNAL__IPHONE_NA__IPHONE_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4422:21
+pub const __AVAILABILITY_INTERNAL__IPHONE_NA_DEP__IPHONE_NA = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4423:21
+pub const __AVAILABILITY_INTERNAL__IPHONE_NA_DEP__IPHONE_NA_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4424:21
+pub const __AVAILABILITY_INTERNAL__IPHONE_COMPAT_VERSION = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4427:22
+pub const __AVAILABILITY_INTERNAL__IPHONE_COMPAT_VERSION_DEP__IPHONE_COMPAT_VERSION = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4428:22
+pub const __AVAILABILITY_INTERNAL__IPHONE_COMPAT_VERSION_DEP__IPHONE_COMPAT_VERSION_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4429:22
+pub const __API_AVAILABLE_PLATFORM_macos = @compileError("unable to translate macro: undefined identifier `macos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4445:13
+pub const __API_AVAILABLE_PLATFORM_macosx = @compileError("unable to translate macro: undefined identifier `macosx`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4446:13
+pub const __API_AVAILABLE_PLATFORM_ios = @compileError("unable to translate macro: undefined identifier `ios`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4447:13
+pub const __API_AVAILABLE_PLATFORM_watchos = @compileError("unable to translate macro: undefined identifier `watchos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4448:13
+pub const __API_AVAILABLE_PLATFORM_tvos = @compileError("unable to translate macro: undefined identifier `tvos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4449:13
+pub const __API_AVAILABLE_PLATFORM_macCatalyst = @compileError("unable to translate macro: undefined identifier `macCatalyst`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4451:13
+pub const __API_AVAILABLE_PLATFORM_uikitformac = @compileError("unable to translate macro: undefined identifier `uikitformac`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4454:14
+pub const __API_AVAILABLE_PLATFORM_driverkit = @compileError("unable to translate macro: undefined identifier `driverkit`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4456:13
+pub const __API_A = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4460:17
+pub const __API_AVAILABLE2 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4469:13
+pub const __API_AVAILABLE3 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4470:13
+pub const __API_AVAILABLE4 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4471:13
+pub const __API_AVAILABLE5 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4472:13
+pub const __API_AVAILABLE6 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4473:13
+pub const __API_AVAILABLE7 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4474:13
+pub const __API_AVAILABLE_GET_MACRO = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4475:13
+pub const __API_APPLY_TO = @compileError("unable to translate macro: undefined identifier `any`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4477:13
+pub const __API_RANGE_STRINGIFY2 = @compileError("unable to translate C expr: unexpected token .Hash"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4479:13
+pub const __API_A_BEGIN = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4481:13
+pub const __API_AVAILABLE_BEGIN2 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4484:13
+pub const __API_AVAILABLE_BEGIN3 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4485:13
+pub const __API_AVAILABLE_BEGIN4 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4486:13
+pub const __API_AVAILABLE_BEGIN5 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4487:13
+pub const __API_AVAILABLE_BEGIN6 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4488:13
+pub const __API_AVAILABLE_BEGIN7 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4489:13
+pub const __API_AVAILABLE_BEGIN_GET_MACRO = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4490:13
+pub const __API_DEPRECATED_PLATFORM_macos = @compileError("unable to translate macro: undefined identifier `macos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4493:13
+pub const __API_DEPRECATED_PLATFORM_macosx = @compileError("unable to translate macro: undefined identifier `macosx`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4494:13
+pub const __API_DEPRECATED_PLATFORM_ios = @compileError("unable to translate macro: undefined identifier `ios`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4495:13
+pub const __API_DEPRECATED_PLATFORM_watchos = @compileError("unable to translate macro: undefined identifier `watchos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4496:13
+pub const __API_DEPRECATED_PLATFORM_tvos = @compileError("unable to translate macro: undefined identifier `tvos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4497:13
+pub const __API_DEPRECATED_PLATFORM_macCatalyst = @compileError("unable to translate macro: undefined identifier `macCatalyst`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4499:13
+pub const __API_DEPRECATED_PLATFORM_uikitformac = @compileError("unable to translate macro: undefined identifier `uikitformac`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4502:14
+pub const __API_DEPRECATED_PLATFORM_driverkit = @compileError("unable to translate macro: undefined identifier `driverkit`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4504:13
+pub const __API_D = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4508:17
+pub const __API_DEPRECATED_MSG3 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4517:13
+pub const __API_DEPRECATED_MSG4 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4518:13
+pub const __API_DEPRECATED_MSG5 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4519:13
+pub const __API_DEPRECATED_MSG6 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4520:13
+pub const __API_DEPRECATED_MSG7 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4521:13
+pub const __API_DEPRECATED_MSG8 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4522:13
+pub const __API_DEPRECATED_MSG_GET_MACRO = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4523:13
+pub const __API_D_BEGIN = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4525:13
+pub const __API_DEPRECATED_BEGIN_MSG3 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4528:13
+pub const __API_DEPRECATED_BEGIN_MSG4 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4529:13
+pub const __API_DEPRECATED_BEGIN_MSG5 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4530:13
+pub const __API_DEPRECATED_BEGIN_MSG6 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4531:13
+pub const __API_DEPRECATED_BEGIN_MSG7 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4532:13
+pub const __API_DEPRECATED_BEGIN_MSG8 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4533:13
+pub const __API_DEPRECATED_BEGIN_MSG_GET_MACRO = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4534:13
+pub const __API_R = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4537:17
+pub const __API_DEPRECATED_REP3 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4543:13
+pub const __API_DEPRECATED_REP4 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4544:13
+pub const __API_DEPRECATED_REP5 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4545:13
+pub const __API_DEPRECATED_REP6 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4546:13
+pub const __API_DEPRECATED_REP7 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4547:13
+pub const __API_DEPRECATED_REP8 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4548:13
+pub const __API_DEPRECATED_REP_GET_MACRO = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4549:13
+pub const __API_R_BEGIN = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4552:17
+pub const __API_DEPRECATED_BEGIN_REP3 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4558:13
+pub const __API_DEPRECATED_BEGIN_REP4 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4559:13
+pub const __API_DEPRECATED_BEGIN_REP5 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4560:13
+pub const __API_DEPRECATED_BEGIN_REP6 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4561:13
+pub const __API_DEPRECATED_BEGIN_REP7 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4562:13
+pub const __API_DEPRECATED_BEGIN_REP8 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4563:13
+pub const __API_DEPRECATED_BEGIN_REP_GET_MACRO = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4564:13
+pub const __API_UNAVAILABLE_PLATFORM_macos = @compileError("unable to translate macro: undefined identifier `macos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4574:13
+pub const __API_UNAVAILABLE_PLATFORM_macosx = @compileError("unable to translate macro: undefined identifier `macosx`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4575:13
+pub const __API_UNAVAILABLE_PLATFORM_ios = @compileError("unable to translate macro: undefined identifier `ios`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4576:13
+pub const __API_UNAVAILABLE_PLATFORM_watchos = @compileError("unable to translate macro: undefined identifier `watchos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4577:13
+pub const __API_UNAVAILABLE_PLATFORM_tvos = @compileError("unable to translate macro: undefined identifier `tvos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4578:13
+pub const __API_UNAVAILABLE_PLATFORM_macCatalyst = @compileError("unable to translate macro: undefined identifier `macCatalyst`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4580:13
+pub const __API_UNAVAILABLE_PLATFORM_uikitformac = @compileError("unable to translate macro: undefined identifier `uikitformac`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4583:14
+pub const __API_UNAVAILABLE_PLATFORM_driverkit = @compileError("unable to translate macro: undefined identifier `driverkit`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4585:13
+pub const __API_U = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4589:17
+pub const __API_UNAVAILABLE2 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4598:13
+pub const __API_UNAVAILABLE3 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4599:13
+pub const __API_UNAVAILABLE4 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4600:13
+pub const __API_UNAVAILABLE5 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4601:13
+pub const __API_UNAVAILABLE6 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4602:13
+pub const __API_UNAVAILABLE7 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4603:13
+pub const __API_UNAVAILABLE_GET_MACRO = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4604:13
+pub const __API_U_BEGIN = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4606:13
+pub const __API_UNAVAILABLE_BEGIN2 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4609:13
+pub const __API_UNAVAILABLE_BEGIN3 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4610:13
+pub const __API_UNAVAILABLE_BEGIN4 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4611:13
+pub const __API_UNAVAILABLE_BEGIN5 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4612:13
+pub const __API_UNAVAILABLE_BEGIN6 = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4613:13
+pub const __API_UNAVAILABLE_BEGIN7 = @compileError("unable to translate macro: undefined identifier `g`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4614:13
+pub const __API_UNAVAILABLE_BEGIN_GET_MACRO = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4615:13
+pub const __swift_compiler_version_at_least = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4664:13
+pub const __SPI_AVAILABLE = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos.12-any/AvailabilityInternal.h:4672:11
+pub const __OSX_AVAILABLE_STARTING = @compileError("unable to translate macro: undefined identifier `__AVAILABILITY_INTERNAL`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:172:17
+pub const __OSX_AVAILABLE_BUT_DEPRECATED = @compileError("unable to translate macro: undefined identifier `__AVAILABILITY_INTERNAL`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:173:17
+pub const __OSX_AVAILABLE_BUT_DEPRECATED_MSG = @compileError("unable to translate macro: undefined identifier `__AVAILABILITY_INTERNAL`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:175:17
+pub const __OS_AVAILABILITY = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:198:13
+pub const __OS_AVAILABILITY_MSG = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:199:13
+pub const __OSX_EXTENSION_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `macosx_app_extension`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:216:13
+pub const __IOS_EXTENSION_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `ios_app_extension`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:217:13
+pub const __OS_EXTENSION_UNAVAILABLE = @compileError("unable to translate C expr: unexpected token .Identifier"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:227:9
+pub const __OSX_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `macosx`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:234:13
+pub const __OSX_AVAILABLE = @compileError("unable to translate macro: undefined identifier `macosx`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:235:13
+pub const __OSX_DEPRECATED = @compileError("unable to translate macro: undefined identifier `macosx`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:236:13
+pub const __IOS_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `ios`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:256:13
+pub const __IOS_PROHIBITED = @compileError("unable to translate macro: undefined identifier `ios`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:257:13
+pub const __IOS_AVAILABLE = @compileError("unable to translate macro: undefined identifier `ios`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:258:13
+pub const __IOS_DEPRECATED = @compileError("unable to translate macro: undefined identifier `ios`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:259:13
+pub const __TVOS_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `tvos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:283:13
+pub const __TVOS_PROHIBITED = @compileError("unable to translate macro: undefined identifier `tvos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:284:13
+pub const __TVOS_AVAILABLE = @compileError("unable to translate macro: undefined identifier `tvos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:285:13
+pub const __TVOS_DEPRECATED = @compileError("unable to translate macro: undefined identifier `tvos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:286:13
+pub const __WATCHOS_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `watchos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:310:13
+pub const __WATCHOS_PROHIBITED = @compileError("unable to translate macro: undefined identifier `watchos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:311:13
+pub const __WATCHOS_AVAILABLE = @compileError("unable to translate macro: undefined identifier `watchos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:312:13
+pub const __WATCHOS_DEPRECATED = @compileError("unable to translate macro: undefined identifier `watchos`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:313:13
+pub const __SWIFT_UNAVAILABLE = @compileError("unable to translate macro: undefined identifier `swift`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:337:13
+pub const __SWIFT_UNAVAILABLE_MSG = @compileError("unable to translate macro: undefined identifier `swift`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:338:13
+pub const __API_AVAILABLE = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:381:13
+pub const __API_AVAILABLE_BEGIN = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:383:13
+pub const __API_AVAILABLE_END = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:384:13
+pub const __API_DEPRECATED = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:402:13
+pub const __API_DEPRECATED_WITH_REPLACEMENT = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:403:13
+pub const __API_DEPRECATED_BEGIN = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:405:13
+pub const __API_DEPRECATED_END = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:406:13
+pub const __API_DEPRECATED_WITH_REPLACEMENT_BEGIN = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:408:13
+pub const __API_DEPRECATED_WITH_REPLACEMENT_END = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:409:13
+pub const __API_UNAVAILABLE = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:419:13
+pub const __API_UNAVAILABLE_BEGIN = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:421:13
+pub const __API_UNAVAILABLE_END = @compileError("unable to translate macro: undefined identifier `_Pragma`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:422:13
+pub const __SPI_DEPRECATED = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:475:11
+pub const __SPI_DEPRECATED_WITH_REPLACEMENT = @compileError("unable to translate C expr: expected ')'"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/Availability.h:479:11
+pub const ECS_ALIGNOF = @compileError("unable to translate macro: undefined identifier `__alignof__`"); // flecs.h:223:9
+pub const ECS_UNUSED = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // flecs.h:229:9
+pub const ECS_DEPRECATED = @compileError("unable to translate C expr: unexpected token .Eof"); // flecs.h:243:9
+pub const ECS_HAS_ROLE = @compileError("unable to translate macro: undefined identifier `ECS_`"); // flecs.h:281:9
+pub const ECS_HAS_RELATION = @compileError("unable to translate macro: undefined identifier `PAIR`"); // flecs.h:286:9
+pub const ECS_ID_ON_DELETE = @compileError("unable to translate C expr: expected ')'"); // flecs.h:317:9
+pub const ecs_id = @compileError("unable to translate macro: undefined identifier `FLECS__E`"); // flecs.h:330:9
+pub const ecs_iter_action = @compileError("unable to translate macro: undefined identifier `FLECS__F`"); // flecs.h:333:9
+pub const ECS_XTOR_IMPL = @compileError("unable to translate C expr: expected ')'"); // flecs.h:373:9
+pub const ECS_COPY_IMPL = @compileError("unable to translate C expr: expected ')'"); // flecs.h:400:9
+pub const ECS_MOVE_IMPL = @compileError("unable to translate C expr: expected ')'"); // flecs.h:435:9
+pub const ECS_ON_SET_IMPL = @compileError("unable to translate C expr: expected ')'"); // flecs.h:470:9
+pub const ecs_log = @compileError("unable to translate C expr: expected ')'"); // flecs.h:668:9
+pub const ecs_logv = @compileError("unable to translate macro: undefined identifier `__FILE__`"); // flecs.h:671:9
+pub const _ecs_trace = @compileError("unable to translate C expr: expected ')'"); // flecs.h:675:9
+pub const ecs_trace = @compileError("unable to translate C expr: expected ')'"); // flecs.h:676:9
+pub const _ecs_warn = @compileError("unable to translate C expr: expected ')'"); // flecs.h:679:9
+pub const ecs_warn = @compileError("unable to translate C expr: expected ')'"); // flecs.h:680:9
+pub const _ecs_err = @compileError("unable to translate C expr: expected ')'"); // flecs.h:683:9
+pub const ecs_err = @compileError("unable to translate C expr: expected ')'"); // flecs.h:684:9
+pub const _ecs_fatal = @compileError("unable to translate C expr: expected ')'"); // flecs.h:687:9
+pub const ecs_fatal = @compileError("unable to translate C expr: expected ')'"); // flecs.h:688:9
+pub const ecs_deprecated = @compileError("unable to translate C expr: expected ')'"); // flecs.h:695:9
+pub const ecs_dbg_1 = @compileError("unable to translate C expr: expected ')'"); // flecs.h:712:9
+pub const ecs_dbg_2 = @compileError("unable to translate C expr: expected ')'"); // flecs.h:713:9
+pub const ecs_dbg_3 = @compileError("unable to translate C expr: expected ')'"); // flecs.h:714:9
+pub const ecs_log_push_1 = @compileError("unable to translate C expr: unexpected token .Semicolon"); // flecs.h:716:9
+pub const ecs_log_push_2 = @compileError("unable to translate C expr: unexpected token .Semicolon"); // flecs.h:717:9
+pub const ecs_log_push_3 = @compileError("unable to translate C expr: unexpected token .Semicolon"); // flecs.h:718:9
+pub const ecs_log_pop_1 = @compileError("unable to translate C expr: unexpected token .Semicolon"); // flecs.h:720:9
+pub const ecs_log_pop_2 = @compileError("unable to translate C expr: unexpected token .Semicolon"); // flecs.h:721:9
+pub const ecs_log_pop_3 = @compileError("unable to translate C expr: unexpected token .Semicolon"); // flecs.h:722:9
+pub const ecs_abort = @compileError("unable to translate C expr: expected ')'"); // flecs.h:814:9
+pub const ecs_assert = @compileError("unable to translate C expr: expected ')'"); // flecs.h:823:9
+pub const ecs_dbg_assert = @compileError("unable to translate C expr: expected ')'"); // flecs.h:833:9
+pub const ecs_dummy_check = @compileError("unable to translate macro: undefined identifier `error`"); // flecs.h:839:9
+pub const ecs_check = @compileError("unable to translate C expr: expected ')'"); // flecs.h:855:9
+pub const ecs_throw = @compileError("unable to translate C expr: expected ')'"); // flecs.h:871:9
+pub const ecs_parser_error = @compileError("unable to translate C expr: expected ')'"); // flecs.h:878:9
+pub const ECS_VECTOR_VALUE = @compileError("unable to translate C expr: unexpected token .LBrace"); // flecs.h:1048:9
+pub const ECS_VECTOR_DECL = @compileError("unable to translate macro: undefined identifier `vector`"); // flecs.h:1062:9
+pub const ECS_VECTOR_IMPL = @compileError("unable to translate macro: undefined identifier `__`"); // flecs.h:1074:9
+pub const ECS_VECTOR_STACK = @compileError("unable to translate C expr: unexpected token .Semicolon"); // flecs.h:1077:9
+pub const ecs_vector_add = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:1144:9
+pub const ecs_vector_insert_at = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:1158:9
+pub const ecs_vector_addn = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:1172:9
+pub const ecs_vector_get = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:1186:9
+pub const ecs_vector_last = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:1199:9
+pub const ecs_vector_first = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:1344:9
+pub const ecs_vector_each = @compileError("unable to translate C expr: expected ')'"); // flecs.h:1390:9
+pub const ecs_map_get = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:1591:9
+pub const ecs_map_ensure = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:1619:9
+pub const ecs_map_set = @compileError("unable to translate C expr: unexpected token .Asterisk"); // flecs.h:1630:9
+pub const ecs_map_next = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:1676:9
+pub const ecs_map_each = @compileError("unable to translate C expr: expected ')'"); // flecs.h:1713:9
+pub const __alloca = @compileError("unable to translate macro: undefined identifier `__builtin_alloca`"); // /Users/foxnne/dev/lang/zig/lib/libc/include/any-macos-any/alloca.h:40:9
+pub const ecs_os_malloc_t = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:2239:9
+pub const ecs_os_malloc_n = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:2240:9
+pub const ecs_os_calloc_t = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:2241:9
+pub const ecs_os_calloc_n = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:2242:9
+pub const ecs_os_realloc_t = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:2243:9
+pub const ecs_os_realloc_n = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:2244:9
+pub const ecs_os_alloca_t = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:2245:9
+pub const ecs_os_alloca_n = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:2246:9
+pub const ecs_os_strset = @compileError("unable to translate C expr: unexpected token .Semicolon"); // flecs.h:2253:9
+pub const ecs_offset = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:2283:9
+pub const ecs_os_sprintf = @compileError("unable to translate C expr: expected ')'"); // flecs.h:2298:9
+pub const ecs_os_vsprintf = @compileError("unable to translate macro: undefined identifier `vsprintf`"); // flecs.h:2299:9
+pub const ecs_os_fopen = @compileError("unable to translate macro: undefined identifier `fopen`"); // flecs.h:2312:9
+pub const flecs_sparse_add = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:3346:9
+pub const flecs_sparse_remove_get = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:3380:9
+pub const flecs_sparse_get_dense = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:3409:9
+pub const flecs_sparse_get = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:3430:9
+pub const flecs_sparse_get_any = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:3440:9
+pub const flecs_sparse_ensure = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:3450:9
+pub const flecs_sparse_set = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:3461:9
+pub const flecs_sparse_each = @compileError("unable to translate C expr: expected ')'"); // flecs.h:3502:9
+pub const ecs_sparse_add = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:3528:9
+pub const ecs_sparse_get_dense = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:3551:9
+pub const ecs_sparse_get = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:3560:9
+pub const flecs_hashmap_get = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:3626:9
+pub const flecs_hashmap_next = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:3686:9
+pub const flecs_hashmap_next_w_key = @compileError("unable to translate C expr: unexpected token .RParen"); // flecs.h:3689:9
+pub const EcsLastInternalComponentId = @compileError("unable to translate macro: undefined identifier `EcsSystem`"); // flecs.h:4382:9
+pub const ECS_ENTITY_DEFINE = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7520:9
+pub const ECS_ENTITY = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7532:9
+pub const ECS_PREFAB_DEFINE = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7540:9
+pub const ECS_PREFAB = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7541:9
+pub const ECS_COMPONENT_DEFINE = @compileError("unable to translate macro: undefined identifier `desc`"); // flecs.h:7545:9
+pub const ECS_COMPONENT = @compileError("unable to translate C expr: unexpected token .Equal"); // flecs.h:7557:9
+pub const ECS_TRIGGER_DEFINE = @compileError("unable to translate macro: undefined identifier `desc`"); // flecs.h:7566:9
+pub const ECS_TRIGGER = @compileError("unable to translate C expr: unexpected token .Equal"); // flecs.h:7578:9
+pub const ECS_OBSERVER_DEFINE = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7586:9
+pub const ECS_OBSERVER = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7598:9
+pub const ecs_set_component_actions = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7616:9
+pub const ecs_new_entity = @compileError("unable to translate C expr: expected '.'"); // flecs.h:7629:9
+pub const ecs_new_prefab = @compileError("unable to translate C expr: unexpected token .LBrace"); // flecs.h:7634:9
+pub const ecs_set = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7669:9
+pub const ecs_set_pair = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7672:9
+pub const ecs_set_pair_object = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7677:9
+pub const ecs_set_override = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7682:9
+pub const ecs_emplace = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:7688:9
+pub const ecs_get_ref = @compileError("unable to translate C expr: unexpected token .Keyword_const"); // flecs.h:7694:9
+pub const ecs_get = @compileError("unable to translate C expr: unexpected token .Keyword_const"); // flecs.h:7697:9
+pub const ecs_get_pair = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:7700:9
+pub const ecs_get_pair_object = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:7704:9
+pub const ecs_get_mut = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:7711:9
+pub const ecs_get_mut_pair = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:7714:9
+pub const ecs_get_mut_pair_object = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:7718:9
+pub const ecs_singleton_set = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7740:9
+pub const ecs_term = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:7842:9
+pub const ecs_iter_column = @compileError("unable to translate C expr: unexpected token .Comma"); // flecs.h:7845:9
+pub const ECS_CTOR = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7870:9
+pub const ECS_DTOR = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7877:9
+pub const ECS_COPY = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7884:9
+pub const ECS_MOVE = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7891:9
+pub const ECS_ON_SET = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7898:9
+pub const ecs_ctor = @compileError("unable to translate macro: undefined identifier `_ctor`"); // flecs.h:7902:9
+pub const ecs_dtor = @compileError("unable to translate macro: undefined identifier `_dtor`"); // flecs.h:7903:9
+pub const ecs_copy = @compileError("unable to translate macro: undefined identifier `_copy`"); // flecs.h:7904:9
+pub const ecs_move = @compileError("unable to translate macro: undefined identifier `_move`"); // flecs.h:7905:9
+pub const ecs_on_set = @compileError("unable to translate macro: undefined identifier `_on_set`"); // flecs.h:7906:9
+pub const ecs_query_new = @compileError("unable to translate C expr: expected '='"); // flecs.h:7908:9
+pub const ECS_TYPE = @compileError("unable to translate C expr: expected ')'"); // flecs.h:7918:9
+pub const ECS_PIPELINE_DEFINE = @compileError("unable to translate C expr: expected ')'"); // flecs.h:8479:9
+pub const ECS_PIPELINE = @compileError("unable to translate C expr: expected ')'"); // flecs.h:8489:9
+pub const ECS_SYSTEM_DEFINE = @compileError("unable to translate C expr: expected ')'"); // flecs.h:8777:9
+pub const ECS_SYSTEM = @compileError("unable to translate C expr: expected ')'"); // flecs.h:8788:9
+pub const offsetof = @compileError("unable to translate macro: undefined identifier `__builtin_offsetof`"); // /Users/foxnne/dev/lang/zig/lib/include/stddef.h:104:9
+pub const ECS_META_COMPONENT = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:10421:9
+pub const ECS_STRUCT = @compileError("unable to translate C expr: expected ')'"); // flecs.h:10427:9
+pub const ECS_ENUM = @compileError("unable to translate C expr: expected ')'"); // flecs.h:10432:9
+pub const ECS_BITMASK = @compileError("unable to translate C expr: expected ')'"); // flecs.h:10437:9
+pub const ECS_META_IMPL_CALL_INNER = @compileError("unable to translate C expr: unexpected token .HashHash"); // flecs.h:10456:9
+pub const ECS_STRUCT_TYPE = @compileError("unable to translate C expr: expected ')'"); // flecs.h:10463:9
+pub const ECS_STRUCT_IMPL = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:10468:9
+pub const ECS_STRUCT_DECLARE = @compileError("unable to translate C expr: unexpected token .Keyword_extern"); // flecs.h:10474:9
+pub const ECS_STRUCT_EXTERN = @compileError("unable to translate C expr: unexpected token .Keyword_extern"); // flecs.h:10478:9
+pub const ECS_ENUM_TYPE = @compileError("unable to translate C expr: expected ')'"); // flecs.h:10483:9
+pub const ECS_ENUM_IMPL = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:10488:9
+pub const ECS_ENUM_DECLARE = @compileError("unable to translate C expr: unexpected token .Keyword_extern"); // flecs.h:10494:9
+pub const ECS_ENUM_EXTERN = @compileError("unable to translate C expr: unexpected token .Keyword_extern"); // flecs.h:10498:9
+pub const ECS_BITMASK_TYPE = @compileError("unable to translate C expr: expected ')'"); // flecs.h:10503:9
+pub const ECS_BITMASK_IMPL = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:10508:9
+pub const ECS_BITMASK_DECLARE = @compileError("unable to translate C expr: unexpected token .Keyword_extern"); // flecs.h:10514:9
+pub const ECS_BITMASK_EXTERN = @compileError("unable to translate C expr: unexpected token .Keyword_extern"); // flecs.h:10518:9
+pub const FLECS_META_C_EXPORT = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // flecs.h:10527:9
+pub const ECS_MODULE = @compileError("unable to translate C expr: unexpected token .Equal"); // flecs.h:11603:9
+pub const ECS_IMPORT = @compileError("unable to translate macro: undefined identifier `FLECS__`"); // flecs.h:11625:9
+pub const ECS_FUNC_NAME_FRONT = @compileError("unable to translate C expr: unexpected token .Hash"); // flecs.h:11661:9
+pub const ECS_FUNC_NAME_BACK = @compileError("unable to translate C expr: unexpected token .StringLiteral"); // flecs.h:11662:9
+pub const ECS_FUNC_NAME = @compileError("unable to translate macro: undefined identifier `__PRETTY_FUNCTION__`"); // flecs.h:11663:9
+pub const ECS_FUNC_TYPE_LEN = @compileError("unable to translate macro: undefined identifier `flecs`"); // flecs.h:11676:9
 pub const __llvm__ = @as(c_int, 1);
 pub const __clang__ = @as(c_int, 1);
 pub const __clang_major__ = @as(c_int, 13);
 pub const __clang_minor__ = @as(c_int, 0);
-pub const __clang_patchlevel__ = @as(c_int, 0);
-pub const __clang_version__ = "13.0.0 (git@github.com:ziglang/zig-bootstrap.git 6a5bc3f4a88cc446baad6b0d8677c287f77d9393)";
+pub const __clang_patchlevel__ = @as(c_int, 1);
+pub const __clang_version__ = "13.0.1 (git@github.com:ziglang/zig-bootstrap.git 81f0e6c5b902ead84753490db4f0007d08df964a)";
 pub const __GNUC__ = @as(c_int, 4);
 pub const __GNUC_MINOR__ = @as(c_int, 2);
 pub const __GNUC_PATCHLEVEL__ = @as(c_int, 1);
@@ -2930,7 +3173,7 @@ pub const __OPENCL_MEMORY_SCOPE_DEVICE = @as(c_int, 2);
 pub const __OPENCL_MEMORY_SCOPE_ALL_SVM_DEVICES = @as(c_int, 3);
 pub const __OPENCL_MEMORY_SCOPE_SUB_GROUP = @as(c_int, 4);
 pub const __PRAGMA_REDEFINE_EXTNAME = @as(c_int, 1);
-pub const __VERSION__ = "Clang 13.0.0 (git@github.com:ziglang/zig-bootstrap.git 6a5bc3f4a88cc446baad6b0d8677c287f77d9393)";
+pub const __VERSION__ = "Clang 13.0.1 (git@github.com:ziglang/zig-bootstrap.git 81f0e6c5b902ead84753490db4f0007d08df964a)";
 pub const __OBJC_BOOL_IS_BOOL = @as(c_int, 1);
 pub const __CONSTANT_CFSTRINGS__ = @as(c_int, 1);
 pub const __BLOCKS__ = @as(c_int, 1);
@@ -3298,6 +3541,7 @@ pub const FLECS_PIPELINE = "";
 pub const FLECS_TIMER = "";
 pub const FLECS_META = "";
 pub const FLECS_META_C = "";
+pub const FLECS_UNITS = "";
 pub const FLECS_EXPR = "";
 pub const FLECS_JSON = "";
 pub const FLECS_DOC = "";
@@ -4437,51 +4681,6 @@ pub inline fn flecs_hashmap_remove_w_hash(map: anytype, key: anytype, V: anytype
 pub const ECS_ROLE = @as(c_ulonglong, 1) << @as(c_int, 63);
 pub const EcsFirstUserComponentId = @as(c_int, 32);
 pub const EcsFirstUserEntityId = ECS_HI_COMPONENT_ID + @as(c_int, 128);
-pub const FLECS_APP_H = "";
-pub const FLECS_REST_H = "";
-pub const ECS_REST_DEFAULT_PORT = @as(c_int, 27750);
-pub const FLECS_TIMER_H = "";
-pub const FLECS_PIPELINE_H = "";
-pub const FLECS_SYSTEM_H = "";
-pub const FLECS_COREDOC_H = "";
-pub const FLECS_DOC_H = "";
-pub const FLECS_JSON_H = "";
-pub const ECS_ENTITY_TO_JSON_INIT = @import("std").mem.zeroInit(ecs_entity_to_json_desc_t, .{ @"true", @"true", @"false", @"true", @"false" });
-pub const ECS_ITER_TO_JSON_INIT = @import("std").mem.zeroInit(ecs_iter_to_json_desc_t, .{ @"true", @"true", @"true", @"true", @"true", @"true", @"true", @"false", @"false", @"false", @"false" });
-pub const __STDDEF_H = "";
-pub const __need_ptrdiff_t = "";
-pub const __need_size_t = "";
-pub const __need_wchar_t = "";
-pub const __need_NULL = "";
-pub const __need_STDDEF_H_misc = "";
-pub const _PTRDIFF_T = "";
-pub const _WCHAR_T = "";
-pub const __CLANG_MAX_ALIGN_T_DEFINED = "";
-pub const FLECS_META_H = "";
-pub const ECS_MEMBER_DESC_CACHE_SIZE = @as(c_int, 32);
-pub const ECS_META_MAX_SCOPE_DEPTH = @as(c_int, 32);
-pub const FLECS_EXPR_H = "";
-pub const FLECS_META_C_H = "";
-pub const ECS_PRIVATE = "";
-pub inline fn ECS_META_IMPL_CALL(base: anytype, impl: anytype, name: anytype, type_desc: anytype) @TypeOf(ECS_META_IMPL_CALL_INNER(base, impl, name, type_desc)) {
-    return ECS_META_IMPL_CALL_INNER(base, impl, name, type_desc);
-}
-pub const ECS_STRUCT_ECS_META_IMPL = ECS_STRUCT_IMPL;
-pub const ECS_ENUM_ECS_META_IMPL = ECS_ENUM_IMPL;
-pub const ECS_BITMASK_ECS_META_IMPL = ECS_BITMASK_IMPL;
-pub const FLECS_META_C_IMPORT = "";
-pub const FLECS_PLECS_H = "";
-pub const FLECS_RULES_H = "";
-pub const FLECS_SNAPSHOT_H = "";
-pub const FLECS_STATS_H = "";
-pub const ECS_STAT_WINDOW = @as(c_int, 60);
-pub const FLECS_PARSER_H = "";
-pub const FLECS_HTTP_H = "";
-pub const ECS_HTTP_HEADER_COUNT_MAX = @as(c_int, 32);
-pub const ECS_HTTP_QUERY_PARAM_COUNT_MAX = @as(c_int, 32);
-pub const ECS_HTTP_REPLY_INIT = @import("std").mem.zeroInit(ecs_http_reply_t, .{ @as(c_int, 200), ECS_STRBUF_INIT, "OK", "application/json", ECS_STRBUF_INIT });
-pub const FLECS_OS_API_IMPL_H = "";
-pub const FLECS_MODULE_H = "";
 pub const FLECS_C_ = "";
 pub inline fn ECS_DECLARE(id: anytype) @TypeOf(ecs_id(id)) {
     return blk: {
@@ -4637,6 +4836,52 @@ pub inline fn ecs_rule_new(world: anytype, q_expr: anytype) @TypeOf(ecs_rule_ini
         .expr = q_expr,
     }));
 }
+pub const FLECS_APP_H = "";
+pub const FLECS_REST_H = "";
+pub const ECS_REST_DEFAULT_PORT = @as(c_int, 27750);
+pub const FLECS_TIMER_H = "";
+pub const FLECS_PIPELINE_H = "";
+pub const FLECS_SYSTEM_H = "";
+pub const FLECS_COREDOC_H = "";
+pub const FLECS_DOC_H = "";
+pub const FLECS_JSON_H = "";
+pub const ECS_ENTITY_TO_JSON_INIT = @import("std").mem.zeroInit(ecs_entity_to_json_desc_t, .{ @"true", @"true", @"false", @"true", @"false" });
+pub const ECS_ITER_TO_JSON_INIT = @import("std").mem.zeroInit(ecs_iter_to_json_desc_t, .{ @"true", @"true", @"true", @"true", @"true", @"true", @"true", @"false", @"false", @"false", @"false" });
+pub const FLECS_UNITS_H = "";
+pub const __STDDEF_H = "";
+pub const __need_ptrdiff_t = "";
+pub const __need_size_t = "";
+pub const __need_wchar_t = "";
+pub const __need_NULL = "";
+pub const __need_STDDEF_H_misc = "";
+pub const _PTRDIFF_T = "";
+pub const _WCHAR_T = "";
+pub const __CLANG_MAX_ALIGN_T_DEFINED = "";
+pub const FLECS_META_H = "";
+pub const ECS_MEMBER_DESC_CACHE_SIZE = @as(c_int, 32);
+pub const ECS_META_MAX_SCOPE_DEPTH = @as(c_int, 32);
+pub const FLECS_EXPR_H = "";
+pub const FLECS_META_C_H = "";
+pub const ECS_PRIVATE = "";
+pub inline fn ECS_META_IMPL_CALL(base: anytype, impl: anytype, name: anytype, type_desc: anytype) @TypeOf(ECS_META_IMPL_CALL_INNER(base, impl, name, type_desc)) {
+    return ECS_META_IMPL_CALL_INNER(base, impl, name, type_desc);
+}
+pub const ECS_STRUCT_ECS_META_IMPL = ECS_STRUCT_IMPL;
+pub const ECS_ENUM_ECS_META_IMPL = ECS_ENUM_IMPL;
+pub const ECS_BITMASK_ECS_META_IMPL = ECS_BITMASK_IMPL;
+pub const FLECS_META_C_IMPORT = "";
+pub const FLECS_PLECS_H = "";
+pub const FLECS_RULES_H = "";
+pub const FLECS_SNAPSHOT_H = "";
+pub const FLECS_STATS_H = "";
+pub const ECS_STAT_WINDOW = @as(c_int, 60);
+pub const FLECS_PARSER_H = "";
+pub const FLECS_HTTP_H = "";
+pub const ECS_HTTP_HEADER_COUNT_MAX = @as(c_int, 32);
+pub const ECS_HTTP_QUERY_PARAM_COUNT_MAX = @as(c_int, 32);
+pub const ECS_HTTP_REPLY_INIT = @import("std").mem.zeroInit(ecs_http_reply_t, .{ @as(c_int, 200), ECS_STRBUF_INIT, "OK", "application/json", ECS_STRBUF_INIT });
+pub const FLECS_OS_API_IMPL_H = "";
+pub const FLECS_MODULE_H = "";
 pub const FLECS_CPP_H = "";
 pub const __darwin_pthread_handler_rec = struct___darwin_pthread_handler_rec;
 pub const _opaque_pthread_attr_t = struct__opaque_pthread_attr_t;

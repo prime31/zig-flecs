@@ -2951,10 +2951,13 @@ void grow_column(
 
     /* If the array could possibly realloc and the component has a move action 
      * defined, move old elements manually */
-    ecs_move_t move;
-    if (c_info && count && can_realloc && (move = c_info->lifecycle.move)) {
+    ecs_move_ctor_t move_ctor;
+    if (c_info && count && can_realloc && 
+        (move_ctor = c_info->lifecycle.move_ctor)) 
+    {
         ecs_xtor_t ctor = c_info->lifecycle.ctor;
         ecs_assert(ctor != NULL, ECS_INTERNAL_ERROR, NULL);
+        ecs_assert(move_ctor != NULL, ECS_INTERNAL_ERROR, NULL);
 
         /* Create new vector */
         ecs_vector_t *new_vec = ecs_vector_new_t(size, alignment, new_size);
@@ -2966,18 +2969,23 @@ void grow_column(
         void *new_buffer = ecs_vector_first_t(
             new_vec, size, alignment);
 
-        /* First construct elements (old and new) in new buffer */
-        ctor(world, c_info->component, entities, new_buffer, 
-            flecs_itosize(size), construct ? new_count : count, 
+        size_t size_u = flecs_itosize(size);
+
+        /* Move (and construct) existing elements to new vector */
+        move_ctor(world, c_info->component, &c_info->lifecycle, entities,
+            entities, new_buffer, old_buffer, size_u, count, 
             c_info->lifecycle.ctx);
-        
-        /* Move old elements */
-        move(world, c_info->component, entities, entities, 
-            new_buffer, old_buffer, flecs_itosize(size), count, 
-            c_info->lifecycle.ctx);
+
+        if (construct) {
+            /* Construct new element(s) */
+            void *elem = ECS_OFFSET(new_buffer, size * count);
+            ctor(world, c_info->component, &entities[count], elem, 
+                size_u, to_add, c_info->lifecycle.ctx);
+        }
 
         /* Free old vector */
         ecs_vector_free(vec);
+
         column->data = new_vec;
     } else {
         /* If array won't realloc or has no move, simply add new elements */
@@ -4455,7 +4463,7 @@ void* get_component(
 
     if (!table->storage_table) {
         ecs_check(ecs_search(world, table, id, 0) == -1, 
-            ECS_NOT_A_COMPONENT, NULL);
+            ECS_NOT_A_COMPONENT, ecs_id_str(world, id));
         return NULL;
     }
 
@@ -4463,7 +4471,7 @@ void* get_component(
         world, table->storage_table, id);
     if (!tr) {
         ecs_check(ecs_search(world, table, id, 0) == -1, 
-            ECS_NOT_A_COMPONENT, NULL);
+            ECS_NOT_A_COMPONENT, ecs_id_str(world, id));
        return NULL;
     }
 
@@ -6295,24 +6303,40 @@ void deferred_add_remove(
 #endif
     }
 
+    int32_t thread_count = ecs_get_stage_count(world);
+
     /* Set name */
     if (name && !name_assigned) {
         /* To prevent creating two entities with the same name, temporarily go
          * out of readonly mode if it's safe to do so. */
         ecs_suspend_readonly_state_t state;
-        ecs_world_t *real_world = flecs_suspend_readonly(world, &state);
-        ecs_add_path_w_sep(real_world, entity, scope, name, sep, root_sep);
-        flecs_resume_readonly(real_world, &state);
+        if (thread_count <= 1) {
+            /* When not running on multiple threads we can temporarily leave
+             * readonly mode which ensures that we don't accidentally create
+             * two entities with the same name. */
+            ecs_world_t *real_world = flecs_suspend_readonly(world, &state);
+            ecs_add_path_w_sep(real_world, entity, scope, name, sep, root_sep);
+            flecs_resume_readonly(real_world, &state);
+        } else {
+            /* In multithreaded mode we can't leave readonly mode, which means
+             * there is a risk of creating two entities with the same name. 
+             * Future improvements will be able to detect this. */
+            ecs_add_path_w_sep(world, entity, scope, name, sep, root_sep);
+        }
     }
 
-    /* Currently it's not supported to set the symbol from a deferred context */
+    /* Set symbol */
     if (desc->symbol) {
         const char *sym = ecs_get_symbol(world, entity);
         if (!sym || ecs_os_strcmp(sym, desc->symbol)) {
-            ecs_suspend_readonly_state_t state;
-            ecs_world_t *real_world = flecs_suspend_readonly(world, &state);
-            ecs_set_symbol(world, entity, desc->symbol);
-            flecs_resume_readonly(real_world, &state);
+            if (thread_count <= 1) { /* See above */
+                ecs_suspend_readonly_state_t state;
+                ecs_world_t *real_world = flecs_suspend_readonly(world, &state);
+                ecs_set_symbol(world, entity, desc->symbol);
+                flecs_resume_readonly(real_world, &state);
+            } else {
+                ecs_set_symbol(world, entity, desc->symbol);
+            }
         }
     }
 }
@@ -14605,7 +14629,7 @@ void ecs_set_pipeline(
 {
     ecs_poly_assert(world, ecs_world_t);
     ecs_check( ecs_get(world, pipeline, EcsPipelineQuery) != NULL, 
-        ECS_INVALID_PARAMETER, NULL);
+        ECS_INVALID_PARAMETER, "not a pipeline");
 
     world->pipeline = pipeline;
 error:
@@ -21659,6 +21683,12 @@ void ecs_meta_type_serialized_init(
 void ecs_meta_dtor_serialized(
     EcsMetaTypeSerialized *ptr);
 
+
+bool flecs_unit_validate(
+    ecs_world_t *world,
+    ecs_entity_t t,
+    EcsUnit *data);
+
 #endif
     
 #endif
@@ -21830,7 +21860,8 @@ ecs_entity_t ecs_struct_init(
 
         ecs_set(world, m, EcsMember, {
             .type = m_desc->type, 
-            .count = m_desc->count
+            .count = m_desc->count,
+            .unit = m_desc->unit
         });
     }
 
@@ -21841,6 +21872,86 @@ ecs_entity_t ecs_struct_init(
         ecs_delete(world, t);
         return 0;
     }
+
+    if (!ecs_has(world, t, EcsStruct)) {
+        /* Invalid members */
+        ecs_delete(world, t);
+        return 0;
+    }
+
+    return t;
+}
+
+ecs_entity_t ecs_unit_init(
+    ecs_world_t *world,
+    const ecs_unit_desc_t *desc)
+{
+    ecs_entity_t t = ecs_entity_init(world, &desc->entity);
+    if (!t) {
+        goto error;
+    }
+
+    ecs_entity_t quantity = desc->quantity;
+    if (quantity) {
+        if (!ecs_has_id(world, quantity, EcsQuantity)) {
+            ecs_err("entity '%s' for unit '%s' is not a quantity",
+                ecs_get_name(world, quantity), ecs_get_name(world, t));
+            goto error;
+        }
+
+        ecs_add_pair(world, t, EcsQuantity, desc->quantity);
+    } else {
+        ecs_remove_pair(world, t, EcsQuantity, EcsWildcard);
+    }
+
+    EcsUnit *value = ecs_get_mut(world, t, EcsUnit, 0);
+    value->base = desc->base;
+    value->over = desc->over;
+    value->translation = desc->translation;
+    value->prefix = desc->prefix;
+    ecs_os_strset(&value->symbol, desc->symbol);
+
+    if (!flecs_unit_validate(world, t, value)) {
+        goto error;
+    }
+
+    ecs_modified(world, t, EcsUnit);
+
+    return t;
+error:
+    if (t) {
+        ecs_delete(world, t);
+    }
+    return 0;
+}
+
+ecs_entity_t ecs_unit_prefix_init(
+    ecs_world_t *world,
+    const ecs_unit_prefix_desc_t *desc)
+{
+    ecs_entity_t t = ecs_entity_init(world, &desc->entity);
+    if (!t) {
+        return 0;
+    }
+
+    ecs_set(world, t, EcsUnitPrefix, {
+        .symbol = (char*)desc->symbol,
+        .translation = desc->translation
+    });
+
+    return t;
+}
+
+ecs_entity_t ecs_quantity_init(
+    ecs_world_t *world,
+    const ecs_entity_desc_t *desc)
+{
+    ecs_entity_t t = ecs_entity_init(world, desc);
+    if (!t) {
+        return 0;
+    }
+
+    ecs_add_id(world, t, EcsQuantity);
 
     return t;
 }
@@ -21880,6 +21991,7 @@ ecs_meta_type_op_t* ops_add(ecs_vector_t **ops, ecs_meta_type_op_kind_t kind) {
     op->name = NULL;
     op->members = NULL;
     op->type = 0;
+    op->unit = 0;
     return op;
 }
 
@@ -22038,6 +22150,7 @@ ecs_vector_t* serialize_struct(
         
         const char *member_name = member->name;
         op->name = member_name;
+        op->unit = member->unit;
         op->op_count = ecs_vector_count(ops) - cur;
 
         ecs_size_t len = ecs_os_strlen(member_name);
@@ -22305,6 +22418,67 @@ static ECS_MOVE(EcsBitmask, dst, src, {
 static ECS_DTOR(EcsBitmask, ptr, { dtor_bitmask(ptr); })
 
 
+/* EcsUnit lifecycle */
+
+static void dtor_unit(
+    EcsUnit *ptr) 
+{
+    ecs_os_free(ptr->symbol);
+}
+
+static ECS_COPY(EcsUnit, dst, src, {
+    dtor_unit(dst);
+    dst->symbol = ecs_os_strdup(src->symbol);
+    dst->base = src->base;
+    dst->over = src->over;
+    dst->prefix = src->prefix;
+    dst->translation = src->translation;
+})
+
+static ECS_MOVE(EcsUnit, dst, src, {
+    dtor_unit(dst);
+    dst->symbol = src->symbol;
+    dst->base = src->base;
+    dst->over = src->over;
+    dst->prefix = src->prefix;
+    dst->translation = src->translation;
+
+    src->symbol = NULL;
+    src->base = 0;
+    src->over = 0;
+    src->prefix = 0;
+    src->translation = (ecs_unit_translation_t){0};
+})
+
+static ECS_DTOR(EcsUnit, ptr, { dtor_unit(ptr); })
+
+
+/* EcsUnitPrefix lifecycle */
+
+static void dtor_unit_prefix(
+    EcsUnitPrefix *ptr) 
+{
+    ecs_os_free(ptr->symbol);
+}
+
+static ECS_COPY(EcsUnitPrefix, dst, src, {
+    dtor_unit_prefix(dst);
+    dst->symbol = ecs_os_strdup(src->symbol);
+    dst->translation = src->translation;
+})
+
+static ECS_MOVE(EcsUnitPrefix, dst, src, {
+    dtor_unit_prefix(dst);
+    dst->symbol = src->symbol;
+    dst->translation = src->translation;
+
+    src->symbol = NULL;
+    src->translation = (ecs_unit_translation_t){0};
+})
+
+static ECS_DTOR(EcsUnitPrefix, ptr, { dtor_unit_prefix(ptr); })
+
+
 /* Type initialization */
 
 static
@@ -22367,11 +22541,13 @@ void set_struct_member(
     ecs_entity_t entity,
     const char *name,
     ecs_entity_t type,
-    int32_t count)
+    int32_t count,
+    ecs_entity_t unit)
 {
     member->member = entity;
     member->type = type;
     member->count = count;
+    member->unit = unit;
 
     if (!count) {
         member->count = 1;
@@ -22416,6 +22592,27 @@ int add_member_to_struct(
         return -1;
     }
 
+    ecs_entity_t unit = m->unit;
+
+    if (unit) {
+        if (!ecs_has(world, unit, EcsUnit)) {
+            ecs_err("entity '%s' for member '%s' is not a unit",
+                ecs_get_name(world, unit), name);
+            return -1;
+        }
+
+        if (ecs_has(world, m->type, EcsUnit) && m->type != unit) {
+            ecs_err("unit mismatch for type '%s' and unit '%s' for member '%s'",
+                ecs_get_name(world, m->type), ecs_get_name(world, unit), name);
+            return -1;
+        }
+    } else {
+        if (ecs_has(world, m->type, EcsUnit)) {
+            unit = m->type;
+            m->unit = unit;
+        }
+    }
+
     EcsStruct *s = ecs_get_mut(world, type, EcsStruct, NULL);
     ecs_assert(s != NULL, ECS_INTERNAL_ERROR, NULL);
 
@@ -22424,7 +22621,8 @@ int add_member_to_struct(
     int32_t i, count = ecs_vector_count(s->members);
     for (i = 0; i < count; i ++) {
         if (members[i].member == member) {
-            set_struct_member(&members[i], member, name, m->type, m->count);
+            set_struct_member(
+                &members[i], member, name, m->type, m->count, unit);
             break;
         }
     }
@@ -22433,7 +22631,7 @@ int add_member_to_struct(
     if (i == count) {
         ecs_member_t *elem = ecs_vector_add(&s->members, ecs_member_t);
         elem->name = NULL;
-        set_struct_member(elem, member, name, m->type, m->count);
+        set_struct_member(elem, member, name, m->type, m->count, unit);
 
         /* Reobtain members array in case it was reallocated */
         members = ecs_vector_first(s->members, ecs_member_t);
@@ -22904,6 +23102,159 @@ void set_vector(ecs_iter_t *it) {
     }
 }
 
+bool flecs_unit_validate(
+    ecs_world_t *world,
+    ecs_entity_t t,
+    EcsUnit *data)
+{
+    char *derived_symbol = NULL;
+    const char *symbol = data->symbol;
+
+    ecs_entity_t base = data->base;
+    ecs_entity_t over = data->over;
+    ecs_entity_t prefix = data->prefix;
+    ecs_unit_translation_t translation = data->translation;
+
+    if (base) {
+        if (!ecs_has(world, base, EcsUnit)) {
+            ecs_err("entity '%s' for unit '%s' used as base is not a unit",
+                ecs_get_name(world, base), ecs_get_name(world, t));
+            goto error;
+        }
+    }
+
+    if (over) {
+        if (!base) {
+            ecs_err("invalid unit '%s': cannot specify over without base",
+                ecs_get_name(world, t));
+            goto error;
+        }
+        if (!ecs_has(world, over, EcsUnit)) {
+            ecs_err("entity '%s' for unit '%s' used as over is not a unit",
+                ecs_get_name(world, over), ecs_get_name(world, t));
+            goto error;
+        }
+    }
+
+    if (prefix) {
+        if (!base) {
+            ecs_err("invalid unit '%s': cannot specify prefix without base",
+                ecs_get_name(world, t));
+            goto error;
+        }
+        const EcsUnitPrefix *prefix_ptr = ecs_get(world, prefix, EcsUnitPrefix);
+        if (!prefix_ptr) {
+            ecs_err("entity '%s' for unit '%s' used as prefix is not a prefix",
+                ecs_get_name(world, over), ecs_get_name(world, t));
+            goto error;
+        }
+
+        if (translation.factor || translation.power) {
+            if (prefix_ptr->translation.factor != translation.factor ||
+                prefix_ptr->translation.power != translation.power)
+            {
+                ecs_err(
+                    "factor for unit '%s' is inconsistent with prefix '%s'",
+                    ecs_get_name(world, t), ecs_get_name(world, prefix));
+                goto error;
+            }
+        } else {
+            translation = prefix_ptr->translation;
+        }
+    }
+
+    if (base) {
+        bool must_match = false; /* Must base symbol match symbol? */
+        ecs_strbuf_t sbuf = ECS_STRBUF_INIT;
+        if (prefix) {
+            const EcsUnitPrefix *ptr = ecs_get(world, prefix, EcsUnitPrefix);
+            ecs_assert(ptr != NULL, ECS_INTERNAL_ERROR, NULL);
+            if (ptr->symbol) {
+                ecs_strbuf_appendstr(&sbuf, ptr->symbol);
+                must_match = true;
+            }
+        }
+
+        const EcsUnit *uptr = ecs_get(world, base, EcsUnit);
+        ecs_assert(uptr != NULL, ECS_INTERNAL_ERROR, NULL);
+        if (uptr->symbol) {
+            ecs_strbuf_appendstr(&sbuf, uptr->symbol);
+        }
+
+        if (over) {
+            uptr = ecs_get(world, over, EcsUnit);
+            ecs_assert(uptr != NULL, ECS_INTERNAL_ERROR, NULL);
+            if (uptr->symbol) {
+                ecs_strbuf_appendstr(&sbuf, "/");
+                ecs_strbuf_appendstr(&sbuf, uptr->symbol);
+                must_match = true;
+            }
+        }
+
+        derived_symbol = ecs_strbuf_get(&sbuf);
+        if (derived_symbol && !ecs_os_strlen(derived_symbol)) {
+            ecs_os_free(derived_symbol);
+            derived_symbol = NULL;
+        }
+
+        if (derived_symbol && symbol && ecs_os_strcmp(symbol, derived_symbol)) {
+            if (must_match) {
+                ecs_err("symbol '%s' for unit '%s' does not match base"
+                    " symbol '%s'", symbol, 
+                        ecs_get_name(world, t), derived_symbol);
+                goto error;
+            }
+        }
+        if (!symbol && derived_symbol && (prefix || over)) {
+            ecs_os_free(data->symbol);
+            data->symbol = derived_symbol;
+        } else {
+            ecs_os_free(derived_symbol);
+        }
+    }
+
+    data->base = base;
+    data->over = over;
+    data->prefix = prefix;
+    data->translation = translation;
+
+    return true;
+error:
+    ecs_os_free(derived_symbol);
+    return false;
+}
+
+static
+void set_unit(ecs_iter_t *it) {
+    EcsUnit *u = ecs_term(it, EcsUnit, 1);
+
+    ecs_world_t *world = it->world;
+
+    int i, count = it->count;
+    for (i = 0; i < count; i ++) {
+        ecs_entity_t e = it->entities[i];
+        flecs_unit_validate(world, e, &u[i]);
+    }
+}
+
+static
+void unit_quantity_monitor(ecs_iter_t *it) {
+    ecs_world_t *world = it->world;
+
+    int i, count = it->count;
+    if (it->event == EcsOnAdd) {
+        for (i = 0; i < count; i ++) {
+            ecs_entity_t e = it->entities[i];
+            ecs_add_pair(world, e, EcsQuantity, e);
+        }
+    } else {
+        for (i = 0; i < count; i ++) {
+            ecs_entity_t e = it->entities[i];
+            ecs_remove_pair(world, e, EcsQuantity, e);
+        }
+    }
+}
+
 static
 void ecs_meta_type_init_default_ctor(ecs_iter_t *it) {
     ecs_world_t *world = it->world;
@@ -22949,8 +23300,11 @@ void FlecsMetaImport(
     flecs_bootstrap_component(world, EcsStruct);
     flecs_bootstrap_component(world, EcsArray);
     flecs_bootstrap_component(world, EcsVector);
+    flecs_bootstrap_component(world, EcsUnit);
+    flecs_bootstrap_component(world, EcsUnitPrefix);
 
     flecs_bootstrap_tag(world, EcsConstant);
+    flecs_bootstrap_tag(world, EcsQuantity);
 
     ecs_set_component_actions(world, EcsMetaType, { .ctor = ecs_default_ctor });
 
@@ -22985,6 +23339,20 @@ void FlecsMetaImport(
         .move = ecs_move(EcsBitmask),
         .copy = ecs_copy(EcsBitmask),
         .dtor = ecs_dtor(EcsBitmask)
+    });
+
+    ecs_set_component_actions(world, EcsUnit, { 
+        .ctor = ecs_default_ctor,
+        .move = ecs_move(EcsUnit),
+        .copy = ecs_copy(EcsUnit),
+        .dtor = ecs_dtor(EcsUnit)
+    });
+
+    ecs_set_component_actions(world, EcsUnitPrefix, { 
+        .ctor = ecs_default_ctor,
+        .move = ecs_move(EcsUnitPrefix),
+        .copy = ecs_copy(EcsUnitPrefix),
+        .dtor = ecs_dtor(EcsUnitPrefix)
     });
 
     /* Register triggers to finalize type information from component data */
@@ -23045,6 +23413,13 @@ void FlecsMetaImport(
     });
 
     ecs_trigger_init(world, &(ecs_trigger_desc_t) {
+        .term.id = ecs_id(EcsUnit),
+        .term.subj.set.mask = EcsSelf,
+        .events = {EcsOnSet},
+        .callback = set_unit
+    });
+
+    ecs_trigger_init(world, &(ecs_trigger_desc_t) {
         .term.id = ecs_id(EcsMetaType),
         .term.subj.set.mask = EcsSelf,
         .events = {EcsOnSet},
@@ -23056,6 +23431,15 @@ void FlecsMetaImport(
         .term.subj.set.mask = EcsSelf,
         .events = {EcsOnSet},
         .callback = ecs_meta_type_init_default_ctor
+    });
+
+    ecs_observer_init(world, &(ecs_observer_desc_t) {
+        .filter.terms = {
+            { .id = ecs_id(EcsUnit) },
+            { .id = EcsQuantity }
+        },
+        .events = { EcsMonitor },
+        .callback = unit_quantity_monitor
     });
 
     /* Initialize primitive types */
@@ -23100,6 +23484,10 @@ void FlecsMetaImport(
 
     ecs_add_pair(world, ecs_id(EcsBitmask), 
         EcsDefaultChildComponent, EcsConstant);
+
+    /* Relationship properties */
+    ecs_add_id(world, EcsQuantity, EcsExclusive);
+    ecs_add_id(world, EcsQuantity, EcsTag);
 
     /* Initialize reflection data for meta components */
     ecs_entity_t type_kind = ecs_enum_init(world, &(ecs_enum_desc_t) {
@@ -23155,7 +23543,8 @@ void FlecsMetaImport(
         .entity.entity = ecs_id(EcsMember),
         .members = {
             {.name = (char*)"type", .type = ecs_id(ecs_entity_t)},
-            {.name = (char*)"count", .type = ecs_id(ecs_i32_t)}
+            {.name = (char*)"count", .type = ecs_id(ecs_i32_t)},
+            {.name = (char*)"unit", .type = ecs_id(ecs_entity_t)}
         }
     });
 
@@ -23171,6 +23560,33 @@ void FlecsMetaImport(
         .entity.entity = ecs_id(EcsVector),
         .members = {
             {.name = (char*)"type", .type = ecs_id(ecs_entity_t)}
+        }
+    });
+
+    ecs_entity_t ut = ecs_struct_init(world, &(ecs_struct_desc_t) {
+        .entity.name = "unit_translation",
+        .members = {
+            {.name = (char*)"factor", .type = ecs_id(ecs_i32_t)},
+            {.name = (char*)"power", .type = ecs_id(ecs_i32_t)}
+        }
+    });
+
+    ecs_struct_init(world, &(ecs_struct_desc_t) {
+        .entity.entity = ecs_id(EcsUnit),
+        .members = {
+            {.name = (char*)"symbol", .type = ecs_id(ecs_string_t)},
+            {.name = (char*)"prefix", .type = ecs_id(ecs_entity_t)},
+            {.name = (char*)"base", .type = ecs_id(ecs_entity_t)},
+            {.name = (char*)"over", .type = ecs_id(ecs_entity_t)},
+            {.name = (char*)"translation", .type = ut}
+        }
+    });
+
+    ecs_struct_init(world, &(ecs_struct_desc_t) {
+        .entity.entity = ecs_id(EcsUnitPrefix),
+        .members = {
+            {.name = (char*)"symbol", .type = ecs_id(ecs_string_t)},
+            {.name = (char*)"translation", .type = ut}
         }
     });
 }
@@ -23572,6 +23988,22 @@ ecs_entity_t ecs_meta_get_type(
     ecs_meta_scope_t *scope = get_scope(cursor);
     ecs_meta_type_op_t *op = get_op(scope);
     return op->type;
+}
+
+ecs_entity_t ecs_meta_get_unit(
+    ecs_meta_cursor_t *cursor)
+{
+    ecs_meta_scope_t *scope = get_scope(cursor);
+    ecs_meta_type_op_t *op = get_op(scope);
+    return op->unit;
+}
+
+const char* ecs_meta_get_member(
+    ecs_meta_cursor_t *cursor)
+{
+    ecs_meta_scope_t *scope = get_scope(cursor);
+    ecs_meta_type_op_t *op = get_op(scope);
+    return op->name;
 }
 
 /* Utility macro's to let the compiler do the conversion work for us */
@@ -25218,6 +25650,968 @@ error:
 #endif
 
 
+
+#ifdef FLECS_UNITS
+
+ECS_DECLARE(EcsUnitPrefixes);
+
+ECS_DECLARE(EcsYocto);
+ECS_DECLARE(EcsZepto);
+ECS_DECLARE(EcsAtto);
+ECS_DECLARE(EcsFemto);
+ECS_DECLARE(EcsPico);
+ECS_DECLARE(EcsNano);
+ECS_DECLARE(EcsMicro);
+ECS_DECLARE(EcsMilli);
+ECS_DECLARE(EcsCenti);
+ECS_DECLARE(EcsDeci);
+ECS_DECLARE(EcsDeca);
+ECS_DECLARE(EcsHecto);
+ECS_DECLARE(EcsKilo);
+ECS_DECLARE(EcsMega);
+ECS_DECLARE(EcsGiga);
+ECS_DECLARE(EcsTera);
+ECS_DECLARE(EcsPeta);
+ECS_DECLARE(EcsExa);
+ECS_DECLARE(EcsZetta);
+ECS_DECLARE(EcsYotta);
+
+ECS_DECLARE(EcsKibi);
+ECS_DECLARE(EcsMebi);
+ECS_DECLARE(EcsGibi);
+ECS_DECLARE(EcsTebi);
+ECS_DECLARE(EcsPebi);
+ECS_DECLARE(EcsExbi);
+ECS_DECLARE(EcsZebi);
+ECS_DECLARE(EcsYobi);
+
+ECS_DECLARE(EcsDuration);
+    ECS_DECLARE(EcsPicoSeconds);
+    ECS_DECLARE(EcsNanoSeconds);
+    ECS_DECLARE(EcsMicroSeconds);
+    ECS_DECLARE(EcsMilliSeconds);
+    ECS_DECLARE(EcsSeconds);
+    ECS_DECLARE(EcsMinutes);
+    ECS_DECLARE(EcsHours);
+    ECS_DECLARE(EcsDays);
+
+ECS_DECLARE(EcsTime);
+    ECS_DECLARE(EcsDate);
+
+ECS_DECLARE(EcsMass);
+    ECS_DECLARE(EcsGrams);
+    ECS_DECLARE(EcsKiloGrams);
+
+ECS_DECLARE(EcsElectricCurrent);
+    ECS_DECLARE(EcsAmpere);
+
+ECS_DECLARE(EcsAmount);
+    ECS_DECLARE(EcsMole);
+
+ECS_DECLARE(EcsLuminousIntensity);
+    ECS_DECLARE(EcsCandela);
+
+ECS_DECLARE(EcsForce);
+    ECS_DECLARE(EcsNewton);
+
+ECS_DECLARE(EcsLength);
+    ECS_DECLARE(EcsMeters);
+        ECS_DECLARE(EcsPicoMeters);
+        ECS_DECLARE(EcsNanoMeters);
+        ECS_DECLARE(EcsMicroMeters);
+        ECS_DECLARE(EcsMilliMeters);
+        ECS_DECLARE(EcsCentiMeters);
+        ECS_DECLARE(EcsKiloMeters);
+    ECS_DECLARE(EcsMiles);
+
+ECS_DECLARE(EcsPressure);
+    ECS_DECLARE(EcsPascal);
+    ECS_DECLARE(EcsBar);
+
+ECS_DECLARE(EcsSpeed);
+    ECS_DECLARE(EcsMetersPerSecond);
+    ECS_DECLARE(EcsKiloMetersPerHour);
+    ECS_DECLARE(EcsMilesPerHour);
+
+ECS_DECLARE(EcsAcceleration);
+
+ECS_DECLARE(EcsTemperature);
+    ECS_DECLARE(EcsKelvin);
+    ECS_DECLARE(EcsCelsius);
+    ECS_DECLARE(EcsFahrenheit);
+
+ECS_DECLARE(EcsData);
+    ECS_DECLARE(EcsBits);
+        ECS_DECLARE(EcsKiloBits);
+        ECS_DECLARE(EcsMegaBits);
+        ECS_DECLARE(EcsGigaBits);
+    ECS_DECLARE(EcsBytes);
+        ECS_DECLARE(EcsKiloBytes);
+        ECS_DECLARE(EcsMegaBytes);
+        ECS_DECLARE(EcsGigaBytes);
+        ECS_DECLARE(EcsKibiBytes);
+        ECS_DECLARE(EcsGibiBytes);
+        ECS_DECLARE(EcsMebiBytes);
+
+ECS_DECLARE(EcsDataRate);
+    ECS_DECLARE(EcsBitsPerSecond);
+    ECS_DECLARE(EcsKiloBitsPerSecond);
+    ECS_DECLARE(EcsMegaBitsPerSecond);
+    ECS_DECLARE(EcsGigaBitsPerSecond);
+    ECS_DECLARE(EcsBytesPerSecond);
+    ECS_DECLARE(EcsKiloBytesPerSecond);
+    ECS_DECLARE(EcsMegaBytesPerSecond);
+    ECS_DECLARE(EcsGigaBytesPerSecond);
+
+ECS_DECLARE(EcsPercentage);
+
+ECS_DECLARE(EcsAngle);
+    ECS_DECLARE(EcsRadians);
+    ECS_DECLARE(EcsDegrees);
+
+void FlecsUnitsImport(
+    ecs_world_t *world)
+{
+    ECS_MODULE(world, FlecsUnits);
+
+    ecs_set_name_prefix(world, "Ecs");
+
+    EcsUnitPrefixes = ecs_entity_init(world, &(ecs_entity_desc_t) {
+        .name = "prefixes",
+        .add = { EcsModule }
+    });
+
+    /* Initialize unit prefixes */
+
+    ecs_entity_t prev_scope = ecs_set_scope(world, EcsUnitPrefixes);
+
+    EcsYocto = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Yocto",
+        .symbol = "y",
+        .translation = { .factor = 10, .power = -24 }
+    });
+    EcsZepto = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Zepto",
+        .symbol = "z",
+        .translation = { .factor = 10, .power = -21 }
+    });
+    EcsAtto = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Atto",
+        .symbol = "a",
+        .translation = { .factor = 10, .power = -18 }
+    });
+    EcsFemto = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Femto",
+        .symbol = "a",
+        .translation = { .factor = 10, .power = -15 }
+    });
+    EcsPico = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Pico",
+        .symbol = "p",
+        .translation = { .factor = 10, .power = -12 }
+    });
+    EcsNano = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Nano",
+        .symbol = "n",
+        .translation = { .factor = 10, .power = -9 }
+    });
+    EcsMicro = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Micro",
+        .symbol = "μ",
+        .translation = { .factor = 10, .power = -6 }
+    });
+    EcsMilli = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Milli",
+        .symbol = "m",
+        .translation = { .factor = 10, .power = -3 }
+    });
+    EcsCenti = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Centi",
+        .symbol = "c",
+        .translation = { .factor = 10, .power = -2 }
+    });
+    EcsDeci = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Deci",
+        .symbol = "d",
+        .translation = { .factor = 10, .power = -1 }
+    });
+    EcsDeca = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Deca",
+        .symbol = "da",
+        .translation = { .factor = 10, .power = 1 }
+    });
+    EcsHecto = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Hecto",
+        .symbol = "h",
+        .translation = { .factor = 10, .power = 2 }
+    });
+    EcsKilo = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Kilo",
+        .symbol = "k",
+        .translation = { .factor = 10, .power = 3 }
+    });
+    EcsMega = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Mega",
+        .symbol = "M",
+        .translation = { .factor = 10, .power = 6 }
+    });
+    EcsGiga = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Giga",
+        .symbol = "G",
+        .translation = { .factor = 10, .power = 9 }
+    });
+    EcsTera = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Tera",
+        .symbol = "T",
+        .translation = { .factor = 10, .power = 12 }
+    });
+    EcsPeta = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Peta",
+        .symbol = "P",
+        .translation = { .factor = 10, .power = 15 }
+    });
+    EcsExa = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Exa",
+        .symbol = "E",
+        .translation = { .factor = 10, .power = 18 }
+    });
+    EcsZetta = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Zetta",
+        .symbol = "Z",
+        .translation = { .factor = 10, .power = 21 }
+    });
+    EcsYotta = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Yotta",
+        .symbol = "Y",
+        .translation = { .factor = 10, .power = 24 }
+    });
+
+    EcsKibi = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Kibi",
+        .symbol = "Ki",
+        .translation = { .factor = 1024, .power = 1 }
+    });
+    EcsMebi = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Mebi",
+        .symbol = "Mi",
+        .translation = { .factor = 1024, .power = 2 }
+    });
+    EcsGibi = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Gibi",
+        .symbol = "Gi",
+        .translation = { .factor = 1024, .power = 3 }
+    });
+    EcsTebi = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Tebi",
+        .symbol = "Ti",
+        .translation = { .factor = 1024, .power = 4 }
+    });
+    EcsPebi = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Pebi",
+        .symbol = "Pi",
+        .translation = { .factor = 1024, .power = 5 }
+    });
+    EcsExbi = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Exbi",
+        .symbol = "Ei",
+        .translation = { .factor = 1024, .power = 6 }
+    });
+    EcsZebi = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Zebi",
+        .symbol = "Zi",
+        .translation = { .factor = 1024, .power = 7 }
+    });
+    EcsYobi = ecs_unit_prefix_init(world, &(ecs_unit_prefix_desc_t) {
+        .entity.name = "Yobi",
+        .symbol = "Yi",
+        .translation = { .factor = 1024, .power = 8 }
+    });
+
+    ecs_set_scope(world, prev_scope);
+
+    /* Duration units */
+
+    EcsDuration = ecs_quantity_init(world, &(ecs_entity_desc_t) { 
+        .name = "Duration" });
+    prev_scope = ecs_set_scope(world, EcsDuration);
+
+        EcsSeconds = ecs_unit_init(world, &(ecs_unit_desc_t) {
+            .entity.name = "Seconds",
+            .quantity = EcsDuration,
+            .symbol = "s" });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsSeconds,
+            .kind = EcsF32
+        });
+            EcsPicoSeconds = ecs_unit_init(world, &(ecs_unit_desc_t) {
+                .entity.name = "PicoSeconds",
+                .quantity = EcsDuration,
+                .base = EcsSeconds,
+                .prefix = EcsPico });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsPicoSeconds,
+                .kind = EcsF32
+            });
+
+
+            EcsNanoSeconds = ecs_unit_init(world, &(ecs_unit_desc_t) {
+                .entity.name = "NanoSeconds",
+                .quantity = EcsDuration,
+                .base = EcsSeconds,
+                .prefix = EcsNano });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsNanoSeconds,
+                .kind = EcsF32
+            });
+
+            EcsMicroSeconds = ecs_unit_init(world, &(ecs_unit_desc_t) {
+                .entity.name = "MicroSeconds",
+                .quantity = EcsDuration,
+                .base = EcsSeconds,
+                .prefix = EcsMicro });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsMicroSeconds,
+                .kind = EcsF32
+            });
+
+            EcsMilliSeconds = ecs_unit_init(world, &(ecs_unit_desc_t) {
+                .entity.name = "MilliSeconds",
+                .quantity = EcsDuration,
+                .base = EcsSeconds,
+                .prefix = EcsMilli });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsMilliSeconds,
+                .kind = EcsF32
+            });
+
+        EcsMinutes = ecs_unit_init(world, &(ecs_unit_desc_t) {
+            .entity.name = "Minutes",
+            .quantity = EcsDuration,
+            .base = EcsSeconds,
+            .symbol = "min",
+            .translation = { .factor = 60, .power = 1 } });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsMinutes,
+            .kind = EcsU32
+        });
+
+        EcsHours = ecs_unit_init(world, &(ecs_unit_desc_t) {
+            .entity.name = "Hours",
+            .quantity = EcsDuration,
+            .base = EcsMinutes,
+            .symbol = "h",
+            .translation = { .factor = 60, .power = 1 } });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsHours,
+            .kind = EcsU32
+        });
+
+        EcsDays = ecs_unit_init(world, &(ecs_unit_desc_t) {
+            .entity.name = "Days",
+            .quantity = EcsDuration,
+            .base = EcsHours,
+            .symbol = "d",
+            .translation = { .factor = 24, .power = 1 } });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsDays,
+            .kind = EcsU32
+        });
+    ecs_set_scope(world, prev_scope);
+
+    /* Time units */
+
+    EcsTime = ecs_quantity_init(world, &(ecs_entity_desc_t) { 
+        .name = "Time" });
+    prev_scope = ecs_set_scope(world, EcsTime);
+
+        EcsDate = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Date",
+            .quantity = EcsTime });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsDate,
+            .kind = EcsU32
+        });
+    ecs_set_scope(world, prev_scope);
+
+    /* Mass units */
+
+    EcsMass = ecs_quantity_init(world, &(ecs_entity_desc_t) { 
+        .name = "Mass" });
+    prev_scope = ecs_set_scope(world, EcsMass);
+        EcsGrams = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Grams",
+            .quantity = EcsMass,
+            .symbol = "g" });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsGrams,
+            .kind = EcsF32
+        });
+        EcsKiloGrams = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "KiloGrams",
+            .quantity = EcsMass,
+            .prefix = EcsKilo,
+            .base = EcsGrams });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsKiloGrams,
+            .kind = EcsF32
+        });
+    ecs_set_scope(world, prev_scope);
+
+    /* Electric current units */
+
+    EcsElectricCurrent = ecs_quantity_init(world, &(ecs_entity_desc_t) { 
+        .name = "ElectricCurrent" });
+    prev_scope = ecs_set_scope(world, EcsElectricCurrent);
+        EcsAmpere = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Ampere",
+            .quantity = EcsElectricCurrent,
+            .symbol = "A" });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsAmpere,
+            .kind = EcsF32
+        });
+    ecs_set_scope(world, prev_scope);
+
+    /* Amount of substance units */
+
+    EcsAmount = ecs_quantity_init(world, &(ecs_entity_desc_t) { 
+        .name = "Amount" });
+    prev_scope = ecs_set_scope(world, EcsAmount);
+        EcsMole = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Mole",
+            .quantity = EcsAmount,
+            .symbol = "mol" });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsMole,
+            .kind = EcsF32
+        });
+    ecs_set_scope(world, prev_scope);
+
+    /* Luminous intensity units */
+
+    EcsLuminousIntensity = ecs_quantity_init(world, &(ecs_entity_desc_t) { 
+        .name = "LuminousIntensity" });
+    prev_scope = ecs_set_scope(world, EcsLuminousIntensity);
+        EcsCandela = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Candela",
+            .quantity = EcsLuminousIntensity,
+            .symbol = "cd" });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsCandela,
+            .kind = EcsF32
+        });
+    ecs_set_scope(world, prev_scope);
+
+    /* Force units */
+
+    EcsForce = ecs_quantity_init(world, &(ecs_entity_desc_t) { 
+        .name = "Force" });
+    prev_scope = ecs_set_scope(world, EcsForce);
+        EcsNewton = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Newton",
+            .quantity = EcsForce,
+            .symbol = "N" });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsNewton,
+            .kind = EcsF32
+        });
+    ecs_set_scope(world, prev_scope);
+
+    /* Length units */
+
+    EcsLength = ecs_quantity_init(world, &(ecs_entity_desc_t) { 
+        .name = "Length" });
+    prev_scope = ecs_set_scope(world, EcsLength);
+        EcsMeters = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Meters",
+            .quantity = EcsLength,
+            .symbol = "m" });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsMeters,
+            .kind = EcsF32
+        });
+
+            EcsPicoMeters = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "PicoMeters",
+                .quantity = EcsLength,
+                .base = EcsMeters,
+                .prefix = EcsPico });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsPicoMeters,
+                .kind = EcsF32
+            });
+
+            EcsNanoMeters = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "NanoMeters",
+                .quantity = EcsLength,
+                .base = EcsMeters,
+                .prefix = EcsNano });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsNanoMeters,
+                .kind = EcsF32
+            });
+
+            EcsMicroMeters = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "MicroMeters",
+                .quantity = EcsLength,
+                .base = EcsMeters,
+                .prefix = EcsMicro });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsMicroMeters,
+                .kind = EcsF32
+            });
+
+            EcsMilliMeters = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "MilliMeters",
+                .quantity = EcsLength,
+                .base = EcsMeters,
+                .prefix = EcsMilli });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsMilliMeters,
+                .kind = EcsF32
+            });
+
+            EcsCentiMeters = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "CentiMeters",
+                .quantity = EcsLength,
+                .base = EcsMeters,
+                .prefix = EcsCenti });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsCentiMeters,
+                .kind = EcsF32
+            });
+
+            EcsKiloMeters = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "KiloMeters",
+                .quantity = EcsLength,
+                .base = EcsMeters,
+                .prefix = EcsKilo });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsKiloMeters,
+                .kind = EcsF32
+            });
+            
+        EcsMiles = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Miles",
+            .quantity = EcsLength,
+            .symbol = "mi"
+        });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsMiles,
+            .kind = EcsF32
+        });
+    ecs_set_scope(world, prev_scope);
+
+    /* Pressure units */
+
+    EcsPressure = ecs_quantity_init(world, &(ecs_entity_desc_t) { 
+        .name = "Pressure" });
+    prev_scope = ecs_set_scope(world, EcsPressure);
+        EcsPascal = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Pascal",
+            .quantity = EcsPressure,
+            .symbol = "Pa" });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsPascal,
+            .kind = EcsF32
+        });
+        EcsBar = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Bar",
+            .quantity = EcsPressure,
+            .symbol = "bar" });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsBar,
+            .kind = EcsF32
+        });
+    ecs_set_scope(world, prev_scope);
+
+    /* Speed units */
+
+    EcsSpeed = ecs_quantity_init(world, &(ecs_entity_desc_t) { 
+        .name = "Speed" });
+    prev_scope = ecs_set_scope(world, EcsSpeed);
+        EcsMetersPerSecond = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "MetersPerSecond",
+            .quantity = EcsSpeed,
+            .base = EcsMeters,
+            .over = EcsSeconds });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsMetersPerSecond,
+            .kind = EcsF32
+        });
+        EcsKiloMetersPerHour = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "KiloMetersPerHour",
+            .quantity = EcsSpeed,
+            .base = EcsKiloMeters,
+            .over = EcsHours });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsKiloMetersPerHour,
+            .kind = EcsF32
+        });
+        EcsMilesPerHour = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "MilesPerHour",
+            .quantity = EcsSpeed,
+            .base = EcsMiles,
+            .over = EcsHours });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsMilesPerHour,
+            .kind = EcsF32
+        });
+    ecs_set_scope(world, prev_scope);
+    
+    /* Acceleration */
+
+    EcsAcceleration = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+        .entity.name = "Acceleration",
+        .base = EcsMetersPerSecond,
+        .over = EcsSeconds });
+    ecs_quantity_init(world, &(ecs_entity_desc_t) {
+        .entity = EcsAcceleration
+    });
+    ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+        .entity.entity = EcsAcceleration,
+        .kind = EcsF32
+    });
+
+    /* Temperature units */
+
+    EcsTemperature = ecs_quantity_init(world, &(ecs_entity_desc_t) { 
+        .name = "Temperature" });
+    prev_scope = ecs_set_scope(world, EcsTemperature);
+        EcsKelvin = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Kelvin",
+            .quantity = EcsTemperature,
+            .symbol = "K" });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsKelvin,
+            .kind = EcsF32
+        });
+        EcsCelsius = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Celsius",
+            .quantity = EcsTemperature,
+            .symbol = "°C" });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsCelsius,
+            .kind = EcsF32
+        });
+        EcsFahrenheit = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Fahrenheit",
+            .quantity = EcsTemperature,
+            .symbol = "F" });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsFahrenheit,
+            .kind = EcsF32
+        });
+    ecs_set_scope(world, prev_scope);
+
+    /* Data units */
+
+    EcsData = ecs_quantity_init(world, &(ecs_entity_desc_t) { 
+        .name = "Data" });
+    prev_scope = ecs_set_scope(world, EcsData);
+
+        EcsBits = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Bits",
+            .quantity = EcsData,
+            .symbol = "bit" });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsBits,
+            .kind = EcsU64
+        });
+
+            EcsKiloBits = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "KiloBits",
+                .quantity = EcsData,
+                .base = EcsBits,
+                .prefix = EcsKilo });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsKiloBits,
+                .kind = EcsU64
+            });
+
+            EcsMegaBits = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "MegaBits",
+                .quantity = EcsData,
+                .base = EcsBits,
+                .prefix = EcsMega });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsMegaBits,
+                .kind = EcsU64
+            });
+
+            EcsGigaBits = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "GigaBits",
+                .quantity = EcsData,
+                .base = EcsBits,
+                .prefix = EcsGiga });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsGigaBits,
+                .kind = EcsU64
+            });
+
+        EcsBytes = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Bytes",
+            .quantity = EcsData,
+            .symbol = "B",
+            .base = EcsBits,
+            .translation = { .factor = 8, .power = 1 } });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsBytes,
+            .kind = EcsU64
+        });
+
+            EcsKiloBytes = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "KiloBytes",
+                .quantity = EcsData,
+                .base = EcsBytes,
+                .prefix = EcsKilo });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsKiloBytes,
+                .kind = EcsU64
+            });
+
+            EcsMegaBytes = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "MegaBytes",
+                .quantity = EcsData,
+                .base = EcsBytes,
+                .prefix = EcsMega });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsMegaBytes,
+                .kind = EcsU64
+            });
+
+            EcsGigaBytes = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "GigaBytes",
+                .quantity = EcsData,
+                .base = EcsBytes,
+                .prefix = EcsGiga });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsGigaBytes,
+                .kind = EcsU64
+            });
+
+            EcsKibiBytes = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "KibiBytes",
+                .quantity = EcsData,
+                .base = EcsBytes,
+                .prefix = EcsKibi });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsKibiBytes,
+                .kind = EcsU64
+            });
+
+            EcsMebiBytes = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "MebiBytes",
+                .quantity = EcsData,
+                .base = EcsBytes,
+                .prefix = EcsMebi });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsMebiBytes,
+                .kind = EcsU64
+            });
+
+            EcsGibiBytes = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "GibiBytes",
+                .quantity = EcsData,
+                .base = EcsBytes,
+                .prefix = EcsGibi });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsGibiBytes,
+                .kind = EcsU64
+            });
+
+    ecs_set_scope(world, prev_scope);
+
+    /* DataRate units */
+
+    EcsDataRate = ecs_quantity_init(world, &(ecs_entity_desc_t) { 
+        .name = "DataRate" });
+    prev_scope = ecs_set_scope(world, EcsDataRate);
+
+        EcsBitsPerSecond = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "BitsPerSecond",
+            .quantity = EcsDataRate,
+            .base = EcsBits,
+            .over = EcsSeconds });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsBitsPerSecond,
+            .kind = EcsU64
+        });
+
+            EcsKiloBitsPerSecond = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "KiloBitsPerSecond",
+                .quantity = EcsDataRate,
+                .base = EcsKiloBits,
+                .over = EcsSeconds
+            });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsKiloBitsPerSecond,
+                .kind = EcsU64
+            });
+
+            EcsMegaBitsPerSecond = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "MegaBitsPerSecond",
+                .quantity = EcsDataRate,
+                .base = EcsMegaBits,
+                .over = EcsSeconds
+            });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsMegaBitsPerSecond,
+                .kind = EcsU64
+            });
+
+            EcsGigaBitsPerSecond = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "GigaBitsPerSecond",
+                .quantity = EcsDataRate,
+                .base = EcsGigaBits,
+                .over = EcsSeconds
+            });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsGigaBitsPerSecond,
+                .kind = EcsU64
+            });
+
+        EcsBytesPerSecond = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "BytesPerSecond",
+            .quantity = EcsDataRate,
+            .base = EcsBytes,
+            .over = EcsSeconds });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsBytesPerSecond,
+            .kind = EcsU64
+        });
+
+            EcsKiloBytesPerSecond = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "KiloBytesPerSecond",
+                .quantity = EcsDataRate,
+                .base = EcsKiloBytes,
+                .over = EcsSeconds
+            });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsKiloBytesPerSecond,
+                .kind = EcsU64
+            });
+
+            EcsMegaBytesPerSecond = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "MegaBytesPerSecond",
+                .quantity = EcsDataRate,
+                .base = EcsMegaBytes,
+                .over = EcsSeconds
+            });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsMegaBytesPerSecond,
+                .kind = EcsU64
+            });
+
+            EcsGigaBytesPerSecond = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+                .entity.name = "GigaBytesPerSecond",
+                .quantity = EcsDataRate,
+                .base = EcsGigaBytes,
+                .over = EcsSeconds
+            });
+            ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+                .entity.entity = EcsGigaBytesPerSecond,
+                .kind = EcsU64
+            });
+
+        ecs_set_scope(world, prev_scope);
+
+    /* Percentage */
+
+    EcsPercentage = ecs_quantity_init(world, &(ecs_entity_desc_t) { 
+        .name = "Percentage" });
+    ecs_unit_init(world, &(ecs_unit_desc_t) { 
+        .entity.entity = EcsPercentage,
+        .symbol = "%"
+    });
+    ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+        .entity.entity = EcsPercentage,
+        .kind = EcsF32
+    });
+
+    /* Angles */
+
+    EcsAngle = ecs_quantity_init(world, &(ecs_entity_desc_t) { 
+        .name = "Angle" });
+    prev_scope = ecs_set_scope(world, EcsAngle);
+        EcsRadians = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Radians",
+            .quantity = EcsAngle,
+            .symbol = "rad" });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsRadians,
+            .kind = EcsF32
+        });
+
+        EcsDegrees = ecs_unit_init(world, &(ecs_unit_desc_t) { 
+            .entity.name = "Degrees",
+            .quantity = EcsAngle,
+            .symbol = "°" });
+        ecs_primitive_init(world, &(ecs_primitive_desc_t) {
+            .entity.entity = EcsDegrees,
+            .kind = EcsF32
+        });
+    ecs_set_scope(world, prev_scope);
+
+    /* Documentation */
+#ifdef FLECS_DOC
+    ECS_IMPORT(world, FlecsDoc);
+
+    ecs_doc_set_brief(world, EcsDuration, 
+        "Time amount (e.g. \"20 seconds\", \"2 hours\")");
+    ecs_doc_set_brief(world, EcsSeconds, "Time amount in seconds");
+    ecs_doc_set_brief(world, EcsMinutes, "60 seconds");
+    ecs_doc_set_brief(world, EcsHours, "60 minutes");
+    ecs_doc_set_brief(world, EcsDays, "24 hours");
+
+    ecs_doc_set_brief(world, EcsTime,
+        "Time passed since an epoch (e.g. \"5pm\", \"March 3rd 2022\")");
+    ecs_doc_set_brief(world, EcsDate,
+        "Seconds passed since January 1st 1970");
+
+    ecs_doc_set_brief(world, EcsMass, "Units of mass (e.g. \"5 kilograms\")");
+
+    ecs_doc_set_brief(world, EcsElectricCurrent,
+        "Units of electrical current (e.g. \"2 ampere\")");
+
+    ecs_doc_set_brief(world, EcsAmount,
+        "Units of amount of substance (e.g. \"2 mole\")");
+
+    ecs_doc_set_brief(world, EcsLuminousIntensity,
+        "Units of luminous intensity (e.g. \"1 candela\")");
+
+    ecs_doc_set_brief(world, EcsForce, "Units of force (e.g. \"10 newton\")");
+
+    ecs_doc_set_brief(world, EcsLength,
+        "Units of length (e.g. \"5 meters\", \"20 miles\")");
+
+    ecs_doc_set_brief(world, EcsPressure, 
+        "Units of pressure (e.g. \"1 bar\", \"1000 pascal\")");
+
+    ecs_doc_set_brief(world, EcsSpeed,
+        "Units of movement (e.g. \"5 meters/second\")");
+
+    ecs_doc_set_brief(world, EcsAcceleration,
+        "Unit of speed increase (e.g. \"5 meters/second/second\")");
+
+    ecs_doc_set_brief(world, EcsTemperature,
+        "Units of temperature (e.g. \"5 degrees Celsius\")");
+
+    ecs_doc_set_brief(world, EcsData,
+        "Units of information (e.g. \"8 bits\", \"100 megabytes\")");
+
+    ecs_doc_set_brief(world, EcsDataRate,
+        "Units of data transmission (e.g. \"100 megabits/second\")");
+
+    ecs_doc_set_brief(world, EcsAngle,
+        "Units of rotation (e.g. \"1.2 radians\", \"180 degrees\")");
+
+#endif
+}
+
+#endif
+
+
 #ifdef FLECS_SNAPSHOT
 
 
@@ -25836,12 +27230,14 @@ ecs_entity_t ecs_run_intern(
     qit.param = param;
     qit.ctx = system_data->ctx;
     qit.binding_ctx = system_data->binding_ctx;
+
+    ecs_iter_action_t action = system_data->action;
+    it->callback = action;
     
     ecs_run_action_t run = system_data->run;
     if (run) {
         run(it);
     } else {
-        ecs_iter_action_t action = system_data->action;
         if (it == &qit) {
             while (ecs_query_next(&qit)) {
                 action(&qit);
@@ -27357,13 +28753,21 @@ void serialize_iter_result_values(
     for (i = 0; i < term_count; i ++) {
         ecs_strbuf_list_next(buf);
 
-        const void *ptr = it->ptrs[i];
+        const void *ptr = NULL;
+        if (it->ptrs) {
+            ptr = it->ptrs[i];
+        }
         if (!ptr) {
             /* No data in column. Append 0 if this is not an optional term */
             if (ecs_term_is_set(it, i + 1)) {
                 json_literal(buf, "0");
                 continue;
             }
+        }
+
+        if (ecs_term_is_writeonly(it, i + 1)) {
+            json_literal(buf, "0");
+            continue;
         }
 
         /* Get component id (can be different in case of pairs) */
@@ -27545,8 +28949,6 @@ int json_typeinfo_ser_primitive(
     ecs_primitive_kind_t kind,
     ecs_strbuf_t *str) 
 {
-    json_array_push(str);
-
     switch(kind) {
     case EcsBool:
         json_string(str, "bool");
@@ -27580,7 +28982,6 @@ int json_typeinfo_ser_primitive(
     default:
         return -1;
     }
-    json_array_pop(str);
 
     return 0;
 }
@@ -27610,10 +29011,8 @@ void json_typeinfo_ser_enum(
     ecs_entity_t type,
     ecs_strbuf_t *str)
 {
-    json_array_push(str);
     ecs_strbuf_list_appendstr(str, "\"enum\"");
     json_typeinfo_ser_constants(world, type, str);
-    json_array_pop(str);
 }
 
 static
@@ -27622,10 +29021,8 @@ void json_typeinfo_ser_bitmask(
     ecs_entity_t type,
     ecs_strbuf_t *str)
 {
-    json_array_push(str);
     ecs_strbuf_list_appendstr(str, "\"bitmask\"");
     json_typeinfo_ser_constants(world, type, str);
-    json_array_pop(str);
 }
 
 static
@@ -27635,7 +29032,6 @@ int json_typeinfo_ser_array(
     int32_t count,
     ecs_strbuf_t *str)
 {
-    json_array_push(str);
     ecs_strbuf_list_appendstr(str, "\"array\"");
 
     json_next(str);
@@ -27644,8 +29040,6 @@ int json_typeinfo_ser_array(
     }
 
     ecs_strbuf_list_append(str, "%u", count);
-
-    json_array_pop(str);
     return 0;
 error:
     return -1;
@@ -27662,6 +29056,7 @@ int json_typeinfo_ser_array_type(
     if (json_typeinfo_ser_array(world, arr->type, arr->count, str)) {
         goto error;
     }
+
     return 0;
 error:
     return -1;
@@ -27676,7 +29071,6 @@ int json_typeinfo_ser_vector(
     const EcsVector *arr = ecs_get(world, type, EcsVector);
     ecs_assert(arr != NULL, ECS_INTERNAL_ERROR, NULL);
 
-    json_array_push(str);
     ecs_strbuf_list_appendstr(str, "\"vector\"");
 
     json_next(str);
@@ -27684,10 +29078,35 @@ int json_typeinfo_ser_vector(
         goto error;
     }
 
-    json_array_pop(str);
     return 0;
 error:
     return -1;
+}
+
+/* Serialize unit information */
+static
+int json_typeinfo_ser_unit(
+    const ecs_world_t *world,
+    ecs_strbuf_t *str,
+    ecs_entity_t unit) 
+{
+    json_member(str, "unit");
+    json_path(str, world, unit);
+
+    const EcsUnit *uptr = ecs_get(world, unit, EcsUnit);
+    if (uptr) {
+        if (uptr->symbol) {
+            json_member(str, "symbol");
+            json_string(str, uptr->symbol);
+        }
+        ecs_entity_t quantity = ecs_get_object(world, unit, EcsQuantity, 0);
+        if (quantity) {
+            json_member(str, "quantity");
+            json_path(str, world, quantity);
+        }
+    }
+
+    return 0;
 }
 
 /* Forward serialization to the different type kinds */
@@ -27697,6 +29116,8 @@ int json_typeinfo_ser_type_op(
     ecs_meta_type_op_t *op, 
     ecs_strbuf_t *str) 
 {
+    json_array_push(str);
+
     switch(op->kind) {
     case EcsOpPush:
     case EcsOpPop:
@@ -27726,6 +29147,18 @@ int json_typeinfo_ser_type_op(
         break;
     }
 
+    ecs_entity_t unit = op->unit;
+    if (unit) {
+        json_next(str);
+        json_next(str);
+
+        json_object_push(str);
+        json_typeinfo_ser_unit(world, str, unit);
+        json_object_pop(str);
+    }
+
+    json_array_pop(str);
+
     return 0;
 error:
     return -1;
@@ -27749,7 +29182,9 @@ int json_typeinfo_ser_type_ops(
 
             int32_t elem_count = op->count;
             if (elem_count > 1 && op != ops) {
+                json_array_push(str);
                 json_typeinfo_ser_array(world, op->type, op->count, str);
+                json_array_pop(str);
                 i += op->op_count - 1;
                 continue;
             }
@@ -31649,6 +33084,8 @@ const ecs_entity_t ecs_id(EcsMember) =             20;
 const ecs_entity_t ecs_id(EcsStruct) =             21;
 const ecs_entity_t ecs_id(EcsArray) =              22;
 const ecs_entity_t ecs_id(EcsVector) =             23;
+const ecs_entity_t ecs_id(EcsUnit) =               24;
+const ecs_entity_t ecs_id(EcsUnitPrefix) =         25;
 
 /* Core scopes & entities */
 const ecs_entity_t EcsWorld =                 ECS_HI_COMPONENT_ID + 0;
@@ -31722,24 +33159,25 @@ const ecs_entity_t EcsOnStore =               ECS_HI_COMPONENT_ID + 73;
 const ecs_entity_t EcsPostFrame =             ECS_HI_COMPONENT_ID + 74;
 
 /* Meta primitive components (don't use low ids to save id space) */
-const ecs_entity_t EcsConstant =              ECS_HI_COMPONENT_ID + 80;
-const ecs_entity_t ecs_id(ecs_bool_t) =       ECS_HI_COMPONENT_ID + 81;
-const ecs_entity_t ecs_id(ecs_char_t) =       ECS_HI_COMPONENT_ID + 82;
-const ecs_entity_t ecs_id(ecs_byte_t) =       ECS_HI_COMPONENT_ID + 83;
-const ecs_entity_t ecs_id(ecs_u8_t) =         ECS_HI_COMPONENT_ID + 84;
-const ecs_entity_t ecs_id(ecs_u16_t) =        ECS_HI_COMPONENT_ID + 85;
-const ecs_entity_t ecs_id(ecs_u32_t) =        ECS_HI_COMPONENT_ID + 86;
-const ecs_entity_t ecs_id(ecs_u64_t) =        ECS_HI_COMPONENT_ID + 87;
-const ecs_entity_t ecs_id(ecs_uptr_t) =       ECS_HI_COMPONENT_ID + 88;
-const ecs_entity_t ecs_id(ecs_i8_t) =         ECS_HI_COMPONENT_ID + 89;
-const ecs_entity_t ecs_id(ecs_i16_t) =        ECS_HI_COMPONENT_ID + 90;
-const ecs_entity_t ecs_id(ecs_i32_t) =        ECS_HI_COMPONENT_ID + 91;
-const ecs_entity_t ecs_id(ecs_i64_t) =        ECS_HI_COMPONENT_ID + 92;
-const ecs_entity_t ecs_id(ecs_iptr_t) =       ECS_HI_COMPONENT_ID + 93;
-const ecs_entity_t ecs_id(ecs_f32_t) =        ECS_HI_COMPONENT_ID + 94;
-const ecs_entity_t ecs_id(ecs_f64_t) =        ECS_HI_COMPONENT_ID + 95;
-const ecs_entity_t ecs_id(ecs_string_t) =     ECS_HI_COMPONENT_ID + 96;
-const ecs_entity_t ecs_id(ecs_entity_t) =     ECS_HI_COMPONENT_ID + 97;
+const ecs_entity_t ecs_id(ecs_bool_t) =       ECS_HI_COMPONENT_ID + 80;
+const ecs_entity_t ecs_id(ecs_char_t) =       ECS_HI_COMPONENT_ID + 81;
+const ecs_entity_t ecs_id(ecs_byte_t) =       ECS_HI_COMPONENT_ID + 82;
+const ecs_entity_t ecs_id(ecs_u8_t) =         ECS_HI_COMPONENT_ID + 83;
+const ecs_entity_t ecs_id(ecs_u16_t) =        ECS_HI_COMPONENT_ID + 84;
+const ecs_entity_t ecs_id(ecs_u32_t) =        ECS_HI_COMPONENT_ID + 85;
+const ecs_entity_t ecs_id(ecs_u64_t) =        ECS_HI_COMPONENT_ID + 86;
+const ecs_entity_t ecs_id(ecs_uptr_t) =       ECS_HI_COMPONENT_ID + 87;
+const ecs_entity_t ecs_id(ecs_i8_t) =         ECS_HI_COMPONENT_ID + 88;
+const ecs_entity_t ecs_id(ecs_i16_t) =        ECS_HI_COMPONENT_ID + 89;
+const ecs_entity_t ecs_id(ecs_i32_t) =        ECS_HI_COMPONENT_ID + 90;
+const ecs_entity_t ecs_id(ecs_i64_t) =        ECS_HI_COMPONENT_ID + 91;
+const ecs_entity_t ecs_id(ecs_iptr_t) =       ECS_HI_COMPONENT_ID + 92;
+const ecs_entity_t ecs_id(ecs_f32_t) =        ECS_HI_COMPONENT_ID + 93;
+const ecs_entity_t ecs_id(ecs_f64_t) =        ECS_HI_COMPONENT_ID + 94;
+const ecs_entity_t ecs_id(ecs_string_t) =     ECS_HI_COMPONENT_ID + 95;
+const ecs_entity_t ecs_id(ecs_entity_t) =     ECS_HI_COMPONENT_ID + 96;
+const ecs_entity_t EcsConstant =              ECS_HI_COMPONENT_ID + 97;
+const ecs_entity_t EcsQuantity =              ECS_HI_COMPONENT_ID + 98;
 
 /* Doc module components */
 const ecs_entity_t ecs_id(EcsDocDescription) =ECS_HI_COMPONENT_ID + 100;
@@ -32135,6 +33573,9 @@ void log_addons(void) {
     #ifdef FLECS_META_C
         ecs_trace("FLECS_META_C");
     #endif
+    #ifdef FLECS_UNITS
+        ecs_trace("FLECS_UNITS");
+    #endif
     #ifdef FLECS_EXPR
         ecs_trace("FLECS_EXPR");
     #endif
@@ -32281,6 +33722,9 @@ ecs_world_t *ecs_init(void) {
 #endif
 #ifdef FLECS_REST
     ECS_IMPORT(world, FlecsRest);
+#endif
+#ifdef FLECS_UNITS
+    ecs_trace("#[green]module#[reset] flecs.units is not automatically imported");
 #endif
     ecs_trace("addons imported!");
     ecs_log_pop();
@@ -36298,13 +37742,51 @@ done:
     return false;
 }
 
+bool ecs_observer_default_run_action(ecs_iter_t *it) {
+    return observer_run(it);
+}
+
+static 
+void default_observer_run_callback(ecs_iter_t *it) {
+    observer_run(it);
+}
+
+/* For convenience, so applications can (in theory) use a single run callback 
+ * that uses ecs_iter_next to iterate results */
+static 
+bool default_observer_next_callback(ecs_iter_t *it) {
+    if (it->interrupted_by) {
+        return false;
+    } else {
+        it->interrupted_by = it->system;
+        return true;
+    }
+}
+
+static
+void observer_run_callback(ecs_iter_t *it) {
+    ecs_observer_t *o = it->ctx;
+    ecs_run_action_t run = o->run;
+
+    if (run) {
+        it->next = default_observer_next_callback;
+        it->callback = default_observer_run_callback;
+        it->interrupted_by = 0;
+        run(it);
+    } else {
+        observer_run(it);
+    }
+}
+
 static
 void observer_yield_existing(
     ecs_world_t *world,
     ecs_observer_t *observer)
 {
-    ecs_run_action_t callback = observer->run;
-    ecs_assert(callback != NULL, ECS_INVALID_PARAMETER, NULL);
+    ecs_run_action_t run = observer->run;
+    if (!run) {
+        run = default_observer_run_callback;
+    }
 
     int32_t pivot_term = ecs_filter_pivot_term(world, &observer->filter);
     if (pivot_term < 0) {
@@ -36324,7 +37806,7 @@ void observer_yield_existing(
         ecs_iter_t it;
         iterable->init(world, world, &it, &observer->filter.terms[pivot_term]);
         it.terms = observer->filter.terms;
-        it.term_count = observer->filter.term_count;
+        it.term_count = 1;
         it.term_index = pivot_term;
         it.system = observer->entity;
         it.ctx = observer;
@@ -36334,19 +37816,10 @@ void observer_yield_existing(
         ecs_iter_next_action_t next = it.next;
         ecs_assert(next != NULL, ECS_INTERNAL_ERROR, NULL);
         while (next(&it)) {
-            callback(&it);
+            run(&it);
             world->event_id ++;
         }
     }
-}
-
-static
-void observer_run_callback(ecs_iter_t *it) {
-    observer_run(it);
-}
-
-bool ecs_observer_default_run_action(ecs_iter_t *it) {
-    return observer_run(it);
 }
 
 ecs_entity_t ecs_observer_init(
@@ -36419,13 +37892,8 @@ ecs_entity_t ecs_observer_init(
         /* Observer must have at least one event */
         ecs_check(observer->event_count != 0, ECS_INVALID_PARAMETER, NULL);
 
-        ecs_run_action_t run = desc->run;
-        if (!run) {
-            run = observer_run_callback;
-        }
-
         observer->callback = desc->callback;
-        observer->run = run;
+        observer->run = desc->run;
         observer->self = desc->self;
         observer->ctx = desc->ctx;
         observer->binding_ctx = desc->binding_ctx;
@@ -36436,7 +37904,7 @@ ecs_entity_t ecs_observer_init(
 
         /* Create a trigger for each term in the filter */
         ecs_trigger_desc_t tdesc = {
-            .callback = run,
+            .callback = observer_run_callback,
             .ctx = observer,
             .binding_ctx = desc->binding_ctx,
             .match_prefab = observer->filter.match_prefab,
@@ -40417,6 +41885,8 @@ bool ecs_query_next_instanced(
         }
     }
 
+    iter->skip_count = 0;
+
     for (node = iter->node; node != NULL; node = next) {     
         ecs_query_table_match_t *match = node->match;
         ecs_table_t *table = match->table;
@@ -40518,7 +41988,6 @@ bool ecs_query_changed(
     if (it) {
         ecs_check(it->next == ecs_query_next, ECS_INVALID_PARAMETER, NULL);
         ecs_check(it->is_valid, ECS_INVALID_PARAMETER, NULL);
-        ecs_check(it->count >= it->instance_count, ECS_INVALID_PARAMETER, NULL);
 
         ecs_query_table_match_t *qt = 
             (ecs_query_table_match_t*)it->priv.iter.query.prev;
@@ -40565,7 +42034,16 @@ void ecs_query_skip(
 {
     ecs_assert(it->next == ecs_query_next, ECS_INVALID_PARAMETER, NULL);
     ecs_assert(it->is_valid, ECS_INVALID_PARAMETER, NULL);
-    it->priv.iter.query.prev = NULL;
+
+    if (it->instance_count > it->count) {
+        it->priv.iter.query.skip_count ++;
+        if (it->priv.iter.query.skip_count == it->instance_count) {
+            /* For non-instanced queries, make sure all entities are skipped */
+            it->priv.iter.query.prev = NULL;
+        }
+    } else {
+        it->priv.iter.query.prev = NULL;
+    }
 }
 
 bool ecs_query_orphaned(
@@ -42038,6 +43516,24 @@ error:
     return false;
 }
 
+bool ecs_term_is_writeonly(
+    const ecs_iter_t *it,
+    int32_t term_index)
+{
+    ecs_check(it->is_valid, ECS_INVALID_PARAMETER, NULL);
+    ecs_check(term_index > 0, ECS_INVALID_PARAMETER, NULL);
+
+    ecs_term_t *term = &it->terms[term_index - 1];
+    ecs_check(term != NULL, ECS_INVALID_PARAMETER, NULL);
+    
+    if (term->inout == EcsOut) {
+        return true;
+    }
+
+error:
+    return false;
+}
+
 int32_t ecs_iter_find_column(
     const ecs_iter_t *it,
     ecs_entity_t component)
@@ -42538,6 +44034,20 @@ void unregister_event_trigger(
 }
 
 static
+ecs_event_id_record_t* ensure_event_id_record(
+    ecs_map_t *map,
+    ecs_id_t id)
+{
+    ecs_event_id_record_t **idt = ecs_map_ensure(
+        map, ecs_event_id_record_t*, id);
+    if (!idt[0]) {
+        idt[0] = ecs_os_calloc_t(ecs_event_id_record_t);
+    }
+
+    return idt[0];
+}
+
+static
 void inc_trigger_count(
     ecs_world_t *world,
     ecs_entity_t event,
@@ -42545,8 +44055,7 @@ void inc_trigger_count(
     ecs_id_t id,
     int32_t value)
 {
-    ecs_event_id_record_t *idt = ecs_map_ensure(
-        evt->event_ids, ecs_event_id_record_t, id);
+    ecs_event_id_record_t *idt = ensure_event_id_record(evt->event_ids, id);
     ecs_assert(idt != NULL, ECS_INTERNAL_ERROR, NULL);
     
     int32_t result = idt->trigger_count += value;
@@ -42567,6 +44076,7 @@ void inc_trigger_count(
         /* Remove admin for id for event */
         if (!idt->triggers && !idt->set_triggers) {
             unregister_event_trigger(evt, id);
+            ecs_os_free(idt);
         }
     }
 }
@@ -42593,12 +44103,12 @@ void register_trigger_for_id(
         ecs_assert(evt != NULL, ECS_INTERNAL_ERROR, NULL);
 
         if (!evt->event_ids) {
-            evt->event_ids = ecs_map_new(ecs_event_id_record_t, 1);
+            evt->event_ids = ecs_map_new(ecs_event_id_record_t*, 1);
         }
 
         /* Get triggers for (component) id for event */
-        ecs_event_id_record_t *idt = ecs_map_ensure(
-            evt->event_ids, ecs_event_id_record_t, id);
+        ecs_event_id_record_t *idt = ensure_event_id_record(
+            evt->event_ids, id);
         ecs_assert(idt != NULL, ECS_INTERNAL_ERROR, NULL);
 
         ecs_map_t **triggers = ECS_OFFSET(idt, triggers_offset);
@@ -42675,8 +44185,8 @@ void unregister_trigger_for_id(
         ecs_assert(evt != NULL, ECS_INTERNAL_ERROR, NULL);
 
         /* Get triggers for (component) id */
-        ecs_event_id_record_t *idt = ecs_map_get(
-            evt->event_ids, ecs_event_id_record_t, id);
+        ecs_event_id_record_t *idt = ecs_map_get_ptr(
+            evt->event_ids, ecs_event_id_record_t*, id);
         ecs_assert(idt != NULL, ECS_INTERNAL_ERROR, NULL);
 
         ecs_map_t **id_triggers = ECS_OFFSET(idt, triggers_offset);
@@ -42765,7 +44275,7 @@ ecs_event_id_record_t* get_triggers_for_id(
     const ecs_map_t *evt,
     ecs_id_t id)
 {
-    return ecs_map_get(evt, ecs_event_id_record_t, id);
+    return ecs_map_get_ptr(evt, ecs_event_id_record_t*, id);
 }
 
 bool flecs_check_triggers_for_event(
@@ -42831,8 +44341,8 @@ void init_iter(
         .id = it->event_id
     };
 
-    it->terms = &term;
     it->term_count = 1;
+    it->terms = &term;
     flecs_iter_populate_data(it->world, it, it->table, it->offset, 
         it->count, it->ptrs, it->sizes);
 }
