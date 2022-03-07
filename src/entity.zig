@@ -94,6 +94,11 @@ pub const Entity = struct {
         _ = flecs.c.ecs_set_id(self.world, self.id, id, @sizeOf(T), component);
     }
 
+    /// sets a component as modified, and will trigger observers after being modified from a system
+    pub fn setModified(self: Entity, comptime T: type) void {
+        flecs.c.ecs_modified_id(self.world, self.id, meta.componentId(self.world, T));
+    }
+
     /// gets a pointer to a type if the component is present on the entity
     pub fn get(self: Entity, comptime T: type) ?*const T {
         const ptr = flecs.c.ecs_get_id(self.world, self.id, meta.componentId(self.world, T));
