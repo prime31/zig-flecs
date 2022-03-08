@@ -69,10 +69,11 @@ pub const World = struct {
         const rel_info = @typeInfo(Relation);
         const obj_info = @typeInfo(Object);
 
-        std.debug.assert(rel_info == .Struct or rel_info == .Type or Relation == flecs.EntityId);
-        std.debug.assert(obj_info == .Struct or obj_info == .Type or Object == flecs.EntityId);
+        std.debug.assert(rel_info == .Struct or rel_info == .Type or Relation == flecs.EntityId or Relation == flecs.Entity or Relation == c_int);
+        std.debug.assert(obj_info == .Struct or obj_info == .Type or Object == flecs.EntityId or Object == flecs.Entity);
 
         const rel_id = switch (Relation) {
+            c_int => @intCast(flecs.EntityId, relation),
             type => self.componentId(relation),
             flecs.EntityId => relation,
             flecs.Entity => relation.id,
@@ -179,6 +180,16 @@ pub const World = struct {
     pub fn filter(self: World, comptime Components: type) flecs.Filter {
         std.debug.assert(@typeInfo(Components) == .Struct);
         var desc = meta.generateFilterDesc(self, Components);
+        return flecs.Filter.init(self, &desc);
+    }
+
+    /// probably temporary until we find a better way to handle it better, but a way to
+    /// iterate the passed components of children of the parent entity
+    pub fn filterParent(self: World, comptime Components: type, parent: flecs.Entity) flecs.Filter {
+        std.debug.assert(@typeInfo(Components) == .Struct);
+        var desc = meta.generateFilterDesc(self, Components);
+        const component_info = @typeInfo(Components).Struct;
+        desc.terms[component_info.fields.len].id = self.pair(flecs.c.EcsChildOf, parent);
         return flecs.Filter.init(self, &desc);
     }
 
