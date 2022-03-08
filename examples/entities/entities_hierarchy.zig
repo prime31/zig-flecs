@@ -57,9 +57,22 @@ pub fn main() !void {
     moon.set(&Position{ .x = 0.1, .y = 0.1 });
 
     // Is the Moon a child of Earth?
-    if (moon.hasPair(flecs.c.EcsChildOf, earth))
+    if (moon.hasPair(flecs.c.EcsChildOf, earth)) 
         std.log.debug("Moon is a child of Earth!", .{});
 
     // Do a depth-first walk of the tree
     iterateTree(world, sun, .{ .x = 0, .y = 0 });
+
+    const FilterCallback = struct {
+        position: *const Position,
+    };
+
+    std.log.debug("Iterate children of earth:", .{});
+
+    var filter = world.filterParent(FilterCallback, earth);
+    var iter = filter.iterator(FilterCallback);
+
+    while (iter.next()) |comps| {
+        std.log.debug("{s} : {any}", .{ iter.entity().getName(), comps.position});
+    }
 }
