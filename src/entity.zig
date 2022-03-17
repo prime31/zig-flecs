@@ -37,8 +37,10 @@ pub const Entity = struct {
 
     /// add an entity to an entity. This operation adds a single entity to the type of an entity. Type roles may be used in
     /// combination with the added entity.
-    pub fn add(self: Entity, comptime T: type) void {
-        flecs.c.ecs_add_id(self.world, self.id, meta.componentId(self.world, T));
+    pub fn add(self: Entity, id_or_type: anytype) void {
+        std.debug.assert(@TypeOf(id_or_type) == flecs.EntityId or @typeInfo(@TypeOf(id_or_type)) == .Type);
+        const id = if (@TypeOf(id_or_type) == flecs.EntityId) id_or_type else meta.componentId(self.world, id_or_type);
+        flecs.c.ecs_add_id(self.world, self.id, id);
     }
 
     /// shortcut for addPair(ChildOf, parent). Allowed parent types: Entity, EntityId, type
@@ -72,8 +74,6 @@ pub const Entity = struct {
         _ = flecs.c.ecs_set_id(self.world, self.id, pair, @sizeOf(Relation), component);
     }
 
-    
-
     /// sets a component on entity. Can be either a pointer to a struct or a struct
     pub fn set(self: Entity, ptr_or_struct: anytype) void {
         std.debug.assert(@typeInfo(@TypeOf(ptr_or_struct)) == .Pointer or @typeInfo(@TypeOf(ptr_or_struct)) == .Struct);
@@ -95,8 +95,10 @@ pub const Entity = struct {
     }
 
     /// sets a component as modified, and will trigger observers after being modified from a system
-    pub fn setModified(self: Entity, comptime T: type) void {
-        flecs.c.ecs_modified_id(self.world, self.id, meta.componentId(self.world, T));
+    pub fn setModified(self: Entity, id_or_type: anytype) void {
+        std.debug.assert(@TypeOf(id_or_type) == flecs.EntityId or @typeInfo(@TypeOf(id_or_type)) == .Type);
+        const id = if (@TypeOf(id_or_type) == flecs.EntityId) id_or_type else meta.componentId(self.world, id_or_type);
+        flecs.c.ecs_modified_id(self.world, self.id, id);
     }
 
     /// gets a pointer to a type if the component is present on the entity
@@ -118,8 +120,10 @@ pub const Entity = struct {
     }
 
     /// removes a component from an Entity
-    pub fn remove(self: Entity, comptime T: type) void {
-        flecs.c.ecs_remove_id(self.world, self.id, meta.componentId(self.world, T));
+    pub fn remove(self: Entity, id_or_type: anytype) void {
+        std.debug.assert(@TypeOf(id_or_type) == flecs.EntityId or @typeInfo(@TypeOf(id_or_type)) == .Type);
+        const id = if (@TypeOf(id_or_type) == flecs.EntityId) id_or_type else meta.componentId(self.world, id_or_type);
+        flecs.c.ecs_remove_id(self.world, self.id, id);
     }
 
     /// removes all components from an Entity
@@ -138,8 +142,10 @@ pub const Entity = struct {
     }
 
     /// returns true if the entity has a matching component type
-    pub fn has(self: Entity, comptime T: type) bool {
-        return flecs.c.ecs_has_id(self.world, self.id, meta.componentId(self.world, T));
+    pub fn has(self: Entity, id_or_type: anytype) bool {
+        std.debug.assert(@TypeOf(id_or_type) == flecs.EntityId or @typeInfo(@TypeOf(id_or_type)) == .Type);
+        const id = if (@TypeOf(id_or_type) == flecs.EntityId) id_or_type else meta.componentId(self.world, id_or_type);
+        return flecs.c.ecs_has_id(self.world, self.id, id);
     }
 
     /// returns the type of the component, which contains all components
