@@ -25,7 +25,7 @@ pub fn main() !void {
     if (bob.hasPair(Eats, apples))
         std.log.debug("Bob eats apples.", .{});
 
-    if (bob.hasPair(grows, .{ .id = flecs.c.EcsWildcard }))
+    if (bob.hasPair(grows, flecs.c.EcsWildcard))
         std.log.debug("Bob grows food.", .{});
 
     // Print the type of the entity. Should output:
