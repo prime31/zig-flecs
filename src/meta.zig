@@ -308,12 +308,12 @@ fn registerReflectionData(world: *flecs.c.ecs_world_t, comptime T: type, entity:
 
                         if (@typeInfo(field.field_type) == .Enum) {
                             var enum_desc = std.mem.zeroes(flecs.c.ecs_enum_desc_t);
-                            enum_desc.entity.entity = flecs.componentHandle(T).*;
+                            enum_desc.entity.entity = meta.componentHandle(T).*;
 
                             inline for (@typeInfo(field.field_type).Enum.fields) |f, index| {
                                 enum_desc.constants[index] = std.mem.zeroInit(flecs.c.ecs_enum_constant_t, .{
-                                    .name = &f.name,
-                                    .value = @intCast(i33, f.value),
+                                    .name = f.name.ptr,
+                                    .value = @intCast(i32, f.value),
                                 });
                             }
 
