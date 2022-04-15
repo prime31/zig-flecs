@@ -27,7 +27,7 @@ pub const Filter = struct {
         }
 
         pub fn entity(self: *@This()) flecs.Entity {
-            return flecs.Entity.init(flecs.World{ .world = self.iter.world }, self.iter.entities[self.index - 1]);
+            return flecs.Entity.init(self.iter.world.?, self.iter.entities[self.index - 1]);
         }
 
         /// gets the index into the terms array of this type
