@@ -302,11 +302,12 @@ fn registerReflectionData(world: *flecs.c.ecs_world_t, comptime T: type, entity:
                     usize => flecs.c.FLECS__Eecs_uptr_t,
                     []const u8 => flecs.c.FLECS__Eecs_string_t,
                     [*]const u8 => flecs.c.FLECS__Eecs_string_t,
-                    else => blk: {
-                        if (@typeInfo(field.field_type) == .Struct)
-                            break :blk componentId(world, field.field_type);
+                    else => switch (@typeInfo(field.field_type)) {
+                        .Pointer => flecs.c.FLECS__Eecs_uptr_t,
 
-                        if (@typeInfo(field.field_type) == .Enum) {
+                        .Struct => componentId(world, field.field_type),
+
+                        .Enum => blk: {
                             var enum_desc = std.mem.zeroes(flecs.c.ecs_enum_desc_t);
                             enum_desc.entity.entity = meta.componentHandle(T).*;
 
@@ -318,9 +319,12 @@ fn registerReflectionData(world: *flecs.c.ecs_world_t, comptime T: type, entity:
                             }
 
                             break :blk flecs.c.ecs_enum_init(world, &enum_desc);
-                        }
-                        std.debug.print("unhandled field type: {any}, ti: {any}\n", .{ field.field_type, @typeInfo(field.field_type) });
-                        unreachable;
+                        },
+
+                        else => {
+                            std.debug.print("unhandled field type: {any}, ti: {any}\n", .{ field.field_type, @typeInfo(field.field_type) });
+                            unreachable;
+                        },
                     },
                 };
                 desc.members[i] = member;
