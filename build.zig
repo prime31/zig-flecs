@@ -93,7 +93,6 @@ pub fn linkArtifact(b: *Builder, artifact: *std.build.LibExeObjStep, target: std
             lib.setBuildMode(std.builtin.Mode.ReleaseFast);
             lib.setTarget(target);
 
-            if (target.isWindows()) artifact.target.abi = std.Target.Abi.msvc;
             compileFlecs(b, lib, target, prefix_path);
             lib.install();
 
@@ -113,11 +112,7 @@ fn compileFlecs(b: *Builder, exe: *std.build.LibExeObjStep, target: std.zig.Cros
 
     var buildFlags = std.ArrayList([]const u8).init(b.allocator);
     if (target.isWindows()) {
-        exe.target.abi = std.Target.Abi.msvc;
         exe.linkSystemLibrary("Ws2_32");
-
-        buildFlags.append("-DFLECS_OS_API_IMPL") catch unreachable;
-        buildFlags.append("-DECS_TARGET_MSVC") catch unreachable;
 
         if (exe.build_mode != std.builtin.Mode.Debug) {
             buildFlags.append("-O2") catch unreachable;
